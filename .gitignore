@@ -5,3 +5,5 @@
 build/
 .idea/
 .vscode/
+.vs/
+runmake.bat
