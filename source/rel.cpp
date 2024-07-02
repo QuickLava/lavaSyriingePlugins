@@ -2,14 +2,14 @@
 #include <gf/gf_memory_pool.h>
 #include <sy_core.h>
 
-#include "sandbox.h"
+#include "injectLoader.h"
 
 namespace Syringe
 {
     const PluginMeta META = {
-        "Sandbox",
-        "Sammi",
-        Version("0.1.0"),
+        "lavaInjectLoader",
+        "QuickLava",
+        Version("0.0.1"),
         Version(SYRINGE_VERSION)};
 
     extern "C"
@@ -32,7 +32,7 @@ namespace Syringe
             (*ctor)();
         }
 
-        Sandbox::Init();
+        lavaInjectLoader::Init();
 
         return &META;
     }
