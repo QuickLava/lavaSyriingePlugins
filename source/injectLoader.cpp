@@ -13,6 +13,8 @@ namespace lavaInjectLoader {
         unsigned long magic;
         unsigned short version;
         unsigned short patchCount;
+        unsigned long _reserved;
+        unsigned long baseAddr;
     };
     struct NJCTPatchHeader
     {
@@ -31,7 +33,10 @@ namespace lavaInjectLoader {
         NJCTHeader* currNJCTHeader;
         NJCTPatchHeader* currPatchHeader;
 
+        unsigned long currNJCTBaseAddr;
         unsigned long currNJCTPatchCount;
+
+        unsigned long currPatchWriteAddr;
 
         char pathBuf[0x80];
         static const unsigned long headerBufLen = (sizeof(NJCTHeader) > sizeof(NJCTPatchHeader)) ? sizeof(NJCTHeader) : sizeof(NJCTPatchHeader);
@@ -59,11 +64,18 @@ namespace lavaInjectLoader {
                     if (currNJCTHeader->magic == NJCTHeader::magicVal)
                     {
                         currNJCTPatchCount = currNJCTHeader->patchCount;
+                        currNJCTBaseAddr = currNJCTHeader->baseAddr;
+
                         while (currNJCTPatchCount > 0x0 &&
                             FAFread(headerBuf, 1, sizeof(NJCTPatchHeader), streamHandlePtr) == sizeof(NJCTPatchHeader))
                         {
                             currPatchHeader = (NJCTPatchHeader*)headerBuf;
-                            FAFread((void*)currPatchHeader->destinationAddress, 1, currPatchHeader->length, streamHandlePtr);
+                            currPatchWriteAddr = currPatchHeader->destinationAddress;
+                            if ((currPatchWriteAddr & 0x80000000) == 0)
+                            {
+                                currPatchWriteAddr += currNJCTBaseAddr;
+                            }
+                            FAFread((void*)currPatchWriteAddr, 1, currPatchHeader->length, streamHandlePtr);
                             currNJCTPatchCount -= 0x1;
                         }
                     }
@@ -76,10 +88,7 @@ namespace lavaInjectLoader {
 
     void Init()
     {
-        //SyringeCore::syInlineHook(0x806BFA2C, reinterpret_cast<void*>(loadInjects));
-        //SyringeCore::syInlineHookRel(0x108978, reinterpret_cast<void*>(loadInjects), Modules::SORA_MELEE); //0x8081338C
         SyringeCore::syInlineHookRel(0x145190, reinterpret_cast<void*>(loadInjects), Modules::SORA_MELEE); //0x8084FBA0
-        //SyringeCore::syInlineHookRel(0x44D8, (void*)loadInjects, Modules::SORA_SCENE);
     }
 
     void Destroy()
