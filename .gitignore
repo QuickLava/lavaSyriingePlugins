@@ -2,6 +2,7 @@
 *.map
 *.elf
 
+Junk/
 build/
 .idea/
 .vscode/
