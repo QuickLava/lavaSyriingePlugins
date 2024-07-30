@@ -15,11 +15,11 @@ include $(DEVKITPPC)/wii_rules
 #---------------------------------------------------------------------------------
 
 ifeq ($(strip $(TOOLS)),)
-TOOLS	:= $(TOPDIR)/tools
+TOOLS	:= $(TOPDIR)/../tools
 endif
 
 ifeq ($(strip $(LIB)),)
-LIB	:= $(CURDIR)/lib
+LIB	:= $(CURDIR)/../lib
 endif
 
 #---------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ endif
 TARGET		:=	lavaInjectLoader
 RELID		:=  8192
 BUILD		:=	build
-SOURCES		:=	source $(wildcard source/*) lib/BrawlHeaders/PowerPC_EABI_Support/Runtime/Src/ # have to hardcode lib dir here???????
+SOURCES		:=	source $(wildcard source/*) ../lib/BrawlHeaders/PowerPC_EABI_Support/Runtime/Src/ # have to hardcode lib dir here???????
 INCLUDES	:=	include
 
 #---------------------------------------------------------------------------------
