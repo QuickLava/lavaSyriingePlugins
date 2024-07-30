@@ -1,5 +1,6 @@
 #include <os/OSError.h>
 #include <sy_core.h>
+#include <OS/OSCache.h>
 #include <fa/fa.h>
 #include <modules.h>
 #include <string.h>
@@ -101,6 +102,8 @@ namespace lavaInjectLoader {
                     OSReport("%sGCT overflowed buffer! Aborting!\n", outputTag);
                     execStatus = status_finishing;
                 }
+                ICInvalidateRange((void*)codeBuf, fileLength + 0x10);
+                DCFlushRange((void*)codeBuf, fileLength + 0x10);
 
                 // Regardless, ensure we close the stream handle before we exit!
                 FAFclose(streamHandlePtr);
