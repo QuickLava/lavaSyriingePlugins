@@ -7,6 +7,8 @@
 #include <so/work/so_work_manage_module_impl.h>
 #include <so/kinetic/so_kinetic_module_impl.h>
 #include <so/status/so_status_module_impl.h>
+#include <so/damage/so_damage_module_impl.h>
+#include <ac/ac_anim_cmd_impl.h>
 #include <memory.h>
 #include <modules.h>
 #include <string.h>
@@ -68,11 +70,22 @@ namespace lavaPSAExtensions {
             }
         }
     };
+    void fighterUpdateHook()
+    {
+        register soModuleAccesser* moduleAccesser;
+        asm
+        {
+            mr moduleAccesser, r31
+        }
+    }
 
     void Init()
     {
         // Note: 0x8070AA14 is SORA_MELEE base address
         SyringeCore::syInlineHookRel(0x12E680, reinterpret_cast<void*>(aerialInteruptPrevention), Modules::SORA_MELEE); // 0x80839094
+
+        // General Fighter Update Hook
+        //SyringeCore::syInlineHookRel(0x12E74C, reinterpret_cast<void*>(fighterUpdateHook), Modules::SORA_MELEE); // 0x80839160
     }
 
     void Destroy()
