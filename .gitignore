@@ -1,6 +1,7 @@
 *.rel
 *.map
 *.elf
+*.bat
 
 Junk/
 build/
