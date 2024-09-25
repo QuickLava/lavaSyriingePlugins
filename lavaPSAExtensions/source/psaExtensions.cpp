@@ -97,6 +97,8 @@ namespace lavaPSAExtensions {
 
         // General Fighter Update Hook
         SyringeCore::syInlineHookRel(0x12E74C, reinterpret_cast<void*>(fighterUpdateHook), Modules::SORA_MELEE); // 0x80839160
+
+        //registerMagicSeriesHooks();
     }
 
     void Destroy()

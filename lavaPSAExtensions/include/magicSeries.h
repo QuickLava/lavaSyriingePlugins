@@ -18,6 +18,8 @@ namespace lavaPSAExtensions
 
         virtual void notifyEventCollisionAttack(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser);
     };
+
+    void registerMagicSeriesHooks();
 }
 
 #endif
