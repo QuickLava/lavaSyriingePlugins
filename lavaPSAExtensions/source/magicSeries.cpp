@@ -18,15 +18,7 @@ namespace lavaPSAExtensions
         SID_ATTACK_AIR = 0x33,
     };
 
-    fighterAttackWatcher::fighterAttackWatcher(Fighter& fighterIn) : soCollisionAttackEventObserver(1)
-    {
-        soEventManageModule* eventModule = fighterIn.m_moduleAccesser->getEventManageModule();
-        if (eventModule != NULL)
-        {
-            setupObserver(eventModule->getManageId());
-            OSReport("%sRegistered Fighter [Name: %s]!\n", outputTag, fighterIn.m_taskName);
-        }
-    }
+    fighterAttackWatcher::fighterAttackWatcher() : soCollisionAttackEventObserver(1) {}
     fighterAttackWatcher::~fighterAttackWatcher() {}
 
     void fighterAttackWatcher::addObserver(short param1, s8 param2)
@@ -46,6 +38,7 @@ namespace lavaPSAExtensions
         {
             int currSituation = moduleEnum->m_situationModule->getKind();
             int currStatus = moduleEnum->m_statusModule->getStatusKind();
+
             if (currSituation == 0x00)
             {
                 switch (currStatus)
@@ -99,11 +92,37 @@ namespace lavaPSAExtensions
         }
     }
 
-    //void disableChangeStatusIntoSelf()
-    //{
-    //}
-    //void registerMagicSeriesHooks()
-    //{
-    //    SyringeCore::syInlineHookRel(0x74FB0, reinterpret_cast<void*>(fighterUpdateHook), Modules::SORA_MELEE); // 0x8077F9C4
-    //}
+    void fighterAttackWatcher::subscribeToFighter(Fighter& fighterIn)
+    {
+        soEventManageModule* eventModule = fighterIn.m_moduleAccesser->getEventManageModule();
+        if (eventModule != NULL)
+        {
+            int manageId = eventModule->getManageId();
+            if (-1 < manageId && -1 < m_unitID) {
+                if (soEventSystem::getInstance()->m_instanceManager.isContain(manageId)) {
+                    soEventManager* eventManager = soEventSystem::getInstance()->getManager(manageId);
+                    if (!eventManager->isNullUnit(m_unitID)) {
+                        int sendId;
+                        if (eventManager->isExist(m_unitID)) {
+                            soEventUnitWrapper<soCollisionAttackEventObserver>* eventUnit = dynamic_cast<soEventUnitWrapper<soCollisionAttackEventObserver>*>(eventManager->getEventUnit(m_unitID));
+                            if (eventUnit == NULL) {
+                                sendId = -1;
+                            }
+                            else {
+                                sendId = eventUnit->addObserverSub(static_cast<soCollisionAttackEventObserver*>(this), -1);
+                                OSReport("%sRegistered Fighter [Name: %s]!\n", outputTag, fighterIn.m_taskName);
+                            }
+                        }
+                        else {
+                            sendId = -1;
+                        }
+                        this->m_sendID = sendId;
+                        if (-1 < sendId) {
+                            this->m_manageID = manageId;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

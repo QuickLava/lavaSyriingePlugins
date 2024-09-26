@@ -10,16 +10,16 @@ namespace lavaPSAExtensions
     class fighterAttackWatcher : public soCollisionAttackEventObserver
     {
     public:
-        fighterAttackWatcher(Fighter& fighterIn);
+        fighterAttackWatcher();
         virtual ~fighterAttackWatcher();
 
         virtual void addObserver(short param1, s8 param2);
         virtual bool notifyEventCollisionAttackCheck(u32 flags);
 
         virtual void notifyEventCollisionAttack(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser);
-    };
 
-    void registerMagicSeriesHooks();
+        void subscribeToFighter(Fighter& fighterIn);
+    };
 }
 
 #endif

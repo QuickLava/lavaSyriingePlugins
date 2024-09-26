@@ -72,8 +72,20 @@ namespace lavaPSAExtensions {
         }
     };
 
-    fighterAttackWatcher* attackWatcher = NULL;
+    fighterAttackWatcher watcher;
+    void fighterOnStartHook()
+    {
+        register Fighter* fighter;
+        asm
+        {
+            mr fighter, r26
+        }
 
+        if (fighter != NULL)
+        {
+            watcher.subscribeToFighter(*fighter);
+        }
+    }
     void fighterUpdateHook()
     {
         register Fighter* fighter;
@@ -83,11 +95,6 @@ namespace lavaPSAExtensions {
             mr fighter, r29
             mr moduleAccesser, r31
         }
-
-        if (attackWatcher == NULL)
-        {
-            attackWatcher = new fighterAttackWatcher(*fighter);
-        }
     }
 
     void Init()
@@ -96,7 +103,10 @@ namespace lavaPSAExtensions {
         //SyringeCore::syInlineHookRel(0x12E680, reinterpret_cast<void*>(aerialInteruptPrevention), Modules::SORA_MELEE); // 0x80839094
 
         // General Fighter Update Hook
-        SyringeCore::syInlineHookRel(0x12E74C, reinterpret_cast<void*>(fighterUpdateHook), Modules::SORA_MELEE); // 0x80839160
+        //SyringeCore::syInlineHookRel(0x12E74C, reinterpret_cast<void*>(fighterUpdateHook), Modules::SORA_MELEE); // 0x80839160
+
+        // General Fighter Init Hook
+        SyringeCore::syInlineHookRel(0x12CD40, reinterpret_cast<void*>(fighterOnStartHook), Modules::SORA_MELEE); // 0x80837754
 
         //registerMagicSeriesHooks();
     }
