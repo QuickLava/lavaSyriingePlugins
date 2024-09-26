@@ -12,6 +12,8 @@
 #include <memory.h>
 #include <modules.h>
 #include <string.h>
+
+#include "fighterHooks.h"
 #include "magicSeries.h"
 
 namespace lavaPSAExtensions {
@@ -72,43 +74,13 @@ namespace lavaPSAExtensions {
         }
     };
 
-    fighterAttackWatcher watcher;
-    void fighterOnStartHook()
-    {
-        register Fighter* fighter;
-        asm
-        {
-            mr fighter, r26
-        }
-
-        if (fighter != NULL)
-        {
-            watcher.subscribeToFighter(*fighter);
-        }
-    }
-    void fighterUpdateHook()
-    {
-        register Fighter* fighter;
-        register soModuleAccesser* moduleAccesser;
-        asm
-        {
-            mr fighter, r29
-            mr moduleAccesser, r31
-        }
-    }
-
     void Init()
     {
         // Note: 0x8070AA14 is SORA_MELEE base address
         //SyringeCore::syInlineHookRel(0x12E680, reinterpret_cast<void*>(aerialInteruptPrevention), Modules::SORA_MELEE); // 0x80839094
 
-        // General Fighter Update Hook
-        //SyringeCore::syInlineHookRel(0x12E74C, reinterpret_cast<void*>(fighterUpdateHook), Modules::SORA_MELEE); // 0x80839160
-
-        // General Fighter Init Hook
-        SyringeCore::syInlineHookRel(0x12CD40, reinterpret_cast<void*>(fighterOnStartHook), Modules::SORA_MELEE); // 0x80837754
-
-        //registerMagicSeriesHooks();
+        fighterHooks::registerFighterHooks();
+        fighterHooks::ftCallbackMgr::registerOnAttackCallback(magicSeriesCallback);
     }
 
     void Destroy()

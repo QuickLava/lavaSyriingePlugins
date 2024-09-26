@@ -3,23 +3,11 @@
 
 #include <cstdlib>
 #include <so/event/so_event_observer.h>
-#include <ft/fighter.h>
+#include "fighterHooks.h"
 
 namespace lavaPSAExtensions
 {
-    class fighterAttackWatcher : public soCollisionAttackEventObserver
-    {
-    public:
-        fighterAttackWatcher();
-        virtual ~fighterAttackWatcher();
-
-        virtual void addObserver(short param1, s8 param2);
-        virtual bool notifyEventCollisionAttackCheck(u32 flags);
-
-        virtual void notifyEventCollisionAttack(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser);
-
-        void subscribeToFighter(Fighter& fighterIn);
-    };
+    void magicSeriesCallback(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser);
 }
 
 #endif
