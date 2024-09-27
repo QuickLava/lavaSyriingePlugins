@@ -26,7 +26,7 @@ namespace fighterHooks
 	Vector<FighterOnCreateCB> ftCallbackMgr::m_onCreateCallbacks;
 	Vector<FighterOnStartCB> ftCallbackMgr::m_onStartCallbacks;
 	Vector<FighterOnRemoveCB> ftCallbackMgr::m_onRemoveCallbacks;
-	Vector<FighterUpdateCB> ftCallbackMgr::m_updateCallbacks;
+	Vector<FighterOnUpdateCB> ftCallbackMgr::m_onUpdateCallbacks;
 	Vector<FighterOnAttackCB> ftCallbackMgr::m_onAttackCallbacks;
 
 	bool ftCallbackMgr::registerOnCreateCallback(FighterOnCreateCB callbackIn)
@@ -118,15 +118,15 @@ namespace fighterHooks
 		unsubscribeWatcher(m_attackWatchers[manager->getPlayerNo(entryID)]);
 	}
 
-	bool ftCallbackMgr::registerUpdateCallback(FighterUpdateCB callbackIn)
+	bool ftCallbackMgr::registerOnUpdateCallback(FighterOnUpdateCB callbackIn)
 	{
-		return registerCallback<FighterUpdateCB>(m_updateCallbacks, callbackIn);
+		return registerCallback<FighterOnUpdateCB>(m_onUpdateCallbacks, callbackIn);
 	}
-	bool ftCallbackMgr::unregisterUpdateCallback(FighterUpdateCB callbackIn)
+	bool ftCallbackMgr::unregisterOnUpdateCallback(FighterOnUpdateCB callbackIn)
 	{
-		return unregisterCallback<FighterUpdateCB>(m_updateCallbacks, callbackIn);
+		return unregisterCallback<FighterOnUpdateCB>(m_onUpdateCallbacks, callbackIn);
 	}
-	void ftCallbackMgr::performUpdateCallbacks()
+	void ftCallbackMgr::performOnUpdateCallbacks()
 	{
 		register Fighter* fighter;
 		asm
@@ -134,9 +134,9 @@ namespace fighterHooks
 			mr fighter, r29
 		}
 
-		for (int i = 0; i < m_updateCallbacks.size(); i++)
+		for (int i = 0; i < m_onUpdateCallbacks.size(); i++)
 		{
-			m_updateCallbacks[i](fighter);
+			m_onUpdateCallbacks[i](fighter);
 		}
 	}
 
@@ -169,6 +169,6 @@ namespace fighterHooks
 		SyringeCore::syInlineHookRel(0x109970, reinterpret_cast<void*>(ftCallbackMgr::performOnRemoveCallbacks), Modules::SORA_MELEE);
 
 		// General Fighter Update Hook @ 0x80839160: 0xAA4 bytes into symbol "processUpdate/[Fighter]/fighter.o"
-		SyringeCore::syInlineHookRel(0x12E74C, reinterpret_cast<void*>(ftCallbackMgr::performUpdateCallbacks), Modules::SORA_MELEE);
+		SyringeCore::syInlineHookRel(0x12E74C, reinterpret_cast<void*>(ftCallbackMgr::performOnUpdateCallbacks), Modules::SORA_MELEE);
 	}
 }

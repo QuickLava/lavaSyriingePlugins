@@ -21,7 +21,7 @@ namespace fighterHooks
 	typedef void (*FighterOnCreateCB)(Fighter*);
 	typedef void (*FighterOnStartCB)(Fighter*);
 	typedef void (*FighterOnRemoveCB)(Fighter*);
-	typedef void (*FighterUpdateCB)(Fighter*);
+	typedef void (*FighterOnUpdateCB)(Fighter*);
 
 	typedef bool (*FighterOnAttackCheckCB)(u32);
 	typedef void (*FighterOnAttackCB)(float, soCollisionLog*, soModuleAccesser*);
@@ -45,7 +45,7 @@ namespace fighterHooks
 		static Vector<FighterOnCreateCB> m_onCreateCallbacks;
 		static Vector<FighterOnStartCB> m_onStartCallbacks;
 		static Vector<FighterOnRemoveCB> m_onRemoveCallbacks;
-		static Vector<FighterUpdateCB> m_updateCallbacks;
+		static Vector<FighterOnUpdateCB> m_onUpdateCallbacks;
 		static Vector<FighterOnAttackCB> m_onAttackCallbacks;
 
 		template<typename cbType>
@@ -116,9 +116,9 @@ namespace fighterHooks
 		static void performOnRemoveCallbacks();
 
 		// Update Callbacks
-		static bool registerUpdateCallback(FighterUpdateCB callbackIn);
-		static bool unregisterUpdateCallback(FighterUpdateCB callbackIn);
-		static void performUpdateCallbacks();
+		static bool registerOnUpdateCallback(FighterOnUpdateCB callbackIn);
+		static bool unregisterOnUpdateCallback(FighterOnUpdateCB callbackIn);
+		static void performOnUpdateCallbacks();
 
 		// OnAttack Callbacks
 		static bool registerOnAttackCallback(FighterOnAttackCB callbackIn);
