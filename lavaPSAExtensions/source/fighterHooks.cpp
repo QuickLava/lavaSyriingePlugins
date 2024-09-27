@@ -18,8 +18,16 @@ namespace fighterHooks
 	void ftCallbackMgr::ftAttackWatcher::notifyEventCollisionAttack(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser)
 	{
 		OSReport("%sCollisionAttack!\n", outputTag);
-		ftCallbackMgr::performOnAttackCallbacks(power, collisionLog, moduleAccesser);
+		ftCallbackMgr::performOnAttackCallbacks(power, collisionLog, moduleAccesser, getStageObjectFromCollisionLog(collisionLog));
 		return;
+	}
+	StageObject* ftCallbackMgr::ftAttackWatcher::getStageObjectFromCollisionLog(soCollisionLog* collisionLog)
+	{
+		typedef StageObject* (*getTaskByIDPtr)(void*, u32, int);
+		void** const g_gfTaskSchedulerPtrAddr = (void**)0x805A0068;
+		const getTaskByIDPtr getTaskByID = (getTaskByIDPtr)0x8002F018;
+
+		return (StageObject*)getTaskByID(*g_gfTaskSchedulerPtrAddr, collisionLog->m_category, collisionLog->m_taskId);
 	}
 
 	ftCallbackMgr::ftAttackWatcher ftCallbackMgr::m_attackWatchers[maxFighterCount];
@@ -148,12 +156,15 @@ namespace fighterHooks
 	{
 		return unregisterCallback<FighterOnAttackCB>(m_onAttackCallbacks, callbackIn);
 	}
-	void ftCallbackMgr::performOnAttackCallbacks(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser)
+	void ftCallbackMgr::performOnAttackCallbacks(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser, StageObject* targetObject)
 	{
 		OSReport("%sOnAttack Callbacks!\n", outputTag);
+		OSReport("%sTarget: %s, TaskID: 0x%04X, Category: 0x%04X!\n",
+			outputTag, targetObject->m_taskName, collisionLog->m_taskId, collisionLog->m_category);
+
 		for (int i = 0; i < m_onAttackCallbacks.size(); i++)
 		{
-			m_onAttackCallbacks[i](power, collisionLog, moduleAccesser);
+			m_onAttackCallbacks[i](power, collisionLog, moduleAccesser, targetObject);
 		}
 	}
 

@@ -17,7 +17,7 @@ namespace lavaPSAExtensions
         SID_ATTACK_AIR = 0x33,
     };
 
-    void magicSeriesCallback(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser)
+    void magicSeriesCallback(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser, StageObject* targetObject)
     {
         OSReport("%sAttack Detected!\n", outputTag);
         soModuleEnumeration* moduleEnum = moduleAccesser->m_enumerationStart;

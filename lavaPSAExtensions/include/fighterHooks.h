@@ -24,7 +24,13 @@ namespace fighterHooks
 	typedef void (*FighterOnUpdateCB)(Fighter*);
 
 	typedef bool (*FighterOnAttackCheckCB)(u32);
-	typedef void (*FighterOnAttackCB)(float, soCollisionLog*, soModuleAccesser*);
+	// Coll Categories:
+	// - 0x02 = Enemies (Note: Bosses count)
+	// - 0x06 = Yakumono (Note: Stage Hazards mostly, including Targets & Skyworld Plats)
+	// - 0x0A = Fighter (Note: Nana counts!)
+	// - 0x0B = Items (Note: Sandbag counts!)
+	// - 0x0C = Weapon/Article (Note: Pikmin count!)
+	typedef void (*FighterOnAttackCB)(float, soCollisionLog*, soModuleAccesser*, StageObject*);
 	
 	class ftCallbackMgr
 	{
@@ -39,6 +45,8 @@ namespace fighterHooks
 			virtual void addObserver(short param1, s8 param2);
 			virtual bool notifyEventCollisionAttackCheck(u32 flags);
 			virtual void notifyEventCollisionAttack(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser);
+
+			StageObject* getStageObjectFromCollisionLog(soCollisionLog* collisionLog);
 		};
 		static ftAttackWatcher m_attackWatchers[maxFighterCount];
 
@@ -123,7 +131,7 @@ namespace fighterHooks
 		// OnAttack Callbacks
 		static bool registerOnAttackCallback(FighterOnAttackCB callbackIn);
 		static bool unregisterOnAttackCallback(FighterOnAttackCB callbackIn);
-		static void performOnAttackCallbacks(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser);
+		static void performOnAttackCallbacks(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser, StageObject* targetObject);
 	};
 	void registerFighterHooks();
 }
