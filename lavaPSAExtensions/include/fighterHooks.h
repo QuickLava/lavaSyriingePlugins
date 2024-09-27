@@ -12,8 +12,14 @@
 
 namespace fighterHooks
 {
+	const char outputTag[] = "[fighterHooks] ";
+	const u32 maxFighterCount = 0x8;
+	ftManager** const g_ftManagerPtrAddr = 0x80B87C28;
+
 	typedef void (*FighterUpdateCB)(Fighter*);
+	typedef void (*FighterOnCreateCB)(Fighter*);
 	typedef void (*FighterOnStartCB)(Fighter*);
+	typedef void (*FighterOnRemoveCB)(Fighter*);
 
 	typedef bool (*FighterOnAttackCheckCB)(u32);
 	typedef void (*FighterOnAttackCB)(float, soCollisionLog*, soModuleAccesser*);
@@ -21,6 +27,7 @@ namespace fighterHooks
 	class ftCallbackMgr
 	{
 	private:
+
 		class ftAttackWatcher : public soCollisionAttackEventObserver
 		{
 		public:
@@ -31,10 +38,12 @@ namespace fighterHooks
 			virtual bool notifyEventCollisionAttackCheck(u32 flags);
 			virtual void notifyEventCollisionAttack(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser);
 		};
-		static ftAttackWatcher m_attackWatcher;
+		static ftAttackWatcher m_attackWatchers[maxFighterCount];
 
 		static Vector<FighterUpdateCB> m_updateCallbacks;
+		static Vector<FighterOnCreateCB> m_onCreateCallbacks;
 		static Vector<FighterOnStartCB> m_onStartCallbacks;
+		static Vector<FighterOnRemoveCB> m_onRemoveCallbacks;
 		static Vector<FighterOnAttackCB> m_onAttackCallbacks;
 
 		template<typename cbType>
@@ -78,38 +87,14 @@ namespace fighterHooks
 		template<typename watcherType>
 		static void subscribeWatcherToFighter(soEventObserver<watcherType>& watcherIn, Fighter* fighterIn)
 		{
-			if (fighterIn == NULL || fighterIn->m_moduleAccesser->getEventManageModule() == NULL) return;
-
-			soEventSystem* eventSys = soEventSystem::getInstance();
-			soEventManageModule* eventModule = fighterIn->m_moduleAccesser->getEventManageModule();
-			if (eventModule == NULL) return;
-
-			int sendId = -1;
-			int manageId = eventModule->getManageId();
-			if ((-1 < manageId) && (-1 < watcherIn.m_unitID) && eventSys->m_instanceManager.isContain(manageId))
-			{
-				soEventManager* eventManager = eventSys->getManager(manageId);
-				if (!eventManager->isNullUnit(watcherIn.m_unitID))
-				{
-					if (eventManager->isExist(watcherIn.m_unitID))
-					{
-						soEventUnitWrapper<soCollisionAttackEventObserver>* eventUnit =
-							dynamic_cast<soEventUnitWrapper<soCollisionAttackEventObserver>*>(eventManager->getEventUnit(watcherIn.m_unitID));
-						if (eventUnit != NULL)
-						{
-							sendId = eventUnit->addObserverSub(static_cast<soCollisionAttackEventObserver*>(&watcherIn), -1);
-							OSReport("%sRegistered Fighter [Name: %s]!\n", outputTag, fighterIn->m_taskName);
-							OSReport("%sObserver IDs [ManagerID: %02X, UnitID: %02X, SendID: %02X]!\n", 
-								outputTag, watcherIn.m_manageID, watcherIn.m_unitID, sendId);
-						}
-					}
-					watcherIn.m_sendID = sendId;
-					if (-1 < sendId)
-					{
-						watcherIn.m_manageID = manageId;
-					}
-				}
-			}
+			OSReport("%sSubscribing watcher!\n", outputTag);
+			watcherIn.setupObserver(fighterIn->m_moduleAccesser->getEventManageModule()->getManageId());
+		}
+		template<typename watcherType>
+		static void unsubscribeWatcher(soEventObserver<watcherType>& watcherIn)
+		{
+			OSReport("%sUnsubscribing watcher!\n", outputTag);
+			watcherIn.removeObserver();
 		}
 
 	public:
@@ -118,10 +103,20 @@ namespace fighterHooks
 		static bool unregisterUpdateCallback(FighterUpdateCB callbackIn);
 		static void performUpdateCallbacks();
 
+		// OnCreate Callbacks
+		static bool registerOnCreateCallback(FighterOnCreateCB callbackIn);
+		static bool unregisterOnCreateCallback(FighterOnCreateCB callbackIn);
+		static void performOnCreateCallbacks();
+
 		// OnStart Callbacks
 		static bool registerOnStartCallback(FighterOnStartCB callbackIn);
 		static bool unregisterOnStartCallback(FighterOnStartCB callbackIn);
 		static void performOnStartCallbacks();
+
+		// OnRemove Callbacks
+		static bool registerOnRemoveCallback(FighterOnRemoveCB callbackIn);
+		static bool unregisterOnRemoveCallback(FighterOnRemoveCB callbackIn);
+		static void performOnRemoveCallbacks();
 
 		// OnAttack Callbacks
 		static bool registerOnAttackCallback(FighterOnAttackCB callbackIn);
