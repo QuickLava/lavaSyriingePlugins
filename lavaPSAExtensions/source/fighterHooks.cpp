@@ -2,6 +2,8 @@
 
 namespace fighterHooks
 {
+	const char callbackHookMsgFmt[] = "%s%s: entryID = 0x%08X, playerID = 0x%02X!\n";
+
 	ftCallbackMgr::ftAttackWatcher::ftAttackWatcher() : soCollisionAttackEventObserver(1) {}
 	ftCallbackMgr::ftAttackWatcher::~ftAttackWatcher() {}
 	void ftCallbackMgr::ftAttackWatcher::addObserver(short param1, s8 param2)
@@ -21,33 +23,11 @@ namespace fighterHooks
 	}
 
 	ftCallbackMgr::ftAttackWatcher ftCallbackMgr::m_attackWatchers[maxFighterCount];
-	Vector<FighterUpdateCB> ftCallbackMgr::m_updateCallbacks;
 	Vector<FighterOnCreateCB> ftCallbackMgr::m_onCreateCallbacks;
 	Vector<FighterOnStartCB> ftCallbackMgr::m_onStartCallbacks;
 	Vector<FighterOnRemoveCB> ftCallbackMgr::m_onRemoveCallbacks;
+	Vector<FighterUpdateCB> ftCallbackMgr::m_updateCallbacks;
 	Vector<FighterOnAttackCB> ftCallbackMgr::m_onAttackCallbacks;
-
-	bool ftCallbackMgr::registerUpdateCallback(FighterUpdateCB callbackIn)
-	{
-		return registerCallback<FighterUpdateCB>(m_updateCallbacks, callbackIn);
-	}
-	bool ftCallbackMgr::unregisterUpdateCallback(FighterUpdateCB callbackIn)
-	{
-		return unregisterCallback<FighterUpdateCB>(m_updateCallbacks, callbackIn);
-	}
-	void ftCallbackMgr::performUpdateCallbacks()
-	{
-		register Fighter* fighter;
-		asm
-		{
-			mr fighter, r29
-		}
-		
-		for (int i = 0; i < m_updateCallbacks.size(); i++)
-		{
-			m_updateCallbacks[i](fighter);
-		}
-	}
 
 	bool ftCallbackMgr::registerOnCreateCallback(FighterOnCreateCB callbackIn)
 	{
@@ -66,7 +46,7 @@ namespace fighterHooks
 			lwz entryID, 0x04(r31);
 		}
 
-		OSReport("%sOnCreate Callbacks: entryID = 0x%08X, playerID = 0x%08X!\n", outputTag, entryID, manager->getPlayerNo(entryID));
+		OSReport(callbackHookMsgFmt, outputTag, "OnCreate Callbacks", entryID, manager->getPlayerNo(entryID));
 
 		// Execute Callbacks
 		Fighter* fighter = manager->getFighter(entryID, -1);
@@ -97,7 +77,7 @@ namespace fighterHooks
 			mr entryID, r4;
 		}
 
-		OSReport("%sOnStart Callbacks: entryID = 0x%08X, playerID = 0x%08X!\n", outputTag, entryID, manager->getPlayerNo(entryID));
+		OSReport(callbackHookMsgFmt, outputTag, "OnStart Callbacks", entryID, manager->getPlayerNo(entryID));
 
 		// Execute Callbacks
 		Fighter* fighter = manager->getFighter(entryID, -1);
@@ -125,7 +105,7 @@ namespace fighterHooks
 			mr entryID, r4;
 		}
 
-		OSReport("%sOnRemove Callbacks: entryID = 0x%08X, playerID = 0x%08X!\n", outputTag, entryID, manager->getPlayerNo(entryID));
+		OSReport(callbackHookMsgFmt, outputTag, "OnRemove Callbacks", entryID, manager->getPlayerNo(entryID));
 
 		// Execute Callbacks
 		Fighter* fighter = manager->getFighter(entryID, -1);
@@ -136,6 +116,28 @@ namespace fighterHooks
 
 		// Unsubscribe Watchers
 		unsubscribeWatcher(m_attackWatchers[manager->getPlayerNo(entryID)]);
+	}
+
+	bool ftCallbackMgr::registerUpdateCallback(FighterUpdateCB callbackIn)
+	{
+		return registerCallback<FighterUpdateCB>(m_updateCallbacks, callbackIn);
+	}
+	bool ftCallbackMgr::unregisterUpdateCallback(FighterUpdateCB callbackIn)
+	{
+		return unregisterCallback<FighterUpdateCB>(m_updateCallbacks, callbackIn);
+	}
+	void ftCallbackMgr::performUpdateCallbacks()
+	{
+		register Fighter* fighter;
+		asm
+		{
+			mr fighter, r29
+		}
+
+		for (int i = 0; i < m_updateCallbacks.size(); i++)
+		{
+			m_updateCallbacks[i](fighter);
+		}
 	}
 
 	bool ftCallbackMgr::registerOnAttackCallback(FighterOnAttackCB callbackIn)
@@ -157,9 +159,6 @@ namespace fighterHooks
 
 	void registerFighterHooks()
 	{
-		// General Fighter Update Hook @ 0x80839160: 0xAA4 bytes into symbol "processUpdate/[Fighter]/fighter.o"
-		SyringeCore::syInlineHookRel(0x12E74C, reinterpret_cast<void*>(ftCallbackMgr::performUpdateCallbacks), Modules::SORA_MELEE);
-
 		// General Fighter Create Hook @ 0x80814358: 0x24 bytes into symbol "createFighter/[ftManager]/ft_manager.o"
 		SyringeCore::syInlineHookRel(0x109944, reinterpret_cast<void*>(ftCallbackMgr::performOnCreateCallbacks), Modules::SORA_MELEE);
 
@@ -168,5 +167,8 @@ namespace fighterHooks
 
 		// General Fighter Exit Hook @ 0x80814384: 0x14 bytes into symbol "removeEntry/[ftManager]/ft_manager.o"
 		SyringeCore::syInlineHookRel(0x109970, reinterpret_cast<void*>(ftCallbackMgr::performOnRemoveCallbacks), Modules::SORA_MELEE);
+
+		// General Fighter Update Hook @ 0x80839160: 0xAA4 bytes into symbol "processUpdate/[Fighter]/fighter.o"
+		SyringeCore::syInlineHookRel(0x12E74C, reinterpret_cast<void*>(ftCallbackMgr::performUpdateCallbacks), Modules::SORA_MELEE);
 	}
 }

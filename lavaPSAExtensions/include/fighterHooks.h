@@ -13,13 +13,15 @@
 namespace fighterHooks
 {
 	const char outputTag[] = "[fighterHooks] ";
+	const char observerMessageFmt[] = "%s%s: [manageID: 0x%02X, unitID: 0x%02X, sendID: 0x%02X]!\n";
+
 	const u32 maxFighterCount = 0x8;
 	ftManager** const g_ftManagerPtrAddr = 0x80B87C28;
 
-	typedef void (*FighterUpdateCB)(Fighter*);
 	typedef void (*FighterOnCreateCB)(Fighter*);
 	typedef void (*FighterOnStartCB)(Fighter*);
 	typedef void (*FighterOnRemoveCB)(Fighter*);
+	typedef void (*FighterUpdateCB)(Fighter*);
 
 	typedef bool (*FighterOnAttackCheckCB)(u32);
 	typedef void (*FighterOnAttackCB)(float, soCollisionLog*, soModuleAccesser*);
@@ -40,10 +42,10 @@ namespace fighterHooks
 		};
 		static ftAttackWatcher m_attackWatchers[maxFighterCount];
 
-		static Vector<FighterUpdateCB> m_updateCallbacks;
 		static Vector<FighterOnCreateCB> m_onCreateCallbacks;
 		static Vector<FighterOnStartCB> m_onStartCallbacks;
 		static Vector<FighterOnRemoveCB> m_onRemoveCallbacks;
+		static Vector<FighterUpdateCB> m_updateCallbacks;
 		static Vector<FighterOnAttackCB> m_onAttackCallbacks;
 
 		template<typename cbType>
@@ -87,22 +89,17 @@ namespace fighterHooks
 		template<typename watcherType>
 		static void subscribeWatcherToFighter(soEventObserver<watcherType>& watcherIn, Fighter* fighterIn)
 		{
-			OSReport("%sSubscribing watcher!\n", outputTag);
 			watcherIn.setupObserver(fighterIn->m_moduleAccesser->getEventManageModule()->getManageId());
+			OSReport(observerMessageFmt, outputTag, "Subscribed Watcher", watcherIn.m_manageID, watcherIn.m_unitID, watcherIn.m_sendID);
 		}
 		template<typename watcherType>
 		static void unsubscribeWatcher(soEventObserver<watcherType>& watcherIn)
 		{
-			OSReport("%sUnsubscribing watcher!\n", outputTag);
+			OSReport(observerMessageFmt, outputTag, "Unsubscribing Watcher", watcherIn.m_manageID, watcherIn.m_unitID, watcherIn.m_sendID);
 			watcherIn.removeObserver();
 		}
 
 	public:
-		// Update Callbacks
-		static bool registerUpdateCallback(FighterUpdateCB callbackIn);
-		static bool unregisterUpdateCallback(FighterUpdateCB callbackIn);
-		static void performUpdateCallbacks();
-
 		// OnCreate Callbacks
 		static bool registerOnCreateCallback(FighterOnCreateCB callbackIn);
 		static bool unregisterOnCreateCallback(FighterOnCreateCB callbackIn);
@@ -117,6 +114,11 @@ namespace fighterHooks
 		static bool registerOnRemoveCallback(FighterOnRemoveCB callbackIn);
 		static bool unregisterOnRemoveCallback(FighterOnRemoveCB callbackIn);
 		static void performOnRemoveCallbacks();
+
+		// Update Callbacks
+		static bool registerUpdateCallback(FighterUpdateCB callbackIn);
+		static bool unregisterUpdateCallback(FighterUpdateCB callbackIn);
+		static void performUpdateCallbacks();
 
 		// OnAttack Callbacks
 		static bool registerOnAttackCallback(FighterOnAttackCB callbackIn);
