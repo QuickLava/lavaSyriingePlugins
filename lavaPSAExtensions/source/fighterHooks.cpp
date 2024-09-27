@@ -12,7 +12,6 @@ namespace fighterHooks
 	}
 	bool ftCallbackMgr::ftAttackWatcher::notifyEventCollisionAttackCheck(u32 flags)
 	{
-		OSReport("%sCollisionAttackCheck!\n", outputTag);
 		return 0;
 	}
 	void ftCallbackMgr::ftAttackWatcher::notifyEventCollisionAttack(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser)
@@ -157,8 +156,16 @@ namespace fighterHooks
 	void ftCallbackMgr::performOnAttackCallbacks(Fighter* attacker, StageObject* target, float power, soCollisionLog* collisionLog)
 	{
 		OSReport("%sOnAttack Callbacks!\n", outputTag);
-		OSReport("%s- Target: %s, TaskID: 0x%04X, Category: 0x%04X!\n",
-			outputTag, target->m_taskName, collisionLog->m_taskId, collisionLog->m_category);
+		OSReport("%s- Attacker: %s, TaskID: 0x%08X\n", outputTag, attacker->m_taskName, attacker->m_taskId);
+		if (target != NULL)
+		{
+			OSReport("%s-   Target: %s, TaskID: 0x%08X, Category: 0x%02X!\n",
+				outputTag, target->m_taskName, collisionLog->m_taskId, collisionLog->m_category);
+		}
+		else
+		{
+			OSReport("%s-   Target: NULL\n");
+		}
 
 		for (int i = 0; i < m_onAttackCallbacks.size(); i++)
 		{
