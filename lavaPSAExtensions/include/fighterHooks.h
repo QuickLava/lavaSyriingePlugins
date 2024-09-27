@@ -6,6 +6,7 @@
 #include <vector.h>
 #include <modules.h>
 #include <ft/fighter.h>
+#include <ft/ft_manager.h>
 #include <os/OSError.h>
 #include <so/event/so_event_observer.h>
 
@@ -98,7 +99,7 @@ namespace fighterHooks
 						{
 							sendId = eventUnit->addObserverSub(static_cast<soCollisionAttackEventObserver*>(&watcherIn), -1);
 							OSReport("%sRegistered Fighter [Name: %s]!\n", outputTag, fighterIn->m_taskName);
-							OSReport("%sObserver IDs [ManagerID: %0X2, UnitID: %0X2, SendID: %0X2]!\n", 
+							OSReport("%sObserver IDs [ManagerID: %02X, UnitID: %02X, SendID: %02X]!\n", 
 								outputTag, watcherIn.m_manageID, watcherIn.m_unitID, sendId);
 						}
 					}
