@@ -59,13 +59,17 @@ namespace fighterHooks
 	}
 	void ftCallbackMgr::performOnStartCallbacks()
 	{
-		register Fighter* fighter;
+		register ftManager* manager;
+		register u32 entryID;
 		asm
 		{
-			mr fighter, r26
+			mr manager, r3;
+			mr entryID, r4;
 		}
 
-		OSReport("%sOnStart Callbacks!\n", outputTag);
+		OSReport("%sOnStart Callbacks: entryID = 0x%08X!\n", outputTag, entryID);
+
+		Fighter* fighter = manager->getFighter(entryID, -1);
 
 		// Subscribe Watchers
 		subscribeWatcherToFighter(m_attackWatcher, fighter);
@@ -99,7 +103,7 @@ namespace fighterHooks
 		// General Fighter Update Hook @ 0x80839160: 0xAA4 bytes into symbol "processUpdate/[Fighter]/fighter.o"
 		SyringeCore::syInlineHookRel(0x12E74C, reinterpret_cast<void*>(ftCallbackMgr::performUpdateCallbacks), Modules::SORA_MELEE);
 
-		// General Fighter Init Hook @ 0x80837754: 0x1248 bytes into symbol "onStart/[Fighter]/fighter.o"
-		SyringeCore::syInlineHookRel(0x12CD40, reinterpret_cast<void*>(ftCallbackMgr::performOnStartCallbacks), Modules::SORA_MELEE);
+		// General Fighter Start Hook @ 0x80814774: 0x10 bytes into symbol "startFighter/[ftManager]/ft_manager.o"
+		SyringeCore::syInlineHookRel(0x109D60, reinterpret_cast<void*>(ftCallbackMgr::performOnStartCallbacks), Modules::SORA_MELEE);
 	}
 }
