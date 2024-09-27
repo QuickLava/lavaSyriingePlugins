@@ -6,7 +6,7 @@
 
 namespace lavaPSAExtensions
 {
-    void magicSeriesCallback(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser, StageObject* targetObject);
+    void magicSeriesCallback(Fighter* attacker, StageObject* target, float power, soCollisionLog* collisionLog);
 }
 
 #endif
