@@ -15,6 +15,7 @@
 
 #include "fighterHooks.h"
 #include "magicSeries.h"
+#include "meleeGameSetFreeze.h"
 
 namespace lavaPSAExtensions {
 
@@ -81,6 +82,7 @@ namespace lavaPSAExtensions {
 
         fighterHooks::registerFighterHooks();
         fighterHooks::ftCallbackMgr::registerOnAttackCallback(magicSeriesCallback);
+        meleeFreeze::registerHooks();
     }
 
     void Destroy()
