@@ -7,6 +7,7 @@
 #include <modules.h>
 #include <ft/fighter.h>
 #include <ft/ft_manager.h>
+#include <gm/gm_global.h>
 #include <os/OSError.h>
 #include <so/event/so_event_observer.h>
 
@@ -17,7 +18,9 @@ namespace fighterHooks
 
 	const u32 maxFighterCount = 0x8;
 	ftManager** const g_ftManagerPtrAddr = 0x80B87C28;
+	GameGlobal** const g_GameGlobalPtrAddr = 0x805A00E0;
 
+	typedef void (*MeleeOnStartCB)();
 	typedef void (*MeleeOnReadyGoCB)();
 	typedef void (*MeleeOnGameSetCB)();
 	typedef void (*FighterOnCreateCB)(Fighter*);
@@ -52,8 +55,9 @@ namespace fighterHooks
 		};
 		static ftAttackWatcher m_attackWatchers[maxFighterCount];
 
-		static Vector<MeleeOnReadyGoCB> m_onReadyGoCallbacks;
-		static Vector<MeleeOnGameSetCB> m_onGameSetCallbacks;
+		static Vector<MeleeOnStartCB> m_onMeleeStartCallbacks;
+		static Vector<MeleeOnReadyGoCB> m_onMeleeReadyGoCallbacks;
+		static Vector<MeleeOnGameSetCB> m_onMeleeGameSetCallbacks;
 		static Vector<FighterOnCreateCB> m_onCreateCallbacks;
 		static Vector<FighterOnStartCB> m_onStartCallbacks;
 		static Vector<FighterOnRemoveCB> m_onRemoveCallbacks;
@@ -112,15 +116,20 @@ namespace fighterHooks
 		}
 
 	public:
-		// OnReadyGo Callbacks
-		static bool registerOnReadyGoCallback(MeleeOnReadyGoCB callbackIn);
-		static bool unregisterOnReadyGoCallback(MeleeOnReadyGoCB callbackIn);
-		static void performOnReadyGoCallbacks();
+		// OnMeleeStart Callbacks
+		static bool registerMeleeOnStartCallback(MeleeOnStartCB callbackIn);
+		static bool unregisterMeleeOnStartCallback(MeleeOnStartCB callbackIn);
+		static void performMeleeOnStartCallbacks();
 
-		// OnGameSet Callbacks
-		static bool registerOnGameSetCallback(MeleeOnGameSetCB callbackIn);
-		static bool unregisterOnGameSetCallback(MeleeOnGameSetCB callbackIn);
-		static void performOnGameSetCallbacks();
+		// OnMeleeReadyGo Callbacks
+		static bool registerMeleeOnReadyGoCallback(MeleeOnReadyGoCB callbackIn);
+		static bool unregisterMeleeOnReadyGoCallback(MeleeOnReadyGoCB callbackIn);
+		static void performMeleeOnReadyGoCallbacks();
+
+		// OnMeleeGameSet Callbacks
+		static bool registerMeleeOnGameSetCallback(MeleeOnGameSetCB callbackIn);
+		static bool unregisterMeleeOnGameSetCallback(MeleeOnGameSetCB callbackIn);
+		static void performMeleeOnGameSetCallbacks();
 
 		// OnCreate Callbacks
 		static bool registerOnCreateCallback(FighterOnCreateCB callbackIn);

@@ -28,51 +28,72 @@ namespace fighterHooks
 	}
 
 	ftCallbackMgr::ftAttackWatcher ftCallbackMgr::m_attackWatchers[maxFighterCount];
-	Vector<MeleeOnReadyGoCB> ftCallbackMgr::m_onReadyGoCallbacks;
-	Vector<MeleeOnGameSetCB> ftCallbackMgr::m_onGameSetCallbacks;
+	Vector<MeleeOnStartCB> ftCallbackMgr::m_onMeleeStartCallbacks;
+	Vector<MeleeOnReadyGoCB> ftCallbackMgr::m_onMeleeReadyGoCallbacks;
+	Vector<MeleeOnGameSetCB> ftCallbackMgr::m_onMeleeGameSetCallbacks;
 	Vector<FighterOnCreateCB> ftCallbackMgr::m_onCreateCallbacks;
 	Vector<FighterOnStartCB> ftCallbackMgr::m_onStartCallbacks;
 	Vector<FighterOnRemoveCB> ftCallbackMgr::m_onRemoveCallbacks;
 	Vector<FighterOnUpdateCB> ftCallbackMgr::m_onUpdateCallbacks;
 	Vector<FighterOnAttackCB> ftCallbackMgr::m_onAttackCallbacks;
 
-	// OnReadyGo Callbacks
-	bool ftCallbackMgr::registerOnReadyGoCallback(MeleeOnReadyGoCB callbackIn)
+	// OnMeleeReadyGo Callbacks
+	bool ftCallbackMgr::registerMeleeOnStartCallback(MeleeOnStartCB callbackIn)
 	{
-		return registerCallback<MeleeOnReadyGoCB>(m_onReadyGoCallbacks, callbackIn);
+		return registerCallback<MeleeOnStartCB>(m_onMeleeStartCallbacks, callbackIn);
 	}
-	bool ftCallbackMgr::unregisterOnReadyGoCallback(MeleeOnReadyGoCB callbackIn)
+	bool ftCallbackMgr::unregisterMeleeOnStartCallback(MeleeOnStartCB callbackIn)
 	{
-		return unregisterCallback<MeleeOnReadyGoCB>(m_onReadyGoCallbacks, callbackIn);
+		return unregisterCallback<MeleeOnStartCB>(m_onMeleeStartCallbacks, callbackIn);
 	}
-	void ftCallbackMgr::performOnReadyGoCallbacks()
+	void ftCallbackMgr::performMeleeOnStartCallbacks()
 	{
-		OSReport("%sOnReadyGo Callbacks\n", outputTag);
+		OSReport("%sOnMeleeStart Callbacks\n", outputTag);
 
 		// Execute Callbacks
-		for (int i = 0; i < m_onReadyGoCallbacks.size(); i++)
+		for (int i = 0; i < m_onMeleeStartCallbacks.size(); i++)
 		{
-			m_onReadyGoCallbacks[i]();
+			m_onMeleeStartCallbacks[i]();
 		}
 	}
 
-	// OnGameSet Callbacks
-	bool ftCallbackMgr::registerOnGameSetCallback(MeleeOnGameSetCB callbackIn)
+	// OnMeleeReadyGo Callbacks
+	bool ftCallbackMgr::registerMeleeOnReadyGoCallback(MeleeOnReadyGoCB callbackIn)
 	{
-		return registerCallback<MeleeOnGameSetCB>(m_onGameSetCallbacks, callbackIn);
+		return registerCallback<MeleeOnReadyGoCB>(m_onMeleeReadyGoCallbacks, callbackIn);
 	}
-	bool ftCallbackMgr::unregisterOnGameSetCallback(MeleeOnGameSetCB callbackIn)
+	bool ftCallbackMgr::unregisterMeleeOnReadyGoCallback(MeleeOnReadyGoCB callbackIn)
 	{
-		return unregisterCallback<MeleeOnGameSetCB>(m_onGameSetCallbacks, callbackIn);
+		return unregisterCallback<MeleeOnReadyGoCB>(m_onMeleeReadyGoCallbacks, callbackIn);
 	}
-	void ftCallbackMgr::performOnGameSetCallbacks()
+	void ftCallbackMgr::performMeleeOnReadyGoCallbacks()
 	{
-		OSReport("%sOnGameSet Callbacks\n", outputTag);
+		OSReport("%sOnMeleeReadyGo Callbacks\n", outputTag);
 
 		// Execute Callbacks
-		for (int i = 0; i < m_onGameSetCallbacks.size(); i++)
+		for (int i = 0; i < m_onMeleeReadyGoCallbacks.size(); i++)
 		{
-			m_onGameSetCallbacks[i]();
+			m_onMeleeReadyGoCallbacks[i]();
+		}
+	}
+
+	// OnMeleeGameSet Callbacks
+	bool ftCallbackMgr::registerMeleeOnGameSetCallback(MeleeOnGameSetCB callbackIn)
+	{
+		return registerCallback<MeleeOnGameSetCB>(m_onMeleeGameSetCallbacks, callbackIn);
+	}
+	bool ftCallbackMgr::unregisterMeleeOnGameSetCallback(MeleeOnGameSetCB callbackIn)
+	{
+		return unregisterCallback<MeleeOnGameSetCB>(m_onMeleeGameSetCallbacks, callbackIn);
+	}
+	void ftCallbackMgr::performMeleeOnGameSetCallbacks()
+	{
+		OSReport("%sOnMeleeGameSet Callbacks\n", outputTag);
+
+		// Execute Callbacks
+		for (int i = 0; i < m_onMeleeGameSetCallbacks.size(); i++)
+		{
+			m_onMeleeGameSetCallbacks[i]();
 		}
 	}
 
@@ -222,11 +243,15 @@ namespace fighterHooks
 
 	void registerFighterHooks()
 	{
+
+		// Match Start Hook @ 0x80813D28: 0x0C bytes into symbol "start/[ftManager]/ft_manager.o" @ 0x80813D1C
+		SyringeCore::syInlineHookRel(0x109314, reinterpret_cast<void*>(ftCallbackMgr::performMeleeOnReadyGoCallbacks), Modules::SORA_MELEE);
+
 		// Match Countdown GO! Hook @ 0x80813D70: 0x44 bytes into symbol "readyGo/[ftManager]/ft_manager.o"
-		SyringeCore::syInlineHookRel(0x10935C, reinterpret_cast<void*>(ftCallbackMgr::performOnReadyGoCallbacks), Modules::SORA_MELEE);
+		SyringeCore::syInlineHookRel(0x10935C, reinterpret_cast<void*>(ftCallbackMgr::performMeleeOnReadyGoCallbacks), Modules::SORA_MELEE);
 
 		// Match GameSet Hook @ 0x80813E1C: 0xA4 bytes into symbol "gameSet/[ftManager]/ft_manager.o"
-		SyringeCore::syInlineHookRel(0x109408, reinterpret_cast<void*>(ftCallbackMgr::performOnGameSetCallbacks), Modules::SORA_MELEE);
+		SyringeCore::syInlineHookRel(0x109408, reinterpret_cast<void*>(ftCallbackMgr::performMeleeOnGameSetCallbacks), Modules::SORA_MELEE);
 
 		// General Fighter Create Hook @ 0x80814358: 0x24 bytes into symbol "createFighter/[ftManager]/ft_manager.o"
 		SyringeCore::syInlineHookRel(0x109944, reinterpret_cast<void*>(ftCallbackMgr::performOnCreateCallbacks), Modules::SORA_MELEE);
