@@ -28,12 +28,55 @@ namespace fighterHooks
 	}
 
 	ftCallbackMgr::ftAttackWatcher ftCallbackMgr::m_attackWatchers[maxFighterCount];
+	Vector<MeleeOnReadyGoCB> ftCallbackMgr::m_onReadyGoCallbacks;
+	Vector<MeleeOnGameSetCB> ftCallbackMgr::m_onGameSetCallbacks;
 	Vector<FighterOnCreateCB> ftCallbackMgr::m_onCreateCallbacks;
 	Vector<FighterOnStartCB> ftCallbackMgr::m_onStartCallbacks;
 	Vector<FighterOnRemoveCB> ftCallbackMgr::m_onRemoveCallbacks;
 	Vector<FighterOnUpdateCB> ftCallbackMgr::m_onUpdateCallbacks;
 	Vector<FighterOnAttackCB> ftCallbackMgr::m_onAttackCallbacks;
 
+	// OnReadyGo Callbacks
+	bool ftCallbackMgr::registerOnReadyGoCallback(MeleeOnReadyGoCB callbackIn)
+	{
+		return registerCallback<MeleeOnReadyGoCB>(m_onReadyGoCallbacks, callbackIn);
+	}
+	bool ftCallbackMgr::unregisterOnReadyGoCallback(MeleeOnReadyGoCB callbackIn)
+	{
+		return unregisterCallback<MeleeOnReadyGoCB>(m_onReadyGoCallbacks, callbackIn);
+	}
+	void ftCallbackMgr::performOnReadyGoCallbacks()
+	{
+		OSReport("%sOnReadyGo Callbacks\n", outputTag);
+
+		// Execute Callbacks
+		for (int i = 0; i < m_onReadyGoCallbacks.size(); i++)
+		{
+			m_onReadyGoCallbacks[i]();
+		}
+	}
+
+	// OnGameSet Callbacks
+	bool ftCallbackMgr::registerOnGameSetCallback(MeleeOnGameSetCB callbackIn)
+	{
+		return registerCallback<MeleeOnGameSetCB>(m_onGameSetCallbacks, callbackIn);
+	}
+	bool ftCallbackMgr::unregisterOnGameSetCallback(MeleeOnGameSetCB callbackIn)
+	{
+		return unregisterCallback<MeleeOnGameSetCB>(m_onGameSetCallbacks, callbackIn);
+	}
+	void ftCallbackMgr::performOnGameSetCallbacks()
+	{
+		OSReport("%sOnGameSet Callbacks\n", outputTag);
+
+		// Execute Callbacks
+		for (int i = 0; i < m_onGameSetCallbacks.size(); i++)
+		{
+			m_onGameSetCallbacks[i]();
+		}
+	}
+
+	// OnCreate Callbacks
 	bool ftCallbackMgr::registerOnCreateCallback(FighterOnCreateCB callbackIn)
 	{
 		return registerCallback<FighterOnCreateCB>(m_onCreateCallbacks, callbackIn);
@@ -64,6 +107,7 @@ namespace fighterHooks
 		subscribeWatcherToFighter(m_attackWatchers[manager->getPlayerNo(entryID)], fighter);
 	}
 
+	// OnStart Callbacks
 	bool ftCallbackMgr::registerOnStartCallback(FighterOnStartCB callbackIn)
 	{
 		return registerCallback<FighterOnStartCB>(m_onStartCallbacks, callbackIn);
@@ -92,6 +136,7 @@ namespace fighterHooks
 		}
 	}
 	
+	// OnRemove Callbacks
 	bool ftCallbackMgr::registerOnRemoveCallback(FighterOnRemoveCB callbackIn)
 	{
 		return registerCallback<FighterOnRemoveCB>(m_onRemoveCallbacks, callbackIn);
@@ -123,6 +168,7 @@ namespace fighterHooks
 		unsubscribeWatcher(m_attackWatchers[manager->getPlayerNo(entryID)]);
 	}
 
+	// Update Callbacks
 	bool ftCallbackMgr::registerOnUpdateCallback(FighterOnUpdateCB callbackIn)
 	{
 		return registerCallback<FighterOnUpdateCB>(m_onUpdateCallbacks, callbackIn);
@@ -145,6 +191,7 @@ namespace fighterHooks
 		}
 	}
 
+	// OnAttack Callbacks
 	bool ftCallbackMgr::registerOnAttackCallback(FighterOnAttackCB callbackIn)
 	{
 		return registerCallback<FighterOnAttackCB>(m_onAttackCallbacks, callbackIn);
@@ -175,6 +222,12 @@ namespace fighterHooks
 
 	void registerFighterHooks()
 	{
+		// Match Countdown GO! Hook @ 0x80813D70: 0x44 bytes into symbol "readyGo/[ftManager]/ft_manager.o"
+		SyringeCore::syInlineHookRel(0x10935C, reinterpret_cast<void*>(ftCallbackMgr::performOnReadyGoCallbacks), Modules::SORA_MELEE);
+
+		// Match GameSet Hook @ 0x80813E1C: 0xA4 bytes into symbol "gameSet/[ftManager]/ft_manager.o"
+		SyringeCore::syInlineHookRel(0x109408, reinterpret_cast<void*>(ftCallbackMgr::performOnGameSetCallbacks), Modules::SORA_MELEE);
+
 		// General Fighter Create Hook @ 0x80814358: 0x24 bytes into symbol "createFighter/[ftManager]/ft_manager.o"
 		SyringeCore::syInlineHookRel(0x109944, reinterpret_cast<void*>(ftCallbackMgr::performOnCreateCallbacks), Modules::SORA_MELEE);
 

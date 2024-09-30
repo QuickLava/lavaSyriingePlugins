@@ -18,6 +18,8 @@ namespace fighterHooks
 	const u32 maxFighterCount = 0x8;
 	ftManager** const g_ftManagerPtrAddr = 0x80B87C28;
 
+	typedef void (*MeleeOnReadyGoCB)();
+	typedef void (*MeleeOnGameSetCB)();
 	typedef void (*FighterOnCreateCB)(Fighter*);
 	typedef void (*FighterOnStartCB)(Fighter*);
 	typedef void (*FighterOnRemoveCB)(Fighter*);
@@ -50,6 +52,8 @@ namespace fighterHooks
 		};
 		static ftAttackWatcher m_attackWatchers[maxFighterCount];
 
+		static Vector<MeleeOnReadyGoCB> m_onReadyGoCallbacks;
+		static Vector<MeleeOnGameSetCB> m_onGameSetCallbacks;
 		static Vector<FighterOnCreateCB> m_onCreateCallbacks;
 		static Vector<FighterOnStartCB> m_onStartCallbacks;
 		static Vector<FighterOnRemoveCB> m_onRemoveCallbacks;
@@ -108,6 +112,16 @@ namespace fighterHooks
 		}
 
 	public:
+		// OnReadyGo Callbacks
+		static bool registerOnReadyGoCallback(MeleeOnReadyGoCB callbackIn);
+		static bool unregisterOnReadyGoCallback(MeleeOnReadyGoCB callbackIn);
+		static void performOnReadyGoCallbacks();
+
+		// OnGameSet Callbacks
+		static bool registerOnGameSetCallback(MeleeOnGameSetCB callbackIn);
+		static bool unregisterOnGameSetCallback(MeleeOnGameSetCB callbackIn);
+		static void performOnGameSetCallbacks();
+
 		// OnCreate Callbacks
 		static bool registerOnCreateCallback(FighterOnCreateCB callbackIn);
 		static bool unregisterOnCreateCallback(FighterOnCreateCB callbackIn);
