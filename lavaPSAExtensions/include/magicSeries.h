@@ -4,9 +4,9 @@
 #include <cstdlib>
 #include "fighterHooks.h"
 
-namespace lavaPSAExtensions
+namespace magicSeries
 {
-    void magicSeriesCallback(Fighter* attacker, StageObject* target, float power, soCollisionLog* collisionLog);
+    void registerHooks();
 }
 
 #endif

@@ -81,7 +81,7 @@ namespace lavaPSAExtensions {
         //SyringeCore::syInlineHookRel(0x12E680, reinterpret_cast<void*>(aerialInteruptPrevention), Modules::SORA_MELEE); // 0x80839094
 
         fighterHooks::registerFighterHooks();
-        fighterHooks::ftCallbackMgr::registerOnAttackCallback(magicSeriesCallback);
+        magicSeries::registerHooks();
         meleeFreeze::registerHooks();
     }
 

@@ -1,6 +1,6 @@
 #include "magicSeries.h"
 
-namespace lavaPSAExtensions
+namespace magicSeries
 {
     const char outputTag[] = "[lavaMagicSeries] ";
     enum statusIDs
@@ -54,5 +54,9 @@ namespace lavaPSAExtensions
                 OSReport("- Enabled Air Special Cancels!\n");
             }
         }
+    }
+    void registerHooks()
+    {
+        fighterHooks::ftCallbackMgr::registerOnAttackCallback(magicSeriesCallback);
     }
 }

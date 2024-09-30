@@ -243,7 +243,6 @@ namespace fighterHooks
 
 	void registerFighterHooks()
 	{
-
 		// Match Start Hook @ 0x80813D28: 0x0C bytes into symbol "start/[ftManager]/ft_manager.o" @ 0x80813D1C
 		SyringeCore::syInlineHookRel(0x109314, reinterpret_cast<void*>(ftCallbackMgr::performMeleeOnReadyGoCallbacks), Modules::SORA_MELEE);
 
