@@ -13,10 +13,6 @@
 #include <modules.h>
 #include <string.h>
 
-#include "fighterHooks.h"
-#include "magicSeries.h"
-#include "meleeGameSetFreeze.h"
-
 namespace lavaPSAExtensions {
 
     const bool globalAllowDebugPrint = 1;
@@ -78,11 +74,7 @@ namespace lavaPSAExtensions {
     void Init()
     {
         // Note: 0x8070AA14 is SORA_MELEE base address
-        //SyringeCore::syInlineHookRel(0x12E680, reinterpret_cast<void*>(aerialInteruptPrevention), Modules::SORA_MELEE); // 0x80839094
-
-        fighterHooks::registerFighterHooks();
-        magicSeries::registerHooks();
-        meleeFreeze::registerHooks();
+        SyringeCore::syInlineHookRel(0x12E680, reinterpret_cast<void*>(aerialInteruptPrevention), Modules::SORA_MELEE); // 0x80839094
     }
 
     void Destroy()
