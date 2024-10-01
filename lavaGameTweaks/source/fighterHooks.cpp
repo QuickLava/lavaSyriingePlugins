@@ -4,6 +4,32 @@ namespace fighterHooks
 {
 	const char callbackHookMsgFmt[] = "%s%s: entryID = 0x%08X, playerID = 0x%02X!\n";
 
+	ftCallbackMgr::ftEventWatcher::ftEventWatcher() : ftOutsideEventObserver() {}
+	void ftCallbackMgr::ftEventWatcher::notifyEventAppeal(int entryId, int)
+	{
+		OSReport("%sEventAppeal\n", outputTag);
+	}
+	void ftCallbackMgr::ftEventWatcher::notifyEventDead(int entryId, int deadCount, int, int)
+	{
+		OSReport("%sEventDead\n", outputTag);
+	}
+	void ftCallbackMgr::ftEventWatcher::notifyEventSuicide(int entryId)
+	{
+		OSReport("%sEventSuicide\n", outputTag);
+	}
+	void ftCallbackMgr::ftEventWatcher::notifyEventSucceedHit(int entryId, u32 consecutiveHits, float totalDamage)
+	{
+		OSReport("%sEventSucceedHit, %02d Hits!\n", outputTag, consecutiveHits);
+	}
+	void ftCallbackMgr::ftEventWatcher::notifyEventKnockout(int entryId)
+	{
+		OSReport("%sEventKnockout\n", outputTag);
+	}
+	void ftCallbackMgr::ftEventWatcher::notifyEventBeat(int entryId1, int entryId2)
+	{
+		OSReport("%sEventBeat, ID1: 0x%08X, ID2: 0x%08X\n", outputTag, entryId1, entryId2);
+	}
+
 	ftCallbackMgr::ftAttackWatcher::ftAttackWatcher() : soCollisionAttackEventObserver(1) {}
 	ftCallbackMgr::ftAttackWatcher::~ftAttackWatcher() {}
 	void ftCallbackMgr::ftAttackWatcher::addObserver(short param1, s8 param2)
@@ -27,6 +53,7 @@ namespace fighterHooks
 		return (StageObject*)getTaskByID(*g_gfTaskSchedulerPtrAddr, collisionLog->m_category, collisionLog->m_taskId);
 	}
 
+	ftCallbackMgr::ftEventWatcher ftCallbackMgr::m_eventWatcher;
 	ftCallbackMgr::ftAttackWatcher ftCallbackMgr::m_attackWatchers[maxFighterCount];
 	Vector<MeleeOnStartCB> ftCallbackMgr::m_onMeleeStartCallbacks;
 	Vector<MeleeOnReadyGoCB> ftCallbackMgr::m_onMeleeReadyGoCallbacks;
@@ -37,7 +64,22 @@ namespace fighterHooks
 	Vector<FighterOnUpdateCB> ftCallbackMgr::m_onUpdateCallbacks;
 	Vector<FighterOnAttackCB> ftCallbackMgr::m_onAttackCallbacks;
 
-	// OnMeleeReadyGo Callbacks
+	void ftCallbackMgr::subscribeEventWatcher()
+	{
+		int ftManagerManageID = (*g_ftManagerPtrAddr)->m_eventManageModule.getManageId();
+
+		ftOutsideEventObserver* watcher_Out = (ftOutsideEventObserver*)(&m_eventWatcher);
+		watcher_Out->setupObserver(ftManagerManageID);
+		OSReport(observerMessageFmt, outputTag, "Subscribed Event Watcher_Out", watcher_Out->m_manageID, watcher_Out->m_unitID, watcher_Out->m_sendID);
+	}
+	void ftCallbackMgr::unsubscribeEventWatcher()
+	{
+		ftOutsideEventObserver* watcher_Out = (ftOutsideEventObserver*)(&m_eventWatcher);
+		OSReport(observerMessageFmt, outputTag, "Unsubscribing Event Watcher_Out", watcher_Out->m_manageID, watcher_Out->m_unitID, watcher_Out->m_sendID);
+		watcher_Out->removeObserver();
+	}
+
+	// MeleeOnStart Callbacks
 	bool ftCallbackMgr::registerMeleeOnStartCallback(MeleeOnStartCB callbackIn)
 	{
 		return registerCallback<MeleeOnStartCB>(m_onMeleeStartCallbacks, callbackIn);
@@ -55,9 +97,12 @@ namespace fighterHooks
 		{
 			m_onMeleeStartCallbacks[i]();
 		}
+
+		// Subscribe Event Watcher
+		subscribeEventWatcher();
 	}
 
-	// OnMeleeReadyGo Callbacks
+	// MeleeOnReadyGo Callbacks
 	bool ftCallbackMgr::registerMeleeOnReadyGoCallback(MeleeOnReadyGoCB callbackIn)
 	{
 		return registerCallback<MeleeOnReadyGoCB>(m_onMeleeReadyGoCallbacks, callbackIn);
@@ -77,7 +122,7 @@ namespace fighterHooks
 		}
 	}
 
-	// OnMeleeGameSet Callbacks
+	// MeleeOnGameSet Callbacks
 	bool ftCallbackMgr::registerMeleeOnGameSetCallback(MeleeOnGameSetCB callbackIn)
 	{
 		return registerCallback<MeleeOnGameSetCB>(m_onMeleeGameSetCallbacks, callbackIn);
@@ -95,6 +140,9 @@ namespace fighterHooks
 		{
 			m_onMeleeGameSetCallbacks[i]();
 		}
+
+		// Unsubscribe Event Watcher
+		unsubscribeEventWatcher();
 	}
 
 	// OnCreate Callbacks
@@ -243,8 +291,8 @@ namespace fighterHooks
 
 	void registerFighterHooks()
 	{
-		// Match Start Hook @ 0x80813D28: 0x0C bytes into symbol "start/[ftManager]/ft_manager.o" @ 0x80813D1C
-		SyringeCore::syInlineHookRel(0x109314, reinterpret_cast<void*>(ftCallbackMgr::performMeleeOnReadyGoCallbacks), Modules::SORA_MELEE);
+		// Match Start Hook @ 0x80813D24: 0x08 bytes into symbol "start/[ftManager]/ft_manager.o"
+		SyringeCore::syInlineHookRel(0x109310, reinterpret_cast<void*>(ftCallbackMgr::performMeleeOnStartCallbacks), Modules::SORA_MELEE);
 
 		// Match Countdown GO! Hook @ 0x80813D70: 0x44 bytes into symbol "readyGo/[ftManager]/ft_manager.o"
 		SyringeCore::syInlineHookRel(0x10935C, reinterpret_cast<void*>(ftCallbackMgr::performMeleeOnReadyGoCallbacks), Modules::SORA_MELEE);

@@ -41,6 +41,19 @@ namespace fighterHooks
 	{
 	private:
 
+		class ftEventWatcher : public ftOutsideEventObserver
+		{
+		public:
+			ftEventWatcher();
+			virtual void notifyEventAppeal(int entryId, int);
+			virtual void notifyEventDead(int entryId, int deadCount, int, int);
+			virtual void notifyEventSuicide(int entryId);
+			virtual void notifyEventSucceedHit(int entryId, u32 consecutiveHits, float totalDamage);
+			virtual void notifyEventKnockout(int entryId);
+			virtual void notifyEventBeat(int entryId1, int entryId2);
+		};
+		static ftEventWatcher m_eventWatcher;
+
 		class ftAttackWatcher : public soCollisionAttackEventObserver
 		{
 		public:
@@ -102,6 +115,10 @@ namespace fighterHooks
 
 			return result;
 		}
+
+		static void subscribeEventWatcher();
+		static void unsubscribeEventWatcher();
+
 		template<typename watcherType>
 		static void subscribeWatcherToFighter(soEventObserver<watcherType>& watcherIn, Fighter* fighterIn)
 		{
