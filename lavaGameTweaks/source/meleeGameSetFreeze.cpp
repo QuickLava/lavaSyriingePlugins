@@ -8,7 +8,7 @@ namespace meleeFreeze
     {
         typedef void (*SetHitStopFramePtr)(void*, int, int);
 
-        OSReport("MeleeFreeze!\n");
+        OSReport_N("MeleeFreeze!\n");
 
         GameGlobal* gameGlobalPtr = *fighterHooks::g_GameGlobalPtrAddr;
         gameGlobalPtr->m_stageData->m_motionRatio = 0.0f;

@@ -7,27 +7,27 @@ namespace fighterHooks
 	ftCallbackMgr::ftEventWatcher::ftEventWatcher() : ftOutsideEventObserver() {}
 	void ftCallbackMgr::ftEventWatcher::notifyEventAppeal(int entryId, int)
 	{
-		OSReport("%sEventAppeal\n", outputTag);
+		OSReport_N("%sEventAppeal\n", outputTag);
 	}
 	void ftCallbackMgr::ftEventWatcher::notifyEventDead(int entryId, int deadCount, int, int)
 	{
-		OSReport("%sEventDead\n", outputTag);
+		OSReport_N("%sEventDead\n", outputTag);
 	}
 	void ftCallbackMgr::ftEventWatcher::notifyEventSuicide(int entryId)
 	{
-		OSReport("%sEventSuicide\n", outputTag);
+		OSReport_N("%sEventSuicide\n", outputTag);
 	}
 	void ftCallbackMgr::ftEventWatcher::notifyEventSucceedHit(int entryId, u32 consecutiveHits, float totalDamage)
 	{
-		OSReport("%sEventSucceedHit, %02d Hits!\n", outputTag, consecutiveHits);
+		OSReport_N("%sEventSucceedHit, %02d Hits!\n", outputTag, consecutiveHits);
 	}
 	void ftCallbackMgr::ftEventWatcher::notifyEventKnockout(int entryId)
 	{
-		OSReport("%sEventKnockout\n", outputTag);
+		OSReport_N("%sEventKnockout\n", outputTag);
 	}
 	void ftCallbackMgr::ftEventWatcher::notifyEventBeat(int entryId1, int entryId2)
 	{
-		OSReport("%sEventBeat, ID1: 0x%08X, ID2: 0x%08X\n", outputTag, entryId1, entryId2);
+		OSReport_N("%sEventBeat, ID1: 0x%08X, ID2: 0x%08X\n", outputTag, entryId1, entryId2);
 	}
 
 	ftCallbackMgr::ftAttackWatcher::ftAttackWatcher() : soCollisionAttackEventObserver(1) {}
@@ -70,12 +70,12 @@ namespace fighterHooks
 
 		ftOutsideEventObserver* watcher_Out = (ftOutsideEventObserver*)(&m_eventWatcher);
 		watcher_Out->setupObserver(ftManagerManageID);
-		OSReport(observerMessageFmt, outputTag, "Subscribed Event Watcher_Out", watcher_Out->m_manageID, watcher_Out->m_unitID, watcher_Out->m_sendID);
+		OSReport_N(observerMessageFmt, outputTag, "Subscribed Event Watcher_Out", watcher_Out->m_manageID, watcher_Out->m_unitID, watcher_Out->m_sendID);
 	}
 	void ftCallbackMgr::unsubscribeEventWatcher()
 	{
 		ftOutsideEventObserver* watcher_Out = (ftOutsideEventObserver*)(&m_eventWatcher);
-		OSReport(observerMessageFmt, outputTag, "Unsubscribing Event Watcher_Out", watcher_Out->m_manageID, watcher_Out->m_unitID, watcher_Out->m_sendID);
+		OSReport_N(observerMessageFmt, outputTag, "Unsubscribing Event Watcher_Out", watcher_Out->m_manageID, watcher_Out->m_unitID, watcher_Out->m_sendID);
 		watcher_Out->removeObserver();
 	}
 
@@ -90,7 +90,7 @@ namespace fighterHooks
 	}
 	void ftCallbackMgr::performMeleeOnStartCallbacks()
 	{
-		OSReport("%sOnMeleeStart Callbacks\n", outputTag);
+		OSReport_N("%sOnMeleeStart Callbacks\n", outputTag);
 
 		// Execute Callbacks
 		for (int i = 0; i < m_onMeleeStartCallbacks.size(); i++)
@@ -113,7 +113,7 @@ namespace fighterHooks
 	}
 	void ftCallbackMgr::performMeleeOnReadyGoCallbacks()
 	{
-		OSReport("%sOnMeleeReadyGo Callbacks\n", outputTag);
+		OSReport_N("%sOnMeleeReadyGo Callbacks\n", outputTag);
 
 		// Execute Callbacks
 		for (int i = 0; i < m_onMeleeReadyGoCallbacks.size(); i++)
@@ -133,7 +133,7 @@ namespace fighterHooks
 	}
 	void ftCallbackMgr::performMeleeOnGameSetCallbacks()
 	{
-		OSReport("%sOnMeleeGameSet Callbacks\n", outputTag);
+		OSReport_N("%sOnMeleeGameSet Callbacks\n", outputTag);
 
 		// Execute Callbacks
 		for (int i = 0; i < m_onMeleeGameSetCallbacks.size(); i++)
@@ -163,7 +163,7 @@ namespace fighterHooks
 			lwz entryID, 0x04(r31);
 		}
 
-		OSReport(callbackHookMsgFmt, outputTag, "OnCreate Callbacks", entryID, manager->getPlayerNo(entryID));
+		OSReport_N(callbackHookMsgFmt, outputTag, "OnCreate Callbacks", entryID, manager->getPlayerNo(entryID));
 
 		// Execute Callbacks
 		Fighter* fighter = manager->getFighter(entryID, -1);
@@ -195,7 +195,7 @@ namespace fighterHooks
 			mr entryID, r4;
 		}
 
-		OSReport(callbackHookMsgFmt, outputTag, "OnStart Callbacks", entryID, manager->getPlayerNo(entryID));
+		OSReport_N(callbackHookMsgFmt, outputTag, "OnStart Callbacks", entryID, manager->getPlayerNo(entryID));
 
 		// Execute Callbacks
 		Fighter* fighter = manager->getFighter(entryID, -1);
@@ -224,7 +224,7 @@ namespace fighterHooks
 			mr entryID, r4;
 		}
 
-		OSReport(callbackHookMsgFmt, outputTag, "OnRemove Callbacks", entryID, manager->getPlayerNo(entryID));
+		OSReport_N(callbackHookMsgFmt, outputTag, "OnRemove Callbacks", entryID, manager->getPlayerNo(entryID));
 
 		// Execute Callbacks
 		Fighter* fighter = manager->getFighter(entryID, -1);
@@ -271,16 +271,16 @@ namespace fighterHooks
 	}
 	void ftCallbackMgr::performOnAttackCallbacks(Fighter* attacker, StageObject* target, float power, soCollisionLog* collisionLog)
 	{
-		OSReport("%sOnAttack Callbacks!\n", outputTag);
-		OSReport("%s- Attacker: %s, TaskID: 0x%08X\n", outputTag, attacker->m_taskName, attacker->m_taskId);
+		OSReport_N("%sOnAttack Callbacks!\n", outputTag);
+		OSReport_N("%s- Attacker: %s, TaskID: 0x%08X\n", outputTag, attacker->m_taskName, attacker->m_taskId);
 		if (target != NULL)
 		{
-			OSReport("%s-   Target: %s, TaskID: 0x%08X, Category: 0x%02X!\n",
+			OSReport_N("%s-   Target: %s, TaskID: 0x%08X, Category: 0x%02X!\n",
 				outputTag, target->m_taskName, collisionLog->m_taskId, collisionLog->m_category);
 		}
 		else
 		{
-			OSReport("%s-   Target: NULL\n");
+			OSReport_N("%s-   Target: NULL\n");
 		}
 
 		for (int i = 0; i < m_onAttackCallbacks.size(); i++)

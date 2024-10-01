@@ -19,7 +19,7 @@ namespace magicSeries
 
     void magicSeriesCallback(Fighter* attacker, StageObject* target, float power, soCollisionLog* collisionLog)
     {
-        OSReport("%sAttack Detected!\n", outputTag);
+        OSReport_N("%sAttack Detected!\n", outputTag);
         soModuleEnumeration* moduleEnum = &attacker->m_moduleAccesser->m_moduleEnumeration;
         if (moduleEnum != NULL)
         {
@@ -33,17 +33,17 @@ namespace magicSeries
                 case SID_ATTACK_1: case SID_ATTACK_100: case SID_ATTACK_DASH:
                 {
                     moduleEnum->m_statusModule->enableTransitionTermGroup(0x7);
-                    OSReport("- Enabled Jump Cancels!\n");
+                    OSReport_N("- Enabled Jump Cancels!\n");
                 }
                 case SID_ATTACK_S3: case SID_ATTACK_HI3: case SID_ATTACK_LW3:
                 {
                     moduleEnum->m_statusModule->enableTransitionTermGroup(0x4);
-                    OSReport("- Enabled Attack Cancels!\n");
+                    OSReport_N("- Enabled Attack Cancels!\n");
                 }
                 case SID_ATTACK_S4S: case SID_ATTACK_LW4: case SID_ATTACK_HI4:
                 {
                     moduleEnum->m_statusModule->enableTransitionTermGroup(0x1);
-                    OSReport("- Enabled Special Cancels!\n");
+                    OSReport_N("- Enabled Special Cancels!\n");
                     break;
                 }
                 }
@@ -51,7 +51,7 @@ namespace magicSeries
             else if (currSituation == 0x02 && currStatus == SID_ATTACK_AIR)
             {
                 moduleEnum->m_statusModule->enableTransitionTermGroup(0xB);
-                OSReport("- Enabled Air Special Cancels!\n");
+                OSReport_N("- Enabled Air Special Cancels!\n");
             }
         }
     }

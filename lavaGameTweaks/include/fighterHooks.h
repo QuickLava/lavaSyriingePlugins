@@ -8,8 +8,9 @@
 #include <ft/fighter.h>
 #include <ft/ft_manager.h>
 #include <gm/gm_global.h>
-#include <os/OSError.h>
 #include <so/event/so_event_observer.h>
+
+#include "logUtils.h"
 
 namespace fighterHooks
 {
@@ -123,12 +124,12 @@ namespace fighterHooks
 		static void subscribeWatcherToFighter(soEventObserver<watcherType>& watcherIn, Fighter* fighterIn)
 		{
 			watcherIn.setupObserver(fighterIn->m_moduleAccesser->getEventManageModule()->getManageId());
-			OSReport(observerMessageFmt, outputTag, "Subscribed Watcher", watcherIn.m_manageID, watcherIn.m_unitID, watcherIn.m_sendID);
+			OSReport_N(observerMessageFmt, outputTag, "Subscribed Watcher", watcherIn.m_manageID, watcherIn.m_unitID, watcherIn.m_sendID);
 		}
 		template<typename watcherType>
 		static void unsubscribeWatcher(soEventObserver<watcherType>& watcherIn)
 		{
-			OSReport(observerMessageFmt, outputTag, "Unsubscribing Watcher", watcherIn.m_manageID, watcherIn.m_unitID, watcherIn.m_sendID);
+			OSReport_N(observerMessageFmt, outputTag, "Unsubscribing Watcher", watcherIn.m_manageID, watcherIn.m_unitID, watcherIn.m_sendID);
 			watcherIn.removeObserver();
 		}
 
