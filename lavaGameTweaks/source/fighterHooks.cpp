@@ -288,6 +288,49 @@ namespace fighterHooks
 			m_onAttackCallbacks[i](attacker, target, power, collisionLog);
 		}
 	}
+	void ftCallbackMgr::performOnAttackCallbacks2()
+	{
+		typedef int (*gfTaskGetCategory)(gfTask*);
+		const gfTaskGetCategory getCatPtr = 0x8098C010;
+
+		const char fmtStr1[] = "%s- %8s: %s, TaskID: 0x%08X, Category: 0x%04X\n";
+
+		register gfTask* attackerTask;
+		register gfTask* attackerParentTask;
+		register gfTask* targetTask;
+		register int unsure;
+		register float damageDealt;
+
+		asm
+		{
+			mr attackerTask, r31;
+			mr attackerParentTask, r30;
+			mr targetTask, r29;
+			mr unsure, r25;
+			fmr damageDealt, f31;
+		}
+
+		OSReport_N("%sOnAttack Callbacks 2: ??? 0x%02X, Damage: %2.0f\%!\n", outputTag, unsure, damageDealt);
+		OSReport_N(fmtStr1, outputTag, "Attacker", attackerTask->m_taskName, attackerTask->m_taskId, getCatPtr(attackerTask));
+		if (attackerParentTask != NULL && attackerParentTask != attackerTask)
+		{
+			OSReport_N(fmtStr1, outputTag, "Parent", attackerParentTask->m_taskName, attackerParentTask->m_taskId, getCatPtr(attackerParentTask));
+		}
+		if (targetTask != NULL)
+		{
+			OSReport_N(fmtStr1, outputTag, "Target", targetTask->m_taskName, targetTask->m_taskId, getCatPtr(targetTask));
+		}
+		else
+		{
+			OSReport_N("%s-   Target: NULL\n");
+		}
+
+		//for (int i = 0; i < m_onAttackCallbacks.size(); i++)
+		//{
+		//	m_onAttackCallbacks[i](attacker, target, power, collisionLog);
+		//}
+	}
+
 
 	void registerFighterHooks()
 	{
@@ -308,6 +351,9 @@ namespace fighterHooks
 
 		// General Fighter Exit Hook @ 0x80814384: 0x14 bytes into symbol "removeEntry/[ftManager]/ft_manager.o"
 		SyringeCore::syInlineHookRel(0x109970, reinterpret_cast<void*>(ftCallbackMgr::performOnRemoveCallbacks), Modules::SORA_MELEE);
+
+		// General Fighter Attack Land @ 0x8081A298: 0x3A4 bytes into symbol "notifyLogEventCollisionHit/[ftManager]/ft_manager_log_eve"
+		SyringeCore::syInlineHookRel(0x10F884, reinterpret_cast<void*>(ftCallbackMgr::performOnAttackCallbacks2), Modules::SORA_MELEE);
 
 		// General Fighter Update Hook @ 0x80839160: 0xAA4 bytes into symbol "processUpdate/[Fighter]/fighter.o"
 		SyringeCore::syInlineHookRel(0x12E74C, reinterpret_cast<void*>(ftCallbackMgr::performOnUpdateCallbacks), Modules::SORA_MELEE);

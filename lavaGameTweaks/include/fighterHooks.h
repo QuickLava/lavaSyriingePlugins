@@ -29,7 +29,6 @@ namespace fighterHooks
 	typedef void (*FighterOnRemoveCB)(Fighter*);
 	typedef void (*FighterOnUpdateCB)(Fighter*);
 
-	typedef bool (*FighterOnAttackCheckCB)(u32);
 	// Coll Categories:
 	// - 0x02 = Enemies (Note: Bosses count)
 	// - 0x06 = Yakumono (Note: Stage Hazards mostly, including Targets & Skyworld Plats)
@@ -41,7 +40,6 @@ namespace fighterHooks
 	class ftCallbackMgr
 	{
 	private:
-
 		class ftEventWatcher : public ftOutsideEventObserver
 		{
 		public:
@@ -173,6 +171,7 @@ namespace fighterHooks
 		static bool registerOnAttackCallback(FighterOnAttackCB callbackIn);
 		static bool unregisterOnAttackCallback(FighterOnAttackCB callbackIn);
 		static void performOnAttackCallbacks(Fighter* attacker, StageObject* target, float power, soCollisionLog* collisionLog);
+		static void performOnAttackCallbacks2();
 	};
 	void registerFighterHooks();
 }
