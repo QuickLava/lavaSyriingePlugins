@@ -8,7 +8,6 @@
 #include <ft/fighter.h>
 #include <ft/ft_manager.h>
 #include <gm/gm_global.h>
-#include <so/event/so_event_observer.h>
 
 #include "logUtils.h"
 
@@ -35,7 +34,7 @@ namespace fighterHooks
 	// - 0x0A = Fighter (Note: Nana counts!)
 	// - 0x0B = Items (Note: Sandbag counts!)
 	// - 0x0C = Weapon/Article (Note: Pikmin count!)
-	typedef void (*FighterOnAttackCB)(Fighter*, StageObject*, float, soCollisionLog*);
+	typedef void (*FighterOnAttackCB)(Fighter*, StageObject*, float);
 	
 	class ftCallbackMgr
 	{
@@ -52,20 +51,6 @@ namespace fighterHooks
 			virtual void notifyEventBeat(int entryId1, int entryId2);
 		};
 		static ftEventWatcher m_eventWatcher;
-
-		class ftAttackWatcher : public soCollisionAttackEventObserver
-		{
-		public:
-			ftAttackWatcher();
-			virtual ~ftAttackWatcher();
-
-			virtual void addObserver(short param1, s8 param2);
-			virtual bool notifyEventCollisionAttackCheck(u32 flags);
-			virtual void notifyEventCollisionAttack(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser);
-
-			StageObject* getStageObjFromCollLog(soCollisionLog* collisionLog);
-		};
-		static ftAttackWatcher m_attackWatchers[maxFighterCount];
 
 		static Vector<MeleeOnStartCB> m_onMeleeStartCallbacks;
 		static Vector<MeleeOnReadyGoCB> m_onMeleeReadyGoCallbacks;
@@ -170,8 +155,7 @@ namespace fighterHooks
 		// OnAttack Callbacks
 		static bool registerOnAttackCallback(FighterOnAttackCB callbackIn);
 		static bool unregisterOnAttackCallback(FighterOnAttackCB callbackIn);
-		static void performOnAttackCallbacks(Fighter* attacker, StageObject* target, float power, soCollisionLog* collisionLog);
-		static void performOnAttackCallbacks2();
+		static void performOnAttackCallbacks();
 	};
 	void registerFighterHooks();
 }

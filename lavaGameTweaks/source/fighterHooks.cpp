@@ -30,31 +30,7 @@ namespace fighterHooks
 		OSReport_N("%sEventBeat, ID1: 0x%08X, ID2: 0x%08X\n", outputTag, entryId1, entryId2);
 	}
 
-	ftCallbackMgr::ftAttackWatcher::ftAttackWatcher() : soCollisionAttackEventObserver(1) {}
-	ftCallbackMgr::ftAttackWatcher::~ftAttackWatcher() {}
-	void ftCallbackMgr::ftAttackWatcher::addObserver(short param1, s8 param2)
-	{
-		return;
-	}
-	bool ftCallbackMgr::ftAttackWatcher::notifyEventCollisionAttackCheck(u32 flags)
-	{
-		return 0;
-	}
-	void ftCallbackMgr::ftAttackWatcher::notifyEventCollisionAttack(float power, soCollisionLog* collisionLog, soModuleAccesser* moduleAccesser)
-	{
-		ftCallbackMgr::performOnAttackCallbacks((Fighter*)moduleAccesser->m_stageObject, getStageObjFromCollLog(collisionLog), power, collisionLog);
-	}
-	StageObject* ftCallbackMgr::ftAttackWatcher::getStageObjFromCollLog(soCollisionLog* collisionLog)
-	{
-		typedef StageObject* (*getTaskByIDPtr)(void*, u32, int);
-		void** const g_gfTaskSchedulerPtrAddr = (void**)0x805A0068;
-		const getTaskByIDPtr getTaskByID = (getTaskByIDPtr)0x8002F018;
-
-		return (StageObject*)getTaskByID(*g_gfTaskSchedulerPtrAddr, collisionLog->m_category, collisionLog->m_taskId);
-	}
-
 	ftCallbackMgr::ftEventWatcher ftCallbackMgr::m_eventWatcher;
-	ftCallbackMgr::ftAttackWatcher ftCallbackMgr::m_attackWatchers[maxFighterCount];
 	Vector<MeleeOnStartCB> ftCallbackMgr::m_onMeleeStartCallbacks;
 	Vector<MeleeOnReadyGoCB> ftCallbackMgr::m_onMeleeReadyGoCallbacks;
 	Vector<MeleeOnGameSetCB> ftCallbackMgr::m_onMeleeGameSetCallbacks;
@@ -171,9 +147,6 @@ namespace fighterHooks
 		{
 			m_onCreateCallbacks[i](fighter);
 		}
-
-		// Subscribe Watchers
-		subscribeWatcherToFighter(m_attackWatchers[manager->getPlayerNo(entryID)], fighter);
 	}
 
 	// OnStart Callbacks
@@ -232,9 +205,6 @@ namespace fighterHooks
 		{
 			m_onRemoveCallbacks[i](fighter);
 		}
-
-		// Unsubscribe Watchers
-		unsubscribeWatcher(m_attackWatchers[manager->getPlayerNo(entryID)]);
 	}
 
 	// Update Callbacks
@@ -269,26 +239,7 @@ namespace fighterHooks
 	{
 		return unregisterCallback<FighterOnAttackCB>(m_onAttackCallbacks, callbackIn);
 	}
-	void ftCallbackMgr::performOnAttackCallbacks(Fighter* attacker, StageObject* target, float power, soCollisionLog* collisionLog)
-	{
-		OSReport_N("%sOnAttack Callbacks!\n", outputTag);
-		OSReport_N("%s- Attacker: %s, TaskID: 0x%08X\n", outputTag, attacker->m_taskName, attacker->m_taskId);
-		if (target != NULL)
-		{
-			OSReport_N("%s-   Target: %s, TaskID: 0x%08X, Category: 0x%02X!\n",
-				outputTag, target->m_taskName, collisionLog->m_taskId, collisionLog->m_category);
-		}
-		else
-		{
-			OSReport_N("%s-   Target: NULL\n");
-		}
-
-		for (int i = 0; i < m_onAttackCallbacks.size(); i++)
-		{
-			m_onAttackCallbacks[i](attacker, target, power, collisionLog);
-		}
-	}
-	void ftCallbackMgr::performOnAttackCallbacks2()
+	void ftCallbackMgr::performOnAttackCallbacks()
 	{
 		typedef int (*gfTaskGetCategory)(gfTask*);
 		const gfTaskGetCategory getCatPtr = 0x8098C010;
@@ -310,8 +261,10 @@ namespace fighterHooks
 			fmr damageDealt, f31;
 		}
 
-		OSReport_N("%sOnAttack Callbacks 2: ??? 0x%02X, Damage: %2.0f\%!\n", outputTag, unsure, damageDealt);
-		OSReport_N(fmtStr1, outputTag, "Attacker", attackerTask->m_taskName, attackerTask->m_taskId, getCatPtr(attackerTask));
+		u32 attackerCategory = getCatPtr(attackerTask);
+
+		OSReport_N("%sOnAttack Callbacks: ??? 0x%02X, Damage: %2.0f\%!\n", outputTag, unsure, damageDealt);
+		OSReport_N(fmtStr1, outputTag, "Attacker", attackerTask->m_taskName, attackerTask->m_taskId, attackerCategory);
 		if (attackerParentTask != NULL && attackerParentTask != attackerTask)
 		{
 			OSReport_N(fmtStr1, outputTag, "Parent", attackerParentTask->m_taskName, attackerParentTask->m_taskId, getCatPtr(attackerParentTask));
@@ -325,10 +278,13 @@ namespace fighterHooks
 			OSReport_N("%s-   Target: NULL\n");
 		}
 
-		//for (int i = 0; i < m_onAttackCallbacks.size(); i++)
-		//{
-		//	m_onAttackCallbacks[i](attacker, target, power, collisionLog);
-		//}
+		if (attackerCategory == 0xA)
+		{
+			for (int i = 0; i < m_onAttackCallbacks.size(); i++)
+			{
+				m_onAttackCallbacks[i]((Fighter*)attackerTask, (StageObject*)targetTask, damageDealt);
+			}
+		}
 	}
 
 
@@ -353,7 +309,7 @@ namespace fighterHooks
 		SyringeCore::syInlineHookRel(0x109970, reinterpret_cast<void*>(ftCallbackMgr::performOnRemoveCallbacks), Modules::SORA_MELEE);
 
 		// General Fighter Attack Land @ 0x8081A298: 0x3A4 bytes into symbol "notifyLogEventCollisionHit/[ftManager]/ft_manager_log_eve"
-		SyringeCore::syInlineHookRel(0x10F884, reinterpret_cast<void*>(ftCallbackMgr::performOnAttackCallbacks2), Modules::SORA_MELEE);
+		SyringeCore::syInlineHookRel(0x10F884, reinterpret_cast<void*>(ftCallbackMgr::performOnAttackCallbacks), Modules::SORA_MELEE);
 
 		// General Fighter Update Hook @ 0x80839160: 0xAA4 bytes into symbol "processUpdate/[Fighter]/fighter.o"
 		SyringeCore::syInlineHookRel(0x12E74C, reinterpret_cast<void*>(ftCallbackMgr::performOnUpdateCallbacks), Modules::SORA_MELEE);

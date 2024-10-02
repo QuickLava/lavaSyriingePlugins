@@ -17,7 +17,7 @@ namespace magicSeries
         SID_ATTACK_AIR = 0x33,
     };
 
-    void magicSeriesCallback(Fighter* attacker, StageObject* target, float power, soCollisionLog* collisionLog)
+    void magicSeriesCallback(Fighter* attacker, StageObject* target, float damage)
     {
         OSReport_N("%sAttack Detected!\n", outputTag);
         soModuleEnumeration* moduleEnum = &attacker->m_moduleAccesser->m_moduleEnumeration;
