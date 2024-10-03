@@ -42,6 +42,43 @@ namespace fighterHooks
 	Vector<FighterOnAttackItemCB> ftCallbackMgr::m_onAttackItemCallbacks;
 	Vector<FighterOnAttackArticleCB> ftCallbackMgr::m_onAttackArticleCallbacks;
 
+	bool ftCallbackMgr::_registerCallback(Vector<void*>* targetVector, void* callbackIn)
+	{
+		bool result = 1;
+
+		for (int i = 0; result && i < targetVector->size(); i++)
+		{
+			result = (*targetVector)[i] != callbackIn;
+		}
+
+		if (result)
+		{
+			targetVector->push(callbackIn);
+		}
+
+		return result;
+	}
+	bool ftCallbackMgr::_unregisterCallback(Vector<void*>* targetVector, void* callbackIn)
+	{
+		bool result = 0;
+
+		for (int i = 0; !result && i < targetVector->size(); i++)
+		{
+			result = (*targetVector)[i] == callbackIn;
+			if (result && ((i + 1) < targetVector->size()))
+			{
+				(*targetVector)[i] = (*targetVector)[i + 1];
+			}
+		}
+
+		if (result)
+		{
+			targetVector->pop();
+		}
+
+		return result;
+	}
+
 	void ftCallbackMgr::subscribeEventWatcher()
 	{
 		int ftManagerManageID = (*g_ftManagerPtrAddr)->m_eventManageModule.getManageId();

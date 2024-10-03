@@ -67,45 +67,19 @@ namespace fighterHooks
 		static Vector<FighterOnAttackItemCB> m_onAttackItemCallbacks;
 		static Vector<FighterOnAttackArticleCB> m_onAttackArticleCallbacks;
 
+		static bool _registerCallback(Vector<void*>* targetVector, void* callbackIn);
+		static bool _unregisterCallback(Vector<void*>* targetVector, void* callbackIn);
 		template<typename cbType>
-		static bool registerCallback(Vector<cbType>& targetVector, cbType callbackIn)
+		static inline bool registerCallback(Vector<cbType>& targetVector, cbType callbackIn)
 		{
-			bool result = 1;
-
-			for (int i = 0; result && i < targetVector.size(); i++)
-			{
-				result = targetVector[i] != callbackIn;
-			}
-
-			if (result)
-			{
-				targetVector.push(callbackIn);
-			}
-
-			return result;
+			return _registerCallback((Vector<void*>*)&targetVector, (void*)callbackIn);
 		}
 		template<typename cbType>
-		static bool unregisterCallback(Vector<cbType>& targetVector, cbType callbackIn)
+		static inline bool unregisterCallback(Vector<cbType>& targetVector, cbType callbackIn)
 		{
-			bool result = 0;
-
-			for (int i = 0; !result && i < targetVector.size(); i++)
-			{
-				result = targetVector[i] == callbackIn;
-				if (result && ((i + 1) < targetVector.size()))
-				{
-					targetVector[i] = targetVector[i + 1];
-				}
-			}
-
-			if (result)
-			{
-				targetVector.pop();
-			}
-
-			return result;
+			return _unregisterCallback((Vector<void*>*)&targetVector, (void*)callbackIn);
 		}
-
+		
 		static void subscribeEventWatcher();
 		static void unsubscribeEventWatcher();
 
