@@ -39,6 +39,8 @@ namespace fighterHooks
 	Vector<FighterOnRemoveCB> ftCallbackMgr::m_onRemoveCallbacks;
 	Vector<FighterOnUpdateCB> ftCallbackMgr::m_onUpdateCallbacks;
 	Vector<FighterOnAttackCB> ftCallbackMgr::m_onAttackCallbacks;
+	Vector<FighterOnAttackItemCB> ftCallbackMgr::m_onAttackItemCallbacks;
+	Vector<FighterOnAttackArticleCB> ftCallbackMgr::m_onAttackArticleCallbacks;
 
 	void ftCallbackMgr::subscribeEventWatcher()
 	{
@@ -239,6 +241,22 @@ namespace fighterHooks
 	{
 		return unregisterCallback<FighterOnAttackCB>(m_onAttackCallbacks, callbackIn);
 	}
+	bool ftCallbackMgr::registerOnAttackItemCallback(FighterOnAttackItemCB callbackIn)
+	{
+		return registerCallback<FighterOnAttackItemCB>(m_onAttackItemCallbacks, callbackIn);
+	}
+	bool ftCallbackMgr::unregisterOnAttackItemCallback(FighterOnAttackItemCB callbackIn)
+	{
+		return unregisterCallback<FighterOnAttackItemCB>(m_onAttackItemCallbacks, callbackIn);
+	}
+	bool ftCallbackMgr::registerOnAttackArticleCallback(FighterOnAttackArticleCB callbackIn)
+	{
+		return registerCallback<FighterOnAttackArticleCB>(m_onAttackArticleCallbacks, callbackIn);
+	}
+	bool ftCallbackMgr::unregisterOnAttackArticleCallback(FighterOnAttackArticleCB callbackIn)
+	{
+		return unregisterCallback<FighterOnAttackArticleCB>(m_onAttackArticleCallbacks, callbackIn);
+	}
 	void ftCallbackMgr::performOnAttackCallbacks()
 	{
 		typedef int (*gfTaskGetCategory)(gfTask*);
@@ -285,8 +303,24 @@ namespace fighterHooks
 				m_onAttackCallbacks[i]((Fighter*)attackerTask, (StageObject*)targetTask, damageDealt);
 			}
 		}
+		else if (attackerParentTask != NULL)
+		{
+			if (attackerCategory == 0xB)
+			{
+				for (int i = 0; i < m_onAttackItemCallbacks.size(); i++)
+				{
+					m_onAttackItemCallbacks[i]((Fighter*)attackerParentTask, (StageObject*)targetTask, damageDealt, (BaseItem*)attackerTask);
+				}
+			}
+			else if(attackerCategory == 0xC)
+			{
+				for (int i = 0; i < m_onAttackArticleCallbacks.size(); i++)
+				{
+					m_onAttackArticleCallbacks[i]((Fighter*)attackerParentTask, (StageObject*)targetTask, damageDealt, (Weapon*)attackerTask);
+				}
+			}
+		}
 	}
-
 
 	void registerFighterHooks()
 	{

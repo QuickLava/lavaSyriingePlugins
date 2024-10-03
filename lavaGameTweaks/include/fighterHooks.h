@@ -8,6 +8,8 @@
 #include <ft/fighter.h>
 #include <ft/ft_manager.h>
 #include <gm/gm_global.h>
+#include <wn/weapon.h>
+#include <it/item.h>
 
 #include "logUtils.h"
 
@@ -35,7 +37,9 @@ namespace fighterHooks
 	// - 0x0B = Items (Note: Sandbag counts!)
 	// - 0x0C = Weapon/Article (Note: Pikmin count!)
 	typedef void (*FighterOnAttackCB)(Fighter*, StageObject*, float);
-	
+	typedef void (*FighterOnAttackItemCB)(Fighter*, StageObject*, float, BaseItem*);
+	typedef void (*FighterOnAttackArticleCB)(Fighter*, StageObject*, float, Weapon*);
+
 	class ftCallbackMgr
 	{
 	private:
@@ -60,6 +64,8 @@ namespace fighterHooks
 		static Vector<FighterOnRemoveCB> m_onRemoveCallbacks;
 		static Vector<FighterOnUpdateCB> m_onUpdateCallbacks;
 		static Vector<FighterOnAttackCB> m_onAttackCallbacks;
+		static Vector<FighterOnAttackItemCB> m_onAttackItemCallbacks;
+		static Vector<FighterOnAttackArticleCB> m_onAttackArticleCallbacks;
 
 		template<typename cbType>
 		static bool registerCallback(Vector<cbType>& targetVector, cbType callbackIn)
@@ -155,6 +161,10 @@ namespace fighterHooks
 		// OnAttack Callbacks
 		static bool registerOnAttackCallback(FighterOnAttackCB callbackIn);
 		static bool unregisterOnAttackCallback(FighterOnAttackCB callbackIn);
+		static bool registerOnAttackItemCallback(FighterOnAttackItemCB callbackIn);
+		static bool unregisterOnAttackItemCallback(FighterOnAttackItemCB callbackIn);
+		static bool registerOnAttackArticleCallback(FighterOnAttackArticleCB callbackIn);
+		static bool unregisterOnAttackArticleCallback(FighterOnAttackArticleCB callbackIn);
 		static void performOnAttackCallbacks();
 	};
 	void registerFighterHooks();
