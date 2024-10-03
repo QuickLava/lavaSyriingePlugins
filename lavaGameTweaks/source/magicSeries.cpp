@@ -55,8 +55,39 @@ namespace magicSeries
             }
         }
     }
+    void itemAttackCallback(Fighter* attacker, StageObject* target, float damage, BaseItem* item)
+    {
+        typedef void (*reflectFunc)(BaseItem*);
+        reflectFunc onReflect = (reflectFunc)0x80995EE0;
+
+        soEffectModule* effectModule = item->m_moduleAccesser->getEffectModule();
+        Vec3f transRot = { 0.0f, 0.0f, 0.0f };
+        effectModule->req(2.0f, 54, &transRot, &transRot, 0, -1);
+
+        soSoundModule* soundModule = item->m_moduleAccesser->getSoundModule();
+        soundModule->playSE(snd_se_narration_one, 1, 1, 0);
+
+        onReflect(item);
+    }
+    void articleAttackCallback(Fighter* attacker, StageObject* target, float damage, Weapon* article)
+    {
+        typedef void (*reflectFunc)(Weapon*);
+
+        soEffectModule* effectModule = article->m_moduleAccesser->getEffectModule();
+        Vec3f transRot = { 0.0f, 0.0f, 0.0f };
+        effectModule->req(2.0f, 53, &transRot, &transRot, 0, -1);
+
+        soSoundModule* soundModule = article->m_moduleAccesser->getSoundModule();
+        soundModule->playSE(snd_se_narration_two, 1, 1, 0);
+
+        int* weaponVTable9 = ((int**)article)[0xF] + 0x49;
+        reflectFunc funcPtr = (reflectFunc)weaponVTable9[0x42];
+        funcPtr(article);
+    }
     void registerHooks()
     {
         fighterHooks::ftCallbackMgr::registerOnAttackCallback(magicSeriesCallback);
+        fighterHooks::ftCallbackMgr::registerOnAttackItemCallback(itemAttackCallback);
+        fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback(articleAttackCallback);
     }
 }
