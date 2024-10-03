@@ -11,6 +11,8 @@
 #include <wn/weapon.h>
 #include <it/item.h>
 
+#include <so/collision/so_collision_attack_part.h>
+
 #include "logUtils.h"
 
 namespace fighterHooks
@@ -21,6 +23,9 @@ namespace fighterHooks
 	const u32 maxFighterCount = 0x8;
 	ftManager** const g_ftManagerPtrAddr = 0x80B87C28;
 	GameGlobal** const g_GameGlobalPtrAddr = 0x805A00E0;
+
+	typedef int (*gfTaskGetCategory)(gfTask*);
+	const gfTaskGetCategory getCatPtr = (gfTaskGetCategory)0x8098C010;
 
 	typedef void (*MeleeOnStartCB)();
 	typedef void (*MeleeOnReadyGoCB)();
