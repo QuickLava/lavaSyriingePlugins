@@ -414,7 +414,7 @@ namespace fighterHooks
 	void registerFighterHooks()
 	{
 		// Hitbox Setup Hook @ 0x807468CC: 0x1EC bytes into symbol "notifyEventAnimCmd/[soCollisionAttackModuleImpl]/so_colli"
-		SyringeCore::syInlineHookRel(0x3BEB8, reinterpret_cast<void*>(setPartForDeflect), Modules::SORA_MELEE);
+		//SyringeCore::syInlineHookRel(0x3BEB8, reinterpret_cast<void*>(setPartForDeflect), Modules::SORA_MELEE);
 
 		// Match Start Hook @ 0x80813D24: 0x08 bytes into symbol "start/[ftManager]/ft_manager.o"
 		SyringeCore::syInlineHookRel(0x109310, reinterpret_cast<void*>(ftCallbackMgr::performMeleeOnStartCallbacks), Modules::SORA_MELEE);

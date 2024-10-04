@@ -1,6 +1,7 @@
 #include "fighterHooks.h"
 #include "magicSeries.h"
 #include "meleeGameSetFreeze.h"
+#include "reflectOnHit.h"
 
 namespace lavaGameTweaks
 {
@@ -10,6 +11,7 @@ namespace lavaGameTweaks
         fighterHooks::registerFighterHooks();
         magicSeries::registerHooks();
         meleeFreeze::registerHooks();
+        reflectOnHit::registerHooks();
     }
 
     void Destroy()

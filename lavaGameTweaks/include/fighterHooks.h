@@ -11,7 +11,7 @@
 #include <wn/weapon.h>
 #include <it/item.h>
 
-#include <so/collision/so_collision_attack_part.h>
+#include <so/collision/so_collision_attack_module_impl.h>
 
 #include "logUtils.h"
 
