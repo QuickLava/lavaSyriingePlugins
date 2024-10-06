@@ -9,7 +9,7 @@ namespace Syringe
     const PluginMeta META = {
         "lavaGameTweaks",
         "QuickLava",
-        Version("0.1.0"),
+        Version("0.1.5"),
         Version(SYRINGE_VERSION)};
 
     extern "C"
