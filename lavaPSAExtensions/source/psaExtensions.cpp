@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "aerialInterrupts.h"
+#include "rasterizeVars.h"
 
 namespace lavaPSAExtensions {
 
@@ -15,6 +16,7 @@ namespace lavaPSAExtensions {
     {
         // Note: 0x8070AA14 is SORA_MELEE base address
         aerialInterrupts::registerHooks();
+        rasterizeVars::registerHooks();
     }
 
     void Destroy()
