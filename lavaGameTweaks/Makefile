@@ -106,6 +106,7 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 			-I$(LIB)/BrawlHeaders/std/Include \
 			-I$(LIB)/BrawlHeaders/utils/include \
 			-I$(LIB)/sy_core/include \
+			-I$(LIB)/ \
 
 #---------------------------------------------------------------------------------
 # build a list of library paths
