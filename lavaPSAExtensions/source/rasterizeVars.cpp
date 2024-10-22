@@ -9,14 +9,38 @@ namespace rasterizeVars
 {
     const char outputTag[] = "[rasterizeVars] ";
     const char errorFmtStr[] = "%sRasterization Failed: %s\n";
+    const char rasterizeFmtStr[] = "%s- Rasterized Arg #%d (%s): %08X -> %08X\n";
     const u32 maxArgumentCount = 0x10;
 
-    //soAnimCmdArgument argBuffer[maxArgumentCount];
-    //soAnimCmd proxyCommand = {0, 0, 0, 0, argBuffer};
+    struct cmdWhitelistEntry
+    {
+        u8 m_module; // AnimCMD Instruction Module ID
+        u8 m_code; // AnimCMD Instruction Code ID
+        u16 m_argMask; // Bits correspond (from low to high) to each instruction argument: 0 == Skip, 1 == Evaluate
+        u16 m_boolMask; // Bits correspond (from low to high) to each argument: 1 == Expect Bool
+        u16 m_intFltMask; // Bits correspond (from low to high) to each instruction argument: 0 == Expect Int, 1 == Expect Flt
+    };
+    const cmdWhitelistEntry allowedCommands[] =
+    {
+        {0x11, 0xFF, 0xFFFF, 0x0000, ~0b11}, // Generic Graphic Effect Entry
+    };
+    const u32 allowedCommandCount = sizeof(allowedCommands) / sizeof(cmdWhitelistEntry);
 
     void rasterizeVariables(acAnimCmdImpl* cmdIn, soModuleAccesser* accesserIn, soAnimCmd* proxyIn, soAnimCmdArgument* argBufferIn)
     {
         soAnimCmd* rawCommandPtr = ((soAnimCmd**)cmdIn)[2];
+
+        bool cmdAllowed = 0;
+        const cmdWhitelistEntry* currWhitelistEntry = allowedCommands - 1;
+        for (int i = 0; !cmdAllowed && i < allowedCommandCount; i++)
+        {
+            currWhitelistEntry++;
+            if (currWhitelistEntry->m_module == rawCommandPtr->m_module)
+            {
+                cmdAllowed = (currWhitelistEntry->m_code == 0xFFul) || (currWhitelistEntry->m_code == rawCommandPtr->m_code);
+            }
+        }
+        if (!cmdAllowed) return;
 
         OSReport_N("%sRasterizing Args (%08X: ", outputTag, *((u32*)rawCommandPtr));
         if (rawCommandPtr->m_argCount > maxArgumentCount)
@@ -33,36 +57,43 @@ namespace rasterizeVars
         soAnimCmdArgument* currArg = rawCommandPtr->m_args;
         soAnimCmdArgument* currBufArg = argBufferIn;
         OSReport_N("0x%08X -> 0x%08X)\n", currArg, currBufArg);
-
         for (int i = 0; i < rawCommandPtr->m_argCount; i++)
         {
-            currBufArg->m_varType = currArg->m_varType;
-            currBufArg->m_rawValue = currArg->m_rawValue;
-
-            /*if (currArg->m_varType == AnimCmd_Arg_Type_Variable)
+            if ((currWhitelistEntry->m_argMask & (0b1 << i)) && currArg->m_varType == AnimCmd_Arg_Type_Variable)
             {
+                char varMemType = (currArg->m_rawValue >> 0x1E) & 0x3;
                 char varDataType = (currArg->m_rawValue >> 0x1C) & 0x3;
-                if (varDataType == ANIM_CMD_INT)
+                if (currWhitelistEntry->m_boolMask & (0b1 << i))
                 {
-                    currBufArg->m_varType = AnimCmd_Arg_Type_Int;
-                    currBufArg->m_rawValue = soValueAccesser::getValueInt(accesserIn, currArg->m_rawValue, 0);
+                    currBufArg->m_varType = AnimCmd_Arg_Type_Bool;
+                    if (varDataType != ANIM_CMD_BOOL || varMemType == ANIM_CMD_VAR_TYPE_IC)
+                    {
+                        currBufArg->m_rawValue = soValueAccesser::getValueInt(accesserIn, currArg->m_rawValue, 0) != 0;
+                    }
+                    else
+                    {
+                        currBufArg->m_rawValue = accesserIn->getWorkManageModule()->isFlag(currArg->m_rawValue);
+                    }
+                    OSReport_N(rasterizeFmtStr, outputTag, i, "Bool", currArg->m_rawValue, currBufArg->m_rawValue);
                 }
-                else if (varDataType == ANIM_CMD_FLOAT)
+                else if (currWhitelistEntry->m_intFltMask & (0b1 << i))
                 {
                     currBufArg->m_varType = AnimCmd_Arg_Type_Scalar;
                     currBufArg->m_rawValue = (int)(soValueAccesser::getValueFloat(accesserIn, currArg->m_rawValue, 0) * 60000.0f);
+                    OSReport_N(rasterizeFmtStr, outputTag, i, "Scalar", currArg->m_rawValue, currBufArg->m_rawValue);
                 }
                 else
                 {
-                    currBufArg->m_varType = currArg->m_varType;
-                    currBufArg->m_rawValue = currArg->m_rawValue;
+                    currBufArg->m_varType = AnimCmd_Arg_Type_Int;
+                    currBufArg->m_rawValue = soValueAccesser::getValueInt(accesserIn, currArg->m_rawValue, 0);
+                    OSReport_N(rasterizeFmtStr, outputTag, i, "Int", currArg->m_rawValue, currBufArg->m_rawValue);
                 }
             }
             else
             {
                 currBufArg->m_varType = currArg->m_varType;
                 currBufArg->m_rawValue = currArg->m_rawValue;
-            }*/
+            }
             currArg++;
             currBufArg++;
         }
@@ -77,7 +108,7 @@ namespace rasterizeVars
     asm void rasterizeVariablesHook()
     {
         nofralloc
-        mflr r31;			    // Backup LR in a non-volatile register!
+        mflr r31;               // Backup LR in a non-volatile register!
                                 // Call main function body!
                                 // param1 is curr acAnimCmdImpl*, already in r3
         lwz r4, 0x44(r30);      // param2 is soModuleAccesser*
