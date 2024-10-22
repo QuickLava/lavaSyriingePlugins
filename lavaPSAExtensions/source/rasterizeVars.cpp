@@ -10,19 +10,57 @@ namespace rasterizeVars
     const char outputTag[] = "[rasterizeVars] ";
     const char errorFmtStr[] = "%sRasterization Failed: %s\n";
     const char rasterizeFmtStr[] = "%s- Rasterized Arg #%d (%s): %08X -> %08X\n";
-    const u32 maxArgumentCount = 0x10;
+    const u32 maxArgumentCount = 0x20;
+
+    enum argType
+    {
+        af_NULL = 0x00,
+        af_INT,
+        af_FLT,
+        af_BOOL,
+    };
+    struct argFlagBank
+    {
+        argType arg01 : 2; argType arg02 : 2; argType arg03 : 2; argType arg04 : 2;
+        argType arg05 : 2; argType arg06 : 2; argType arg07 : 2; argType arg08 : 2;
+        argType arg09 : 2; argType arg10 : 2; argType arg11 : 2; argType arg12 : 2;
+        argType arg13 : 2; argType arg14 : 2; argType arg15 : 2; argType arg16 : 2;
+        argType arg17 : 2; argType arg18 : 2; argType arg19 : 2; argType arg20 : 2;
+        argType arg21 : 2; argType arg22 : 2; argType arg23 : 2; argType arg24 : 2;
+        argType arg25 : 2; argType arg26 : 2; argType arg27 : 2; argType arg28 : 2;
+        argType arg29 : 2; argType arg30 : 2; argType arg31 : 2; argType arg32 : 2;
+    public:
+        argType getArgType(register int index) const
+        {
+            register const argFlagBank* thisptr = this;
+
+            asm
+            {
+                mr r3, thisptr;
+                mr r4, index;
+                rlwinm r12, r4, 30, 0x1D, 0x1D;           // Get offset to target word; offset = (index > 0x10) ? 0x4 : 0x00;
+                lwzx r12, r3, r12;                        // Load target word!
+                rlwinm r4, r4, 1, 0x1B, 0x1E;             // \ 
+                addi r4, r4, 0x2;                         // / Get number of bits to shift by; ((index & 0xF) << 1) + 2...
+                rlwnm r3, r12, r4, 0x1E, 0x1F;            // ... and use that to shift the desired bits into the bottom of r3!
+            }
+        }
+    };
 
     struct cmdWhitelistEntry
     {
         u8 m_module; // AnimCMD Instruction Module ID
         u8 m_code; // AnimCMD Instruction Code ID
-        u16 m_argMask; // Bits correspond (from low to high) to each instruction argument: 0 == Skip, 1 == Evaluate
-        u16 m_boolMask; // Bits correspond (from low to high) to each argument: 1 == Expect Bool
-        u16 m_intFltMask; // Bits correspond (from low to high) to each instruction argument: 0 == Expect Int, 1 == Expect Flt
+        argFlagBank m_varFlags; // Argument Flags
     };
     const cmdWhitelistEntry allowedCommands[] =
     {
-        {0x11, 0xFF, 0xFFFF, 0x0000, ~0b11}, // Generic Graphic Effect Entry
+        // Generic Graphic Effect Entry
+        { 0x11, 0xFF, {
+            af_INT, af_INT, af_FLT, af_FLT, 
+            af_FLT, af_FLT, af_FLT, af_FLT, 
+            af_FLT, af_BOOL}
+        },
     };
     const u32 allowedCommandCount = sizeof(allowedCommands) / sizeof(cmdWhitelistEntry);
 
@@ -53,17 +91,18 @@ namespace rasterizeVars
             OSReport_N("Skipping, no arguments!\n");
             return;
         }
-
+        
         soAnimCmdArgument* currArg = rawCommandPtr->m_args;
         soAnimCmdArgument* currBufArg = argBufferIn;
         OSReport_N("0x%08X -> 0x%08X)\n", currArg, currBufArg);
         for (int i = 0; i < rawCommandPtr->m_argCount; i++)
         {
-            if ((currWhitelistEntry->m_argMask & (0b1 << i)) && currArg->m_varType == AnimCmd_Arg_Type_Variable)
+            argType currArgType = currWhitelistEntry->m_varFlags.getArgType(i);
+            if ((currArgType != af_NULL) && currArg->m_varType == AnimCmd_Arg_Type_Variable)
             {
                 char varMemType = (currArg->m_rawValue >> 0x1E) & 0x3;
                 char varDataType = (currArg->m_rawValue >> 0x1C) & 0x3;
-                if (currWhitelistEntry->m_boolMask & (0b1 << i))
+                if (currArgType == af_BOOL)
                 {
                     currBufArg->m_varType = AnimCmd_Arg_Type_Bool;
                     if (varDataType != ANIM_CMD_BOOL || varMemType == ANIM_CMD_VAR_TYPE_IC)
@@ -76,7 +115,7 @@ namespace rasterizeVars
                     }
                     OSReport_N(rasterizeFmtStr, outputTag, i, "Bool", currArg->m_rawValue, currBufArg->m_rawValue);
                 }
-                else if (currWhitelistEntry->m_intFltMask & (0b1 << i))
+                else if (currArgType == af_FLT)
                 {
                     currBufArg->m_varType = AnimCmd_Arg_Type_Scalar;
                     currBufArg->m_rawValue = (int)(soValueAccesser::getValueFloat(accesserIn, currArg->m_rawValue, 0) * 60000.0f);
