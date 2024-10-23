@@ -298,8 +298,21 @@ namespace rasterizeVars
         blr; 				    // Return, either to Trampoline or to Pre-Trampoline!
     }
 
+    void applyStackSpaceAdjustment(gfModuleInfo* loadedModuleIn)
+    {
+        if (loadedModuleIn->m_module->header->id == Modules::SORA_MENU_SEL_CHAR)
+        {
+            *((u32*)0x8077AFDC) = 0x9421FEC0;
+            *((u32*)0x8077AFE4) = 0x90010144;
+            *((u32*)0x8077B2DC) = 0x80010144;
+            *((u32*)0x8077B2E4) = 0x38210140;
+            OSReport_N("%sInstalled Stack Space Adjustment!\n", outputTag);
+        }
+    }
+
     void registerHooks()
     {
+        SyringeCore::ModuleLoadEvent::Subscribe(applyStackSpaceAdjustment);
         SyringeCore::syInlineHookRel(0x705E4, reinterpret_cast<void*>(rasterizeVariablesHook), Modules::SORA_MELEE); // 0x8077AFF8
     }
 }
