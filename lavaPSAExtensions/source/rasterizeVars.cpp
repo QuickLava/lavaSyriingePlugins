@@ -65,6 +65,9 @@ namespace rasterizeVars
         fli_0111,
         fli_1,
         fli_111,
+        fli_0000,
+        fli_00000,
+        fli_000011,
         fli_COUNT
     };
     const argTypeBank typeBankLibrary[fli_COUNT] =
@@ -147,6 +150,18 @@ namespace rasterizeVars
         {
             at_FLT, at_FLT, at_FLT
         },
+        //0000
+        {
+            at_INT, at_INT, at_INT, at_INT
+        },
+        //00000
+        {
+            at_INT, at_INT, at_INT, at_INT, at_INT
+        },
+        //000011
+        {
+            at_INT, at_INT, at_INT, at_INT, at_FLT, at_FLT
+        },
     };
 
     struct cmdWhitelistEntry
@@ -206,6 +221,12 @@ namespace rasterizeVars
         { 0x05, 0x09, 0x00, fli_111 },                     // [05090300] Set Character Position
         { 0x05, 0x0A, 0x00, fli_111 },                     // [050A0300] Set Character Position 2
         { 0x05, 0x0B, 0x00, fli_111 },                     // [050B0300] Set Character Position (Relative)
+
+        // Flash Overlay Commands
+        { 0x21, 0x01, 0x00, fli_0000 },                    // [21010400] Flash Overlay Effect
+        { 0x21, 0x02, 0x00, fli_00000 },                   // [21020500] Change Flash Overlay Color
+        { 0x21, 0x07, 0x00, fli_00000 },                   // [21070500] Change Flash Light Color
+        { 0x21, 0x05, 0x00, fli_000011 },                  // [21050600] Flash Light Effect
     };
     const u32 allowedCommandCount = sizeof(allowedCommands) / sizeof(cmdWhitelistEntry);
 
