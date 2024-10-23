@@ -8,7 +8,6 @@
 namespace rasterizeVars
 {
     const char outputTag[] = "[rasterizeVars] ";
-    const char errorFmtStr[] = "%sRasterization Failed: %s\n";
     const char rasterizeFmtStr[] = "%s- Rasterized Arg #%d (%s): %08X -> %08X\n";
     const u32 maxArgumentCount = 0x20;
 
@@ -17,7 +16,7 @@ namespace rasterizeVars
         af_NULL = 0x00,
         af_INT,
         af_FLT,
-        af_BOOL,
+        af_BOL,
     };
     struct argFlagBank
     {
@@ -46,21 +45,56 @@ namespace rasterizeVars
             }
         }
     };
+    enum flagLibraryIndices
+    {
+        fli_NULL = -1,
+        fli_033,
+        fli_0011111113,
+        fli_0011111111111113,
+        fli_00011101113001111111001,
+        fli_COUNT
+    };
+    const argFlagBank flagLibrary[fli_COUNT] =
+    {
+        // 033
+        { af_INT, af_BOL, af_BOL },
+        // 0011111113
+        { 
+            af_INT, af_INT, af_FLT, af_FLT, af_FLT, af_FLT, af_FLT, af_FLT, // 0011111113
+            af_FLT, af_BOL                                                  // 13
+        },
+        // 0011111111111113
+        {
+            af_INT, af_INT, af_FLT, af_FLT, af_FLT, af_FLT, af_FLT, af_FLT, // 00111111
+            af_FLT, af_FLT, af_FLT, af_FLT, af_FLT, af_FLT, af_FLT, af_BOL  // 11111113
+        }, 
+        // 00011101113001111111001
+        {
+            af_INT, af_INT, af_INT, af_FLT, af_FLT, af_FLT, af_INT, af_FLT, // 00011101
+            af_FLT, af_FLT, af_BOL, af_INT, af_INT, af_FLT, af_FLT, af_FLT, // 11300111
+            af_FLT, af_FLT, af_FLT, af_FLT, af_INT, af_INT, af_FLT          // 1111001
+        },
+    };
 
     struct cmdWhitelistEntry
     {
         u8 m_module; // AnimCMD Instruction Module ID
         u8 m_code; // AnimCMD Instruction Code ID
-        argFlagBank m_varFlags; // Argument Flags
+        u8 m_option; // AnimCMD Instruction Option ID
+        u8 m_bankIndex; // flagLibraryIndices entry identifying the associated flagBank
     };
     const cmdWhitelistEntry allowedCommands[] =
     {
-        // Generic Graphic Effect Entry
-        { 0x11, 0xFF, {
-            af_INT, af_INT, af_FLT, af_FLT, 
-            af_FLT, af_FLT, af_FLT, af_FLT, 
-            af_FLT, af_BOOL}
-        },
+        { 0x11, 0x15, 0x00, fli_033},                      // [11150300] Terminate Graphic Effect
+        { 0x11, 0x01, 0x00, fli_0011111113 },              // [11010A00] Graphic Effect (Attached)
+        { 0x11, 0x02, 0x00, fli_0011111113 },              // [11020A00] Graphic Effect (Attached 2)
+        { 0x11, 0x19, 0x00, fli_0011111113 },              // [11190A00] Graphic Effect (Attached 19)
+        { 0x11, 0x00, 0x00, fli_0011111111111113 },        // [11001000] Graphic Effect
+        { 0x11, 0x1A, 0x00, fli_0011111111111113 },        // [111A1000] Graphic Effect (Stepping)
+        { 0x11, 0x1B, 0x00, fli_0011111111111113 },        // [111B1000] Graphic Effect (Landing)
+        { 0x11, 0x1C, 0x00, fli_0011111111111113 },        // [111C1000] Graphic Effect (Tumbling)
+        { 0x11, 0x03, 0x00, fli_00011101113001111111001 }, // [11031400] Sword Glow
+        { 0x11, 0x04, 0x00, fli_00011101113001111111001 }, // [11041700] Sword/Hammer Glow
     };
     const u32 allowedCommandCount = sizeof(allowedCommands) / sizeof(cmdWhitelistEntry);
 
@@ -95,14 +129,17 @@ namespace rasterizeVars
         soAnimCmdArgument* currArg = rawCommandPtr->m_args;
         soAnimCmdArgument* currBufArg = argBufferIn;
         OSReport_N("0x%08X -> 0x%08X)\n", currArg, currBufArg);
+
+        const argFlagBank* targetFlagBank = &flagLibrary[currWhitelistEntry->m_bankIndex];
+
         for (int i = 0; i < rawCommandPtr->m_argCount; i++)
         {
-            argType currArgType = currWhitelistEntry->m_varFlags.getArgType(i);
+            argType currArgType = targetFlagBank->getArgType(i);
             if ((currArgType != af_NULL) && currArg->m_varType == AnimCmd_Arg_Type_Variable)
             {
                 char varMemType = (currArg->m_rawValue >> 0x1E) & 0x3;
                 char varDataType = (currArg->m_rawValue >> 0x1C) & 0x3;
-                if (currArgType == af_BOOL)
+                if (currArgType == af_BOL)
                 {
                     currBufArg->m_varType = AnimCmd_Arg_Type_Bool;
                     if (varDataType != ANIM_CMD_BOOL || varMemType == ANIM_CMD_VAR_TYPE_IC)
