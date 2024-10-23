@@ -13,12 +13,12 @@ namespace rasterizeVars
 
     enum argType
     {
-        af_NULL = 0x00,
-        af_INT,
-        af_FLT,
-        af_BOL,
+        at_NULL = 0x00,
+        at_INT,
+        at_FLT,
+        at_BOL,
     };
-    struct argFlagBank
+    struct argTypeBank
     {
         argType arg01 : 2; argType arg02 : 2; argType arg03 : 2; argType arg04 : 2;
         argType arg05 : 2; argType arg06 : 2; argType arg07 : 2; argType arg08 : 2;
@@ -31,7 +31,7 @@ namespace rasterizeVars
     public:
         argType getArgType(register int index) const
         {
-            register const argFlagBank* thisptr = this;
+            register const argTypeBank* thisptr = this;
 
             asm
             {
@@ -45,7 +45,7 @@ namespace rasterizeVars
             }
         }
     };
-    enum flagLibraryIndices
+    enum typeLibraryIndices
     {
         fli_NULL = -1,
         fli_033,
@@ -54,25 +54,25 @@ namespace rasterizeVars
         fli_00011101113001111111001,
         fli_COUNT
     };
-    const argFlagBank flagLibrary[fli_COUNT] =
+    const argTypeBank typeBankLibrary[fli_COUNT] =
     {
         // 033
-        { af_INT, af_BOL, af_BOL },
+        { at_INT, at_BOL, at_BOL },
         // 0011111113
         { 
-            af_INT, af_INT, af_FLT, af_FLT, af_FLT, af_FLT, af_FLT, af_FLT, // 0011111113
-            af_FLT, af_BOL                                                  // 13
+            at_INT, at_INT, at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, // 0011111113
+            at_FLT, at_BOL                                                  // 13
         },
         // 0011111111111113
         {
-            af_INT, af_INT, af_FLT, af_FLT, af_FLT, af_FLT, af_FLT, af_FLT, // 00111111
-            af_FLT, af_FLT, af_FLT, af_FLT, af_FLT, af_FLT, af_FLT, af_BOL  // 11111113
+            at_INT, at_INT, at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, // 00111111
+            at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, at_BOL  // 11111113
         }, 
         // 00011101113001111111001
         {
-            af_INT, af_INT, af_INT, af_FLT, af_FLT, af_FLT, af_INT, af_FLT, // 00011101
-            af_FLT, af_FLT, af_BOL, af_INT, af_INT, af_FLT, af_FLT, af_FLT, // 11300111
-            af_FLT, af_FLT, af_FLT, af_FLT, af_INT, af_INT, af_FLT          // 1111001
+            at_INT, at_INT, at_INT, at_FLT, at_FLT, at_FLT, at_INT, at_FLT, // 00011101
+            at_FLT, at_FLT, at_BOL, at_INT, at_INT, at_FLT, at_FLT, at_FLT, // 11300111
+            at_FLT, at_FLT, at_FLT, at_FLT, at_INT, at_INT, at_FLT          // 1111001
         },
     };
 
@@ -130,16 +130,16 @@ namespace rasterizeVars
         soAnimCmdArgument* currBufArg = argBufferIn;
         OSReport_N("0x%08X -> 0x%08X)\n", currArg, currBufArg);
 
-        const argFlagBank* targetFlagBank = &flagLibrary[currWhitelistEntry->m_bankIndex];
+        const argTypeBank* targetFlagBank = &typeBankLibrary[currWhitelistEntry->m_bankIndex];
 
         for (int i = 0; i < rawCommandPtr->m_argCount; i++)
         {
             argType currArgType = targetFlagBank->getArgType(i);
-            if ((currArgType != af_NULL) && currArg->m_varType == AnimCmd_Arg_Type_Variable)
+            if ((currArgType != at_NULL) && currArg->m_varType == AnimCmd_Arg_Type_Variable)
             {
                 char varMemType = (currArg->m_rawValue >> 0x1E) & 0x3;
                 char varDataType = (currArg->m_rawValue >> 0x1C) & 0x3;
-                if (currArgType == af_BOL)
+                if (currArgType == at_BOL)
                 {
                     currBufArg->m_varType = AnimCmd_Arg_Type_Bool;
                     if (varDataType != ANIM_CMD_BOOL || varMemType == ANIM_CMD_VAR_TYPE_IC)
@@ -152,7 +152,7 @@ namespace rasterizeVars
                     }
                     OSReport_N(rasterizeFmtStr, outputTag, i, "Bool", currArg->m_rawValue, currBufArg->m_rawValue);
                 }
-                else if (currArgType == af_FLT)
+                else if (currArgType == at_FLT)
                 {
                     currBufArg->m_varType = AnimCmd_Arg_Type_Scalar;
                     currBufArg->m_rawValue = (int)(soValueAccesser::getValueFloat(accesserIn, currArg->m_rawValue, 0) * 60000.0f);
