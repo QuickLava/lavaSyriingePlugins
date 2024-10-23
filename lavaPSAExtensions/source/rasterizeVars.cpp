@@ -8,7 +8,7 @@
 namespace rasterizeVars
 {
     const char outputTag[] = "[rasterizeVars] ";
-    const char rasterizeFmtStr[] = "%s- Rasterized Arg #%d (%s): %08X -> %08X\n";
+    const char rasterizeFmtStr[] = "%sRasterized Arg%2d in %08X: %08X -> %08X (%s)\n";
     const u32 maxArgumentCount = 0x20;
 
     enum argType
@@ -175,6 +175,7 @@ namespace rasterizeVars
     void rasterizeVariables(acAnimCmdImpl* cmdIn, soModuleAccesser* accesserIn, soAnimCmd* proxyIn, soAnimCmdArgument* argBufferIn)
     {
         soAnimCmd* rawCommandPtr = ((soAnimCmd**)cmdIn)[2];
+        u32 commandSignature = *((u32*)rawCommandPtr);
 
         bool cmdAllowed = 0;
         const cmdWhitelistEntry* currWhitelistEntry = allowedCommands - 1;
@@ -186,23 +187,12 @@ namespace rasterizeVars
                 cmdAllowed = (currWhitelistEntry->m_code == 0xFFul) || (currWhitelistEntry->m_code == rawCommandPtr->m_code);
             }
         }
-        if (!cmdAllowed) return;
 
-        OSReport_N("%sRasterizing Args (%08X: ", outputTag, *((u32*)rawCommandPtr));
-        if (rawCommandPtr->m_argCount > maxArgumentCount)
-        {
-            OSReport_N("Skipping, too many arguments!\n");
-            return;
-        }
-        else if (rawCommandPtr->m_argCount == 0x00)
-        {
-            OSReport_N("Skipping, no arguments!\n");
-            return;
-        }
+        if (!cmdAllowed) return;
+        if (rawCommandPtr->m_argCount > maxArgumentCount || rawCommandPtr->m_argCount == 0x00) return;
         
         soAnimCmdArgument* currArg = rawCommandPtr->m_args;
         soAnimCmdArgument* currBufArg = argBufferIn;
-        OSReport_N("0x%08X -> 0x%08X)\n", currArg, currBufArg);
 
         const argTypeBank* targetFlagBank = &typeBankLibrary[currWhitelistEntry->m_bankIndex];
 
@@ -224,19 +214,19 @@ namespace rasterizeVars
                     {
                         currBufArg->m_rawValue = accesserIn->getWorkManageModule()->isFlag(currArg->m_rawValue);
                     }
-                    OSReport_N(rasterizeFmtStr, outputTag, i, "Bool", currArg->m_rawValue, currBufArg->m_rawValue);
+                    OSReport_N(rasterizeFmtStr, outputTag, i, commandSignature, currArg->m_rawValue, currBufArg->m_rawValue, "BOL");
                 }
                 else if (currArgType == at_FLT)
                 {
                     currBufArg->m_varType = AnimCmd_Arg_Type_Scalar;
                     currBufArg->m_rawValue = (int)(soValueAccesser::getValueFloat(accesserIn, currArg->m_rawValue, 0) * 60000.0f);
-                    OSReport_N(rasterizeFmtStr, outputTag, i, "Scalar", currArg->m_rawValue, currBufArg->m_rawValue);
+                    OSReport_N(rasterizeFmtStr, outputTag, i, commandSignature, currArg->m_rawValue, currBufArg->m_rawValue, "FLT");
                 }
                 else
                 {
                     currBufArg->m_varType = AnimCmd_Arg_Type_Int;
                     currBufArg->m_rawValue = soValueAccesser::getValueInt(accesserIn, currArg->m_rawValue, 0);
-                    OSReport_N(rasterizeFmtStr, outputTag, i, "Int", currArg->m_rawValue, currBufArg->m_rawValue);
+                    OSReport_N(rasterizeFmtStr, outputTag, i, commandSignature, currArg->m_rawValue, currBufArg->m_rawValue, "INT");
                 }
             }
             else
