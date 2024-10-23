@@ -52,12 +52,24 @@ namespace rasterizeVars
         fli_0011111113,
         fli_0011111111111113,
         fli_00011101113001111111001,
+        fli_01,
+        fli_000,
+        fli_030,
+        fli_00111,
+        fli_00555,
+        fli_00111100,
+        fli_000001111111000,
+        fli_0001111111111310,
+        fli_00000000111000330,
+        fli_00011110003003030,
         fli_COUNT
     };
     const argTypeBank typeBankLibrary[fli_COUNT] =
     {
         // 033
-        { at_INT, at_BOL, at_BOL },
+        { 
+            at_INT, at_BOL, at_BOL
+        },
         // 0011111113
         { 
             at_INT, at_INT, at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, // 0011111113
@@ -74,6 +86,52 @@ namespace rasterizeVars
             at_FLT, at_FLT, at_BOL, at_INT, at_INT, at_FLT, at_FLT, at_FLT, // 11300111
             at_FLT, at_FLT, at_FLT, at_FLT, at_INT, at_INT, at_FLT          // 1111001
         },
+        // 01
+        {
+            at_INT, at_FLT
+        },
+        // 000
+        {
+            at_INT, at_INT, at_INT
+        },
+        // 030
+        {
+            at_INT, at_BOL, at_INT
+        },
+        // 00111
+        {
+            at_INT, at_INT, at_FLT, at_FLT, at_FLT
+        },
+        // 00555
+        {
+            at_INT, at_INT, at_NULL, at_NULL, at_NULL
+        },
+        // 00111100
+        {
+            at_INT, at_INT, at_FLT, at_FLT, at_FLT, at_FLT, at_INT, at_INT  // 00111100
+        },
+        // 000001111111000
+        {
+            at_INT, at_INT, at_INT, at_INT, at_INT, at_FLT, at_FLT, at_FLT, // 00000111
+            at_FLT, at_FLT, at_FLT, at_FLT, at_INT, at_INT, at_INT          // 1111000
+        },
+        // 0001111111111310
+        {
+            at_INT, at_INT, at_INT, at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, // 00011111
+            at_FLT, at_FLT, at_FLT, at_FLT, at_BOL, at_FLT, at_INT          // 11111310
+        },
+        // 00000000111000330
+        {
+            at_INT, at_INT, at_INT, at_INT, at_INT, at_INT, at_INT, at_INT, // 00000000
+            at_FLT, at_FLT, at_FLT, at_INT, at_INT, at_INT, at_BOL, at_BOL, // 11100033
+            at_INT                                                          // 0
+        },
+        // 00011110003003030
+        {
+            at_INT, at_INT, at_INT, at_FLT, at_FLT, at_FLT, at_FLT, at_INT, // 00011110
+            at_INT, at_INT, at_BOL, at_INT, at_INT, at_BOL, at_INT, at_BOL, // 00300303
+            at_INT                                                          // 0
+        },
     };
 
     struct cmdWhitelistEntry
@@ -85,6 +143,7 @@ namespace rasterizeVars
     };
     const cmdWhitelistEntry allowedCommands[] =
     {
+        // Graphics Commands
         { 0x11, 0x15, 0x00, fli_033},                      // [11150300] Terminate Graphic Effect
         { 0x11, 0x01, 0x00, fli_0011111113 },              // [11010A00] Graphic Effect (Attached)
         { 0x11, 0x02, 0x00, fli_0011111113 },              // [11020A00] Graphic Effect (Attached 2)
@@ -95,6 +154,21 @@ namespace rasterizeVars
         { 0x11, 0x1C, 0x00, fli_0011111111111113 },        // [111C1000] Graphic Effect (Tumbling)
         { 0x11, 0x03, 0x00, fli_00011101113001111111001 }, // [11031400] Sword Glow
         { 0x11, 0x04, 0x00, fli_00011101113001111111001 }, // [11041700] Sword/Hammer Glow
+        // Hitbox Commands
+        { 0x06, 0x01, 0x00, fli_01 },                      // [06010200] Change Hitbox Damage
+        { 0x06, 0x02, 0x00, fli_01 },                      // [06020200] Change Hitbox Size
+        { 0x06, 0x17, 0x00, fli_000 },                     // [06170300] Defensive Collision
+        { 0x06, 0x1E, 0x00, fli_030 },                     // [061E0300] Defensive Collision: Flip Toggle
+        { 0x06, 0x1B, 0x00, fli_00111 },                   // [061B0500] Move Hitbox
+        { 0x06, 0x0F, 0x00, fli_00555 },                   // [060F0500] Throw Collision
+        { 0x06, 0x0A, 0x00, fli_00111100 },                // [060A0800] Catch Collision
+        { 0x06, 0x00, 0x00, fli_000001111111000 },         // [06000D00] Offensive Collision
+        { 0x06, 0x2B, 0x00, fli_000001111111000 },         // [062B0D00] Thrown Collision
+        { 0x06, 0x15, 0x00, fli_000001111111000 },         // [06150F00] Special Offensive Collision
+        { 0x06, 0x2C, 0x00, fli_000001111111000 },         // [062C0F00] Special Collateral Collision
+        { 0x06, 0x24, 0x00, fli_0001111111111310 },        // [06241000] Generate Defensive Collision Bubble
+        { 0x06, 0x0E, 0x00, fli_00000000111000330 },       // [060E1100] Throw Attack Collision
+        { 0x06, 0x10, 0x00, fli_00011110003003030 },       // [06101100] Inert Collision
     };
     const u32 allowedCommandCount = sizeof(allowedCommands) / sizeof(cmdWhitelistEntry);
 
