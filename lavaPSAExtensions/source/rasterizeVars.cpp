@@ -62,6 +62,9 @@ namespace rasterizeVars
         fli_0001111111111310,
         fli_00000000111000330,
         fli_00011110003003030,
+        fli_0111,
+        fli_1,
+        fli_111,
         fli_COUNT
     };
     const argTypeBank typeBankLibrary[fli_COUNT] =
@@ -132,6 +135,18 @@ namespace rasterizeVars
             at_INT, at_INT, at_BOL, at_INT, at_INT, at_BOL, at_INT, at_BOL, // 00300303
             at_INT                                                          // 0
         },
+        // 0111
+        {
+            at_INT, at_FLT, at_FLT, at_FLT
+        },
+        // 1
+        {
+            at_FLT
+        },
+        // 111
+        {
+            at_FLT, at_FLT, at_FLT
+        },
     };
 
     struct cmdWhitelistEntry
@@ -154,6 +169,7 @@ namespace rasterizeVars
         { 0x11, 0x1C, 0x00, fli_0011111111111113 },        // [111C1000] Graphic Effect (Tumbling)
         { 0x11, 0x03, 0x00, fli_00011101113001111111001 }, // [11031400] Sword Glow
         { 0x11, 0x04, 0x00, fli_00011101113001111111001 }, // [11041700] Sword/Hammer Glow
+
         // Hitbox Commands
         { 0x06, 0x01, 0x00, fli_01 },                      // [06010200] Change Hitbox Damage
         { 0x06, 0x02, 0x00, fli_01 },                      // [06020200] Change Hitbox Size
@@ -169,6 +185,27 @@ namespace rasterizeVars
         { 0x06, 0x24, 0x00, fli_0001111111111310 },        // [06241000] Generate Defensive Collision Bubble
         { 0x06, 0x0E, 0x00, fli_00000000111000330 },       // [060E1100] Throw Attack Collision
         { 0x06, 0x10, 0x00, fli_00011110003003030 },       // [06101100] Inert Collision
+
+        // Bone Commands
+        { 0x03, 0x02, 0x00, fli_01 },                      // [03020200] Set Bone Rotation (X)
+        { 0x03, 0x03, 0x00, fli_01 },                      // [03030200] Set Bone Rotation (Y)
+        { 0x03, 0x04, 0x00, fli_01 },                      // [03040200] Set Bone Rotation (Z)
+        { 0x03, 0x07, 0x00, fli_01 },                      // [03070200] Set Bone Scale (X)
+        { 0x03, 0x08, 0x00, fli_01 },                      // [03080200] Set Bone Scale (Y)
+        { 0x03, 0x09, 0x00, fli_01 },                      // [03090200] Set Bone Scale (Z)
+        { 0x03, 0x0C, 0x00, fli_01 },                      // [030C0200] Set Bone Translation (X)
+        { 0x03, 0x0D, 0x00, fli_01 },                      // [030D0200] Set Bone Translation (Y)
+        { 0x03, 0x0E, 0x00, fli_01 },                      // [030E0200] Set Bone Translation (Z)
+        { 0x03, 0x01, 0x00, fli_0111 },                    // [03010400] Set Bone Rotation (XYZ)
+        { 0x03, 0x06, 0x00, fli_0111 },                    // [03060400] Set Bone Scale (XYZ)
+        { 0x03, 0x0B, 0x00, fli_0111 },                    // [030B0400] Set Bone Translation (XYZ)
+
+        // Char Pos/Rot Commands
+        { 0x05, 0x05, 0x00, fli_1 },                       // [05050100] Change Model Size
+        { 0x05, 0x06, 0x00, fli_111 },                     // [05060300] Rotate Character Model
+        { 0x05, 0x09, 0x00, fli_111 },                     // [05090300] Set Character Position
+        { 0x05, 0x0A, 0x00, fli_111 },                     // [050A0300] Set Character Position 2
+        { 0x05, 0x0B, 0x00, fli_111 },                     // [050B0300] Set Character Position (Relative)
     };
     const u32 allowedCommandCount = sizeof(allowedCommands) / sizeof(cmdWhitelistEntry);
 
