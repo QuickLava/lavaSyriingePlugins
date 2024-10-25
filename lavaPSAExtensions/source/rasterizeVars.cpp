@@ -321,12 +321,15 @@ namespace rasterizeVars
 
     void applyStackSpaceAdjustment(gfModuleInfo* loadedModuleIn)
     {
-        if (loadedModuleIn->m_module->header->id == Modules::SORA_MENU_SEL_CHAR)
+        gfModuleHeader* header = loadedModuleIn->m_module->header;
+        if (header->id == Modules::SORA_MELEE)
         {
-            *((u32*)0x8077AFDC) = 0x9421FEC0;
-            *((u32*)0x8077AFE4) = 0x90010144;
-            *((u32*)0x8077B2DC) = 0x80010144;
-            *((u32*)0x8077B2E4) = 0x38210140;
+            // Patch "interpretNotSystemCmd/[soAnimCmdInterpreter]" to allocate stack space for each call's rasterized arg array!
+            u32 textAddr = header->getTextSectionAddr(); 
+            *(u32*)(textAddr + 0x705C8) = 0x9421FEC0;                   // op stwu r1, -0x140(r1)  @ $8077AFDC
+            *(u32*)(textAddr + 0x705D0) = 0x90010144;                   // op stw r0, 0x144(r1)    @ $8077AFE4
+            *(u32*)(textAddr + 0x708C8) = 0x80010144;                   // op lwz r0, 0x144(r1)    @ $8077B2DC
+            *(u32*)(textAddr + 0x708D0) = 0x38210140;                   // op addi r1, r1, 0x140   @ $8077B2E4
             OSReport_N("%sInstalled Stack Space Adjustment!\n", outputTag);
         }
     }
