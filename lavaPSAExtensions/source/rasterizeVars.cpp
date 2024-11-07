@@ -68,6 +68,8 @@ namespace rasterizeVars
         tli_0000,
         tli_00000,
         tli_000011,
+        tli_0,
+        tli_1133,
         tli_COUNT
     };
     const argTypeBank typeBankLibrary[tli_COUNT] =
@@ -150,17 +152,25 @@ namespace rasterizeVars
         {
             at_FLT, at_FLT, at_FLT
         },
-        //0000
+        // 0000
         {
             at_INT, at_INT, at_INT, at_INT
         },
-        //00000
+        // 00000
         {
             at_INT, at_INT, at_INT, at_INT, at_INT
         },
-        //000011
+        // 000011
         {
             at_INT, at_INT, at_INT, at_INT, at_FLT, at_FLT
+        },
+        // 0
+        {
+            at_INT
+        },
+        // 1133
+        {
+            at_FLT, at_FLT, at_BOL, at_BOL
         },
     };
 
@@ -227,6 +237,15 @@ namespace rasterizeVars
         { 0x21, 0x02, 0x00, tli_00000 },                   // [21020500] Change Flash Overlay Color
         { 0x21, 0x07, 0x00, tli_00000 },                   // [21070500] Change Flash Light Color
         { 0x21, 0x05, 0x00, tli_000011 },                  // [21050600] Flash Light Effect
+
+        // Kinetic Module Commands
+        { 0x0E, 0x02, 0x00, tli_0 },                       // [0E020100] Prevent Horizontal Gravity
+        { 0x0E, 0x03, 0x00, tli_0 },                       // [0E030100] ???
+        { 0x0E, 0x04, 0x00, tli_0 },                       // [0E040100] Prevent Horizontal Gravity
+        { 0x0E, 0x05, 0x00, tli_0 },                       // [0E050100] Set Air/Ground Article/Item
+        { 0x0E, 0x06, 0x00, tli_0 },                       // [0E060100] Disallow Certain Movements
+        { 0x0E, 0x07, 0x00, tli_0 },                       // [0E070100] Reallow Certain Movements
+        { 0x0E, 0x08, 0x00, tli_1133 },                    // [0E080400] Set Momentum, Set/Add Momentum
     };
     const u32 allowedCommandCount = sizeof(allowedCommands) / sizeof(cmdWhitelistEntry);
 
