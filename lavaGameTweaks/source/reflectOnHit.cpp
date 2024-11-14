@@ -132,7 +132,7 @@ namespace reflectOnHit
 		void** const g_gfTaskSchedulerPtrAddr = (void**)0x805A0068;
 		const getTaskByIDPtr getTaskByID = (getTaskByIDPtr)0x8002F018;
 
-		return (StageObject*)getTaskByID(*g_gfTaskSchedulerPtrAddr, collisionLog->m_category, collisionLog->m_taskId);
+		return (StageObject*)getTaskByID(*g_gfTaskSchedulerPtrAddr, collisionLog->m_taskCategory, collisionLog->m_taskId);
 	}
 	void reflectEffects(StageObject* attackerPtr, soCollisionLog* collisionLog)
 	{
