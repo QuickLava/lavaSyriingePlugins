@@ -4,65 +4,23 @@ namespace fighterHooks
 {
 	const char callbackHookMsgFmt[] = "%s%s: entryID = 0x%08X, playerID = 0x%02X!\n";
 
-	void setPartForDeflect()
+	u8 getFighterSlotNo(Fighter* fighterIn)
 	{
-		typedef int (*getPartSize)(void*, int);
-		typedef void (*setStatus)(void*, int, int, int);
-		typedef void (*setStatusAll)(void*, int, int);
+		u8 result = 0xFF;
 
-		register StageObject* stgObj;
-		register soCollisionAttackData* attackData;
-
-		asm
+		soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
+		if (moduleEnum != NULL)
 		{
-			lwz stgObj, 0x8(r27);
-			mr attackData, r6;
+			result = moduleEnum->m_workManageModule->getInt(Fighter::Instance_Work_Int_Entry_Id) & 0xFF;
 		}
 
-		u32 objectCategory = getCatPtr((gfTask*)stgObj);
-		if (objectCategory == 0x0A)
-		{
-			OSReport_N("%s%s Hitbox!\n", outputTag, stgObj->m_taskName);
-			OSReport_N("%s- NodeIdx: 0x%04X\n", outputTag, attackData->m_nodeIndex);
-
-			void* reflectorModule = stgObj->m_moduleAccesser->m_enumerationStart->m_collisionReflectorModule;
-			int* vTable = *(int**)reflectorModule;
-
-			getPartSize getPartSizePtr = (getPartSize)(vTable[0x1E]);
-			setStatus setStatusPtr = (setStatus)(vTable[0xF]);
-			setStatusAll setStatusAllPtr = (setStatusAll)(vTable[0x10]);
-
-			for (int i = 0; i < getPartSizePtr(reflectorModule, 1); i++)
-			{
-				setStatusPtr(reflectorModule, i, 1, 1);
-			}
-		}
+		return result;
 	}
 
 	ftCallbackMgr::ftEventWatcher::ftEventWatcher() : ftOutsideEventObserver() {}
 	void ftCallbackMgr::ftEventWatcher::notifyEventAppeal(int entryId, int)
 	{
 		OSReport_N("%sEventAppeal\n", outputTag);
-
-		typedef int (*getPartSize)(void*, int);
-		typedef void (*setStatus)(void*, int, int, int);
-		typedef void (*setStatusAll)(void*, int, int);
-
-		ftManager* manager = *g_ftManagerPtrAddr;
-		Fighter* fighterPtr = manager->getFighter(entryId, -1);
-		void* reflectorModule = fighterPtr->m_moduleAccesser->m_enumerationStart->m_collisionReflectorModule;
-		int* vTable = *(int**)reflectorModule;
-
-		// 817b3dbc
-
-		getPartSize getPartSizePtr = (getPartSize)(vTable[0x1E]);
-		setStatus setStatusPtr = (setStatus)(vTable[0xF]);
-		setStatusAll setStatusAllPtr = (setStatusAll)(vTable[0x10]);
-
-		for (int i = 0; i < getPartSizePtr(reflectorModule, 1); i++)
-		{
-			setStatusPtr(reflectorModule, i, 1, 1);
-		}
 	}
 	void ftCallbackMgr::ftEventWatcher::notifyEventDead(int entryId, int deadCount, int, int)
 	{

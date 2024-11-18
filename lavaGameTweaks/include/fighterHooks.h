@@ -45,6 +45,8 @@ namespace fighterHooks
 	typedef void (*FighterOnAttackItemCB)(Fighter*, StageObject*, float, BaseItem*);
 	typedef void (*FighterOnAttackArticleCB)(Fighter*, StageObject*, float, Weapon*);
 
+	u8 getFighterSlotNo(Fighter* fighterIn);
+
 	class ftCallbackMgr
 	{
 	private:
