@@ -2,7 +2,7 @@
 #include <sy_core.h>
 #include <modules.h>
 #include <so/so_module_accesser.h>
-#include <gr/gr_collision_shape.h>
+#include <gr/collision/gr_collision_shape.h>
 #include <so/ground/so_ground_module_impl.h>
 #include <so/work/so_work_manage_module_impl.h>
 #include <so/kinetic/so_kinetic_module_impl.h>
