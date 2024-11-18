@@ -35,21 +35,18 @@ namespace fighterHooks
 	typedef void (*FighterOnRemoveCB)(Fighter*);
 	typedef void (*FighterOnUpdateCB)(Fighter*);
 
-	// Coll Categories:
-	// - 0x02 = Enemies (Note: Bosses count)
-	// - 0x06 = Yakumono (Note: Stage Hazards mostly, including Targets & Skyworld Plats)
-	// - 0x0A = Fighter (Note: Nana counts!)
-	// - 0x0B = Items (Note: Sandbag counts!)
-	// - 0x0C = Weapon/Article (Note: Pikmin count!)
 	typedef void (*FighterOnAttackCB)(Fighter*, StageObject*, float);
 	typedef void (*FighterOnAttackItemCB)(Fighter*, StageObject*, float, BaseItem*);
 	typedef void (*FighterOnAttackArticleCB)(Fighter*, StageObject*, float, Weapon*);
+
+#define INCLUDE_OUTSIDE_OBSERVER false
 
 	u8 getFighterSlotNo(Fighter* fighterIn);
 
 	class ftCallbackMgr
 	{
 	private:
+#if INCLUDE_OUTSIDE_OBSERVER
 		class ftEventWatcher : public ftOutsideEventObserver
 		{
 		public:
@@ -62,34 +59,34 @@ namespace fighterHooks
 			virtual void notifyEventBeat(int entryId1, int entryId2);
 		};
 		static ftEventWatcher m_eventWatcher;
+		static void subscribeEventWatcher();
+		static void unsubscribeEventWatcher();
+#endif
 
-		static Vector<MeleeOnStartCB> m_onMeleeStartCallbacks;
-		static Vector<MeleeOnReadyGoCB> m_onMeleeReadyGoCallbacks;
-		static Vector<MeleeOnGameSetCB> m_onMeleeGameSetCallbacks;
-		static Vector<FighterOnCreateCB> m_onCreateCallbacks;
-		static Vector<FighterOnStartCB> m_onStartCallbacks;
-		static Vector<FighterOnRemoveCB> m_onRemoveCallbacks;
-		static Vector<FighterOnUpdateCB> m_onUpdateCallbacks;
-		static Vector<FighterOnAttackCB> m_onAttackCallbacks;
-		static Vector<FighterOnAttackItemCB> m_onAttackItemCallbacks;
-		static Vector<FighterOnAttackArticleCB> m_onAttackArticleCallbacks;
+		static Vector<void*> m_onMeleeStartCallbacks;
+		static Vector<void*> m_onMeleeReadyGoCallbacks;
+		static Vector<void*> m_onMeleeGameSetCallbacks;
+		static Vector<void*> m_onCreateCallbacks;
+		static Vector<void*> m_onStartCallbacks;
+		static Vector<void*> m_onRemoveCallbacks;
+		static Vector<void*> m_onUpdateCallbacks;
+		static Vector<void*> m_onAttackCallbacks;
+		static Vector<void*> m_onAttackItemCallbacks;
+		static Vector<void*> m_onAttackArticleCallbacks;
 
 		static bool _registerCallback(Vector<void*>* targetVector, void* callbackIn);
 		static bool _unregisterCallback(Vector<void*>* targetVector, void* callbackIn);
 		template<typename cbType>
-		static inline bool registerCallback(Vector<cbType>& targetVector, cbType callbackIn)
+		static inline bool registerCallback(Vector<void*>& targetVector, cbType callbackIn)
 		{
-			return _registerCallback((Vector<void*>*)&targetVector, (void*)callbackIn);
+			return _registerCallback(&targetVector, (void*)callbackIn);
 		}
 		template<typename cbType>
-		static inline bool unregisterCallback(Vector<cbType>& targetVector, cbType callbackIn)
+		static inline bool unregisterCallback(Vector<void*>& targetVector, cbType callbackIn)
 		{
-			return _unregisterCallback((Vector<void*>*)&targetVector, (void*)callbackIn);
+			return _unregisterCallback(&targetVector, (void*)callbackIn);
 		}
 		
-		static void subscribeEventWatcher();
-		static void unsubscribeEventWatcher();
-
 		template<typename watcherType>
 		static void subscribeWatcherToFighter(soEventObserver<watcherType>& watcherIn, Fighter* fighterIn)
 		{

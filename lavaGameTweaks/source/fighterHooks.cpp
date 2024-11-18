@@ -17,6 +17,8 @@ namespace fighterHooks
 		return result;
 	}
 
+#if INCLUDE_OUTSIDE_OBSERVER
+	ftCallbackMgr::ftEventWatcher ftCallbackMgr::m_eventWatcher;
 	ftCallbackMgr::ftEventWatcher::ftEventWatcher() : ftOutsideEventObserver() {}
 	void ftCallbackMgr::ftEventWatcher::notifyEventAppeal(int entryId, int)
 	{
@@ -42,18 +44,32 @@ namespace fighterHooks
 	{
 		OSReport_N("%sEventBeat, ID1: 0x%08X, ID2: 0x%08X\n", outputTag, entryId1, entryId2);
 	}
+	void ftCallbackMgr::subscribeEventWatcher()
+	{
+		int ftManagerManageID = (*g_ftManagerPtrAddr)->m_eventManageModule.getManageId();
 
-	ftCallbackMgr::ftEventWatcher ftCallbackMgr::m_eventWatcher;
-	Vector<MeleeOnStartCB> ftCallbackMgr::m_onMeleeStartCallbacks;
-	Vector<MeleeOnReadyGoCB> ftCallbackMgr::m_onMeleeReadyGoCallbacks;
-	Vector<MeleeOnGameSetCB> ftCallbackMgr::m_onMeleeGameSetCallbacks;
-	Vector<FighterOnCreateCB> ftCallbackMgr::m_onCreateCallbacks;
-	Vector<FighterOnStartCB> ftCallbackMgr::m_onStartCallbacks;
-	Vector<FighterOnRemoveCB> ftCallbackMgr::m_onRemoveCallbacks;
-	Vector<FighterOnUpdateCB> ftCallbackMgr::m_onUpdateCallbacks;
-	Vector<FighterOnAttackCB> ftCallbackMgr::m_onAttackCallbacks;
-	Vector<FighterOnAttackItemCB> ftCallbackMgr::m_onAttackItemCallbacks;
-	Vector<FighterOnAttackArticleCB> ftCallbackMgr::m_onAttackArticleCallbacks;
+		ftOutsideEventObserver* watcher_Out = (ftOutsideEventObserver*)(&m_eventWatcher);
+		watcher_Out->setupObserver(ftManagerManageID);
+		OSReport_N(observerMessageFmt, outputTag, "Subscribed Event Watcher_Out", watcher_Out->m_manageID, watcher_Out->m_unitID, watcher_Out->m_sendID);
+	}
+	void ftCallbackMgr::unsubscribeEventWatcher()
+	{
+		ftOutsideEventObserver* watcher_Out = (ftOutsideEventObserver*)(&m_eventWatcher);
+		OSReport_N(observerMessageFmt, outputTag, "Unsubscribing Event Watcher_Out", watcher_Out->m_manageID, watcher_Out->m_unitID, watcher_Out->m_sendID);
+		watcher_Out->removeObserver();
+	}
+#endif
+
+	Vector<void*> ftCallbackMgr::m_onMeleeStartCallbacks;
+	Vector<void*> ftCallbackMgr::m_onMeleeReadyGoCallbacks;
+	Vector<void*> ftCallbackMgr::m_onMeleeGameSetCallbacks;
+	Vector<void*> ftCallbackMgr::m_onCreateCallbacks;
+	Vector<void*> ftCallbackMgr::m_onStartCallbacks;
+	Vector<void*> ftCallbackMgr::m_onRemoveCallbacks;
+	Vector<void*> ftCallbackMgr::m_onUpdateCallbacks;
+	Vector<void*> ftCallbackMgr::m_onAttackCallbacks;
+	Vector<void*> ftCallbackMgr::m_onAttackItemCallbacks;
+	Vector<void*> ftCallbackMgr::m_onAttackArticleCallbacks;
 
 	bool ftCallbackMgr::_registerCallback(Vector<void*>* targetVector, void* callbackIn)
 	{
@@ -92,21 +108,6 @@ namespace fighterHooks
 		return result;
 	}
 
-	void ftCallbackMgr::subscribeEventWatcher()
-	{
-		int ftManagerManageID = (*g_ftManagerPtrAddr)->m_eventManageModule.getManageId();
-
-		ftOutsideEventObserver* watcher_Out = (ftOutsideEventObserver*)(&m_eventWatcher);
-		watcher_Out->setupObserver(ftManagerManageID);
-		OSReport_N(observerMessageFmt, outputTag, "Subscribed Event Watcher_Out", watcher_Out->m_manageID, watcher_Out->m_unitID, watcher_Out->m_sendID);
-	}
-	void ftCallbackMgr::unsubscribeEventWatcher()
-	{
-		ftOutsideEventObserver* watcher_Out = (ftOutsideEventObserver*)(&m_eventWatcher);
-		OSReport_N(observerMessageFmt, outputTag, "Unsubscribing Event Watcher_Out", watcher_Out->m_manageID, watcher_Out->m_unitID, watcher_Out->m_sendID);
-		watcher_Out->removeObserver();
-	}
-
 	// MeleeOnStart Callbacks
 	bool ftCallbackMgr::registerMeleeOnStartCallback(MeleeOnStartCB callbackIn)
 	{
@@ -123,11 +124,14 @@ namespace fighterHooks
 		// Execute Callbacks
 		for (int i = 0; i < m_onMeleeStartCallbacks.size(); i++)
 		{
-			m_onMeleeStartCallbacks[i]();
+			MeleeOnStartCB currCallback = (MeleeOnStartCB)m_onMeleeStartCallbacks[i];
+			currCallback();
 		}
 
+#if INCLUDE_OUTSIDE_OBSERVER
 		// Subscribe Event Watcher
 		subscribeEventWatcher();
+#endif
 	}
 
 	// MeleeOnReadyGo Callbacks
@@ -146,7 +150,8 @@ namespace fighterHooks
 		// Execute Callbacks
 		for (int i = 0; i < m_onMeleeReadyGoCallbacks.size(); i++)
 		{
-			m_onMeleeReadyGoCallbacks[i]();
+			MeleeOnReadyGoCB currCallback = (MeleeOnReadyGoCB)m_onMeleeReadyGoCallbacks[i];
+			currCallback();
 		}
 	}
 
@@ -166,11 +171,14 @@ namespace fighterHooks
 		// Execute Callbacks
 		for (int i = 0; i < m_onMeleeGameSetCallbacks.size(); i++)
 		{
-			m_onMeleeGameSetCallbacks[i]();
+			MeleeOnGameSetCB currCallback = (MeleeOnGameSetCB)m_onMeleeGameSetCallbacks[i];
+			currCallback();
 		}
 
+#if INCLUDE_OUTSIDE_OBSERVER
 		// Unsubscribe Event Watcher
 		unsubscribeEventWatcher();
+#endif
 	}
 
 	// OnCreate Callbacks
@@ -197,7 +205,8 @@ namespace fighterHooks
 		Fighter* fighter = manager->getFighter(entryID, -1);
 		for (int i = 0; i < m_onCreateCallbacks.size(); i++)
 		{
-			m_onCreateCallbacks[i](fighter);
+			FighterOnCreateCB currCallback = (FighterOnCreateCB)m_onCreateCallbacks[i];
+			currCallback(fighter);
 		}
 	}
 
@@ -226,7 +235,8 @@ namespace fighterHooks
 		Fighter* fighter = manager->getFighter(entryID, -1);
 		for (int i = 0; i < m_onStartCallbacks.size(); i++)
 		{
-			m_onStartCallbacks[i](fighter);
+			FighterOnStartCB currCallback = (FighterOnStartCB)m_onStartCallbacks[i];
+			currCallback(fighter);
 		}
 	}
 	
@@ -255,7 +265,8 @@ namespace fighterHooks
 		Fighter* fighter = manager->getFighter(entryID, -1);
 		for (int i = 0; i < m_onRemoveCallbacks.size(); i++)
 		{
-			m_onRemoveCallbacks[i](fighter);
+			FighterOnRemoveCB currCallback = (FighterOnRemoveCB)m_onRemoveCallbacks[i];
+			currCallback(fighter);
 		}
 	}
 
@@ -278,7 +289,8 @@ namespace fighterHooks
 
 		for (int i = 0; i < m_onUpdateCallbacks.size(); i++)
 		{
-			m_onUpdateCallbacks[i](fighter);
+			FighterOnUpdateCB currCallback = (FighterOnUpdateCB)m_onUpdateCallbacks[i];
+			currCallback(fighter);
 		}
 	}
 
@@ -347,7 +359,8 @@ namespace fighterHooks
 		{
 			for (int i = 0; i < m_onAttackCallbacks.size(); i++)
 			{
-				m_onAttackCallbacks[i]((Fighter*)attackerTask, (StageObject*)targetTask, damageDealt);
+				FighterOnAttackCB currCallback = (FighterOnAttackCB)m_onAttackCallbacks[i];
+				currCallback((Fighter*)attackerTask, (StageObject*)targetTask, damageDealt);
 			}
 		}
 		else if (attackerParentTask != NULL)
@@ -356,14 +369,16 @@ namespace fighterHooks
 			{
 				for (int i = 0; i < m_onAttackItemCallbacks.size(); i++)
 				{
-					m_onAttackItemCallbacks[i]((Fighter*)attackerParentTask, (StageObject*)targetTask, damageDealt, (BaseItem*)attackerTask);
+					FighterOnAttackItemCB currCallback = (FighterOnAttackItemCB)m_onAttackItemCallbacks[i];
+					currCallback((Fighter*)attackerParentTask, (StageObject*)targetTask, damageDealt, (BaseItem*)attackerTask);
 				}
 			}
 			else if(attackerCategory == 0xC)
 			{
 				for (int i = 0; i < m_onAttackArticleCallbacks.size(); i++)
 				{
-					m_onAttackArticleCallbacks[i]((Fighter*)attackerParentTask, (StageObject*)targetTask, damageDealt, (Weapon*)attackerTask);
+					FighterOnAttackArticleCB currCallback = (FighterOnAttackArticleCB)m_onAttackArticleCallbacks[i];
+					currCallback((Fighter*)attackerParentTask, (StageObject*)targetTask, damageDealt, (Weapon*)attackerTask);
 				}
 			}
 		}
