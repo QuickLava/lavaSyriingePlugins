@@ -355,32 +355,34 @@ namespace fighterHooks
 			OSReport_N("%s-   Target: NULL\n");
 		}
 
+		Vector<void*>* callbackVector;
 		if (attackerCategory == 0xA)
 		{
-			for (int i = 0; i < m_onAttackCallbacks.size(); i++)
-			{
-				FighterOnAttackCB currCallback = (FighterOnAttackCB)m_onAttackCallbacks[i];
-				currCallback((Fighter*)attackerTask, (StageObject*)targetTask, damageDealt);
-			}
+			callbackVector = &m_onAttackCallbacks;
 		}
 		else if (attackerParentTask != NULL)
 		{
+			gfTask* temp = attackerTask;
+			attackerTask = attackerParentTask;
+			attackerParentTask = temp;
 			if (attackerCategory == 0xB)
 			{
-				for (int i = 0; i < m_onAttackItemCallbacks.size(); i++)
-				{
-					FighterOnAttackItemCB currCallback = (FighterOnAttackItemCB)m_onAttackItemCallbacks[i];
-					currCallback((Fighter*)attackerParentTask, (StageObject*)targetTask, damageDealt, (BaseItem*)attackerTask);
-				}
+				callbackVector = &m_onAttackItemCallbacks;
 			}
-			else if(attackerCategory == 0xC)
+			else if (attackerCategory == 0xC)
 			{
-				for (int i = 0; i < m_onAttackArticleCallbacks.size(); i++)
-				{
-					FighterOnAttackArticleCB currCallback = (FighterOnAttackArticleCB)m_onAttackArticleCallbacks[i];
-					currCallback((Fighter*)attackerParentTask, (StageObject*)targetTask, damageDealt, (Weapon*)attackerTask);
-				}
+				callbackVector = &m_onAttackArticleCallbacks;
 			}
+			else
+			{
+				return;
+			}
+		}
+
+		for (int i = 0; i < callbackVector->size(); i++)
+		{
+			FighterOnAttackGenericCB currCallback = (FighterOnAttackGenericCB)(*callbackVector)[i];
+			currCallback((Fighter*)attackerTask, (StageObject*)targetTask, damageDealt, (StageObject*)attackerParentTask);
 		}
 	}
 

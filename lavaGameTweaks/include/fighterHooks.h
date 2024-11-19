@@ -35,6 +35,7 @@ namespace fighterHooks
 	typedef void (*FighterOnRemoveCB)(Fighter*);
 	typedef void (*FighterOnUpdateCB)(Fighter*);
 
+	typedef void (*FighterOnAttackGenericCB)(Fighter*, StageObject*, float, StageObject*);
 	typedef void (*FighterOnAttackCB)(Fighter*, StageObject*, float);
 	typedef void (*FighterOnAttackItemCB)(Fighter*, StageObject*, float, BaseItem*);
 	typedef void (*FighterOnAttackArticleCB)(Fighter*, StageObject*, float, Weapon*);
