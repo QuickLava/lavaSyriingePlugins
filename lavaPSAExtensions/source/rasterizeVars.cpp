@@ -260,7 +260,8 @@ namespace rasterizeVars
         u32 commandSignature = *((u32*)rawCommandPtr);
         const u16 commandFullID = commandSignature >> 0x10;
 
-        if (rawCommandPtr->m_argCount > 0x00 || rawCommandPtr->m_argCount > maxArgumentCount) return;
+
+        if (rawCommandPtr->m_argCount <= 0x00 || rawCommandPtr->m_argCount > maxArgumentCount) return;
 
         bool cmdAllowed = 0;
         const cmdWhitelistEntry* currWhitelistEntry = allowedCommands - 1;
