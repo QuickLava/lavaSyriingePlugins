@@ -7,8 +7,8 @@ namespace airdodgeCancels
     const char meterChangeStr[] = "%sFighter[%02X] %s: %+.1f Meter, Total: %d (%.1f)!\n";
 
     const u32 currMeterVar = 0x11000060;
-    const u32 currMeterStocksVar = 0x10000048;
-    const u32 infiniteMeterModeVar = 0x12000060;
+    const u32 currMeterStocksVar = 0x1000004A;
+    const u32 infiniteMeterModeVar = 0x12000070;
     const u32 hitboxConnectedVar = 0x22000020;
     const u32 meterPaidVar = 0x22000021;
     const float maxMeter = 50.0f;
