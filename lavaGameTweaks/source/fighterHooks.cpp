@@ -378,6 +378,10 @@ namespace fighterHooks
 				return;
 			}
 		}
+		else
+		{
+			return;
+		}
 
 		for (int i = 0; i < callbackVector->size(); i++)
 		{
