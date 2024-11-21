@@ -6,15 +6,7 @@ namespace fighterHooks
 
 	u8 getFighterSlotNo(Fighter* fighterIn)
 	{
-		u8 result = 0xFF;
-
-		soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
-		if (moduleEnum != NULL)
-		{
-			result = moduleEnum->m_workManageModule->getInt(Fighter::Instance_Work_Int_Entry_Id) & 0xFF;
-		}
-
-		return result;
+		return fighterIn->m_entryId & 0xFF;
 	}
 
 #if INCLUDE_OUTSIDE_OBSERVER
