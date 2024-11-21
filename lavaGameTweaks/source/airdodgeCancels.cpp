@@ -1,5 +1,5 @@
 #include "airdodgeCancels.h"
-#include <ft/fighter.h>
+#include <so/so_external_value_accesser.h>
 
 namespace airdodgeCancels
 {
@@ -17,6 +17,7 @@ namespace airdodgeCancels
     Vec3f zeroVec = { 0.0f, 0.0f, 0.0f };
     char graphicRootBoneName[] = "XRotN";
     const float indirectConnectMaxCancelDistance = 30.0f;
+    const float onCancelSlowRadius = 30.0f;
 
     void doMeterReset(Fighter* fighterIn)
     {
@@ -127,6 +128,23 @@ namespace airdodgeCancels
                 u32 targetBoneID = moduleEnum->m_modelModule->getNodeId(graphicRootBoneName);
                 moduleEnum->m_effectModule->reqFollow(ef_ptc_common_hit_ice, targetBoneID, &zeroVec, &zeroVec, 1.0f, 0, 0, 0, 0);
                 moduleEnum->m_effectModule->reqFollow(ef_ptc_common_cliff_catch, targetBoneID, &zeroVec, &zeroVec, 3.0f, 0, 0, 0, 0);
+
+                ftManager* fighterMgr = g_ftManager;
+                const int fighterCount = fighterMgr->getEntryCount();
+                Vec3f fighterPos = moduleEnum->m_postureModule->getPrevPos();
+                for (int i = 0; i < fighterCount; i++)
+                {
+                    int currEntryID = fighterMgr->getEntryIdFromIndex(i);
+                    Fighter* currFighter = fighterMgr->getFighter(currEntryID, 0);
+                    if (soExternalValueAccesser::getTeamNo(fighterIn) == soExternalValueAccesser::getTeamNo(currFighter)) continue;
+
+                    Vec3f currFighterPos = currFighter->m_moduleAccesser->getPostureModule()->getPrevPos();
+                    float distance = fighterPos.distance(&currFighterPos);
+                    if (distance < onCancelSlowRadius)
+                    {
+                        currFighter->setSlow(1, 2, 20, 1);
+                    }
+                }
 
                 OSReport_N(meterChangeStr, outputTag, fighterHooks::getFighterSlotNo(fighterIn), "Airdodge Cancel", -maxMeter, currStocks, currMeter);
             }

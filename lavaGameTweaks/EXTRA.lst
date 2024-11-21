@@ -2,3 +2,6 @@
 // The format of linkages depends on where the target symbol resides:
 //  - Rels: "RelID,RelSectionId,offset:symbol_name"
 //  - Global: "address:symbol_name"
+
+// Fighter
+27,1,00138458:setSlow__7FighterFbiib
