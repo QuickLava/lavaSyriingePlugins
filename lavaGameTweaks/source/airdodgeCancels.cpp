@@ -124,10 +124,12 @@ namespace airdodgeCancels
 
                 workManageModule->setFlag(1, meterPaidVar);
                 moduleEnum->m_soundModule->playSE(snd_se_item_Ice_Crash, 1, 1, 0);
+                moduleEnum->m_soundModule->playSE(snd_se_system_collection_delete, 1, 1, 0);
 
                 u32 targetBoneID = moduleEnum->m_modelModule->getNodeId(graphicRootBoneName);
                 moduleEnum->m_effectModule->reqFollow(ef_ptc_common_hit_ice, targetBoneID, &zeroVec, &zeroVec, 1.0f, 0, 0, 0, 0);
-                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_cliff_catch, targetBoneID, &zeroVec, &zeroVec, 3.0f, 0, 0, 0, 0);
+                u32 circleEfHandle = moduleEnum->m_effectModule->reqFollow(ef_ptc_common_guard_mark, targetBoneID, &zeroVec, &zeroVec, 3.0f, 0, 0, 0, 0);
+                g_ecMgr->setSlowRate(circleEfHandle, 2);
 
                 ftManager* fighterMgr = g_ftManager;
                 const int fighterCount = fighterMgr->getEntryCount();
