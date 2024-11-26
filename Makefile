@@ -27,7 +27,7 @@ lavaGameTweaks:
 	@cp lavaGameTweaks/$@.rel ./output/$@.rel
 	
 clean:
-	@rm ./*.rel
+	@rm ./output/*.rel
 	$(MAKE) -s -C lavaInjectLoader clean
 	$(MAKE) -s -C lavaPSAExtensions clean
 	$(MAKE) -s -C lavaGameTweaks clean
