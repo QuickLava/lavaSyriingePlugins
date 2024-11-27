@@ -6,6 +6,10 @@ namespace airdodgeCancels
     const char outputTag[] = "[lavaAirdodgeCancels] ";
     const char meterChangeStr[] = "%sFighter[%02X] %s: %+.1f Meter, Total: %d (%.1f)!\n";
 
+    const u32 allTauntPadMask = 
+        INPUT_PAD_BUTTON_MASK_APPEAL_HI | INPUT_PAD_BUTTON_MASK_APPEAL_S | INPUT_PAD_BUTTON_MASK_APPEAL_LW |
+        INPUT_PAD_BUTTON_MASK_APPEAL_S_L | INPUT_PAD_BUTTON_MASK_APPEAL_S_R;    
+
     float currMeterArray[fighterHooks::maxFighterCount] = {};
     u8 currMeterStocksArray[fighterHooks::maxFighterCount] = {};
     u8 infiniteMeterModeFlags = 0;
@@ -107,10 +111,10 @@ namespace airdodgeCancels
             u8 currStocks = currMeterStocksArray[fighterPlayerNo];
             bool infiniteMeterMode = infiniteMeterModeFlags & (1 << fighterPlayerNo);
 
-            ipButton justPressed = controllerModule->getTrigger();
+            ipPadButton justPressed = controllerModule->getTrigger();
             if (workManageModule->isFlag(hitboxConnectedVar)
                 && (currStocks > 0 || infiniteMeterMode)
-                && justPressed.m_bits & (ipButton::_APPEAL_HI | ipButton::_APPEAL_LW | ipButton::_APPEAL_S | ipButton::_APPEAL_SL | ipButton::_APPEAL_SR))
+                && (justPressed.m_mask & allTauntPadMask))
             {
                 statusModule->changeStatusForce(Fighter::Status_Escape_Air, fighterIn->m_moduleAccesser);
                 transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Attack);
@@ -150,9 +154,8 @@ namespace airdodgeCancels
                 OSReport_N(meterChangeStr, outputTag, fighterHooks::getFighterPlayerNo(fighterIn), "Airdodge Cancel", -maxMeter, currStocks, currMeter);
             }
 
-            ipButton pressed = controllerModule->getButton();
-            if (pressed.m_attack && pressed.m_special && pressed.m_jump
-                && justPressed.m_bits & (ipButton::_APPEAL_HI | ipButton::_APPEAL_LW | ipButton::_APPEAL_S | ipButton::_APPEAL_SL | ipButton::_APPEAL_SR))
+            ipPadButton pressed = controllerModule->getButton();
+            if (pressed.m_attack && pressed.m_special && pressed.m_jump && (justPressed.m_mask & allTauntPadMask))
             {
                 infiniteMeterModeFlags ^= (1 << fighterPlayerNo);
                 doMeterReset(fighterIn);
