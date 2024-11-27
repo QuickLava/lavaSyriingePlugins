@@ -8,6 +8,10 @@ namespace fighterHooks
 	{
 		return fighterIn->m_entryId & 0xFF;
 	}
+	u8 getFighterPlayerNo(Fighter* fighterIn)
+	{
+		return g_ftManager->getPlayerNo(fighterIn->m_entryId);
+	}
 
 #if INCLUDE_OUTSIDE_OBSERVER
 	ftCallbackMgr::ftEventWatcher ftCallbackMgr::m_eventWatcher;
@@ -184,17 +188,16 @@ namespace fighterHooks
 	}
 	void ftCallbackMgr::performOnCreateCallbacks()
 	{
-		ftManager* manager = *g_ftManagerPtrAddr;
 		register u32 entryID;
 		asm
 		{
 			lwz entryID, 0x04(r31);
 		}
 
-		OSReport_N(callbackHookMsgFmt, outputTag, "OnCreate Callbacks", entryID, manager->getPlayerNo(entryID));
+		OSReport_N(callbackHookMsgFmt, outputTag, "OnCreate Callbacks", entryID, g_ftManager->getPlayerNo(entryID));
 
 		// Execute Callbacks
-		Fighter* fighter = manager->getFighter(entryID, -1);
+		Fighter* fighter = g_ftManager->getFighter(entryID, -1);
 		for (int i = 0; i < m_onCreateCallbacks.size(); i++)
 		{
 			FighterOnCreateCB currCallback = (FighterOnCreateCB)m_onCreateCallbacks[i];

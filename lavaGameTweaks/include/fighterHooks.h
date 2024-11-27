@@ -21,8 +21,6 @@ namespace fighterHooks
 	const char observerMessageFmt[] = "%s%s: [manageID: 0x%02X, unitID: 0x%02X, sendID: 0x%02X]!\n";
 
 	const u32 maxFighterCount = 0x8;
-	ftManager** const g_ftManagerPtrAddr = 0x80B87C28;
-	GameGlobal** const g_GameGlobalPtrAddr = 0x805A00E0;
 
 	typedef int (*gfTaskGetCategory)(gfTask*);
 	const gfTaskGetCategory getCatPtr = (gfTaskGetCategory)0x8098C010;
@@ -43,6 +41,7 @@ namespace fighterHooks
 #define INCLUDE_OUTSIDE_OBSERVER false
 
 	u8 getFighterSlotNo(Fighter* fighterIn);
+	u8 getFighterPlayerNo(Fighter* fighterIn);
 
 	class ftCallbackMgr
 	{

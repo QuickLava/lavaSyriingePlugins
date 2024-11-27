@@ -21,22 +21,22 @@ namespace airdodgeCancels
 
     void doMeterReset(Fighter* fighterIn)
     {
-        u8 fighterSlotNo = fighterHooks::getFighterSlotNo(fighterIn);
-        if (fighterSlotNo < fighterHooks::maxFighterCount)
+        u8 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
+        if (fighterPlayerNo < fighterHooks::maxFighterCount)
         {
-            currMeterArray[fighterSlotNo] = 0.0f;
-            currMeterStocksArray[fighterSlotNo] = 0;
+            currMeterArray[fighterPlayerNo] = 0.0f;
+            currMeterStocksArray[fighterPlayerNo] = 0;
         }
     }
     void doMeterGain(Fighter* fighterIn, float damage)
     {
-        u8 fighterSlotNo = fighterHooks::getFighterSlotNo(fighterIn);
-        if (fighterSlotNo < fighterHooks::maxFighterCount)
+        u8 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
+        if (fighterPlayerNo < fighterHooks::maxFighterCount)
         {
             soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
 
-            float currMeter = currMeterArray[fighterSlotNo];
-            u8 currStocks = currMeterStocksArray[fighterSlotNo];
+            float currMeter = currMeterArray[fighterPlayerNo];
+            u8 currStocks = currMeterStocksArray[fighterPlayerNo];
 
             currMeter += damage;
             if (currMeter >= maxMeter && currStocks < maxStocks)
@@ -52,10 +52,10 @@ namespace airdodgeCancels
             }
             currMeter = MIN(currMeter, maxMeter);
 
-            currMeterArray[fighterSlotNo] = currMeter;
-            currMeterStocksArray[fighterSlotNo] = currStocks;
+            currMeterArray[fighterPlayerNo] = currMeter;
+            currMeterStocksArray[fighterPlayerNo] = currStocks;
 
-            OSReport_N(meterChangeStr, outputTag, fighterSlotNo, "Attack Landed", damage, currStocks, currMeter);
+            OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, currStocks, currMeter);
 
         }
     }
@@ -94,8 +94,8 @@ namespace airdodgeCancels
     }
     void onUpdateCallback(Fighter* fighterIn)
     {
-        u8 fighterSlotNo = fighterHooks::getFighterSlotNo(fighterIn);
-        if (fighterSlotNo < fighterHooks::maxFighterCount)
+        u8 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
+        if (fighterPlayerNo < fighterHooks::maxFighterCount)
         {
             soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
             soWorkManageModule* workManageModule = moduleEnum->m_workManageModule;
@@ -103,9 +103,9 @@ namespace airdodgeCancels
             soTransitionModule* transitionModule = statusModule->m_transitionModule;
             soControllerModule* controllerModule = moduleEnum->m_controllerModule;
             
-            float currMeter = currMeterArray[fighterSlotNo];
-            u8 currStocks = currMeterStocksArray[fighterSlotNo];
-            bool infiniteMeterMode = infiniteMeterModeFlags & (1 << fighterSlotNo);
+            float currMeter = currMeterArray[fighterPlayerNo];
+            u8 currStocks = currMeterStocksArray[fighterPlayerNo];
+            bool infiniteMeterMode = infiniteMeterModeFlags & (1 << fighterPlayerNo);
 
             ipButton justPressed = controllerModule->getTrigger();
             if (workManageModule->isFlag(hitboxConnectedVar)
@@ -120,7 +120,7 @@ namespace airdodgeCancels
                 transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Jump_Aerial);
 
                 currStocks -= 1;
-                currMeterStocksArray[fighterSlotNo] = currStocks;
+                currMeterStocksArray[fighterPlayerNo] = currStocks;
 
                 workManageModule->setFlag(1, meterPaidVar);
                 moduleEnum->m_soundModule->playSE(snd_se_item_Ice_Crash, 1, 1, 0);
@@ -147,15 +147,14 @@ namespace airdodgeCancels
                         currFighter->setSlow(1, 2, 20, 1);
                     }
                 }
-
-                OSReport_N(meterChangeStr, outputTag, fighterHooks::getFighterSlotNo(fighterIn), "Airdodge Cancel", -maxMeter, currStocks, currMeter);
+                OSReport_N(meterChangeStr, outputTag, fighterHooks::getFighterPlayerNo(fighterIn), "Airdodge Cancel", -maxMeter, currStocks, currMeter);
             }
 
             ipButton pressed = controllerModule->getButton();
             if (pressed.m_attack && pressed.m_special && pressed.m_jump
                 && justPressed.m_bits & (ipButton::_APPEAL_HI | ipButton::_APPEAL_LW | ipButton::_APPEAL_S | ipButton::_APPEAL_SL | ipButton::_APPEAL_SR))
             {
-                infiniteMeterModeFlags ^= (1 << fighterSlotNo);
+                infiniteMeterModeFlags ^= (1 << fighterPlayerNo);
                 doMeterReset(fighterIn);
                 OSReport_N("%sInfinite Meter Mode Status: %d!\n", outputTag, !infiniteMeterMode);
             }

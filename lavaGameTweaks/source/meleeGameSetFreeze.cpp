@@ -10,10 +10,9 @@ namespace meleeFreeze
 
         OSReport_N("MeleeFreeze!\n");
 
-        GameGlobal* gameGlobalPtr = *fighterHooks::g_GameGlobalPtrAddr;
-        gameGlobalPtr->m_stageData->m_motionRatio = 0.0f;
+        g_GameGlobal->m_stageData->m_motionRatio = 0.0f;
 
-        ftManager* fighterManager = *fighterHooks::g_ftManagerPtrAddr;
+        ftManager* fighterManager = g_ftManager;
         u32 currFighterEntryID = -1;
         Fighter* currFighterPtr = NULL;
         for (int i = 0; i < fighterHooks::maxFighterCount; i++)
