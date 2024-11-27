@@ -5,3 +5,6 @@
 
 // Fighter
 27,1,00138458:setSlow__7FighterFbiib
+
+// General
+80400B3C:fmod
