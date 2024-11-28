@@ -251,6 +251,10 @@ namespace rasterizeVars
         { 0x0E, 0x06, tli_0 },                               // [0E060100] Disallow Certain Movements
         { 0x0E, 0x07, tli_0 },                               // [0E070100] Reallow Certain Movements
         { 0x0E, 0x08, tli_1133 },                            // [0E080400] Set Momentum, Set/Add Momentum
+
+        // Anim Override Commands
+        { 0x04, 0x0E, tli_01 },                               // [040E0200] Set Bone Motion Override Animation Frame
+        { 0x04, 0x0F, tli_01 },                               // [040F0200] Set Bone Motion Override Frame Speed Modifier
     };
     const u32 allowedCommandCount = sizeof(allowedCommands) / sizeof(cmdWhitelistEntry);
 
