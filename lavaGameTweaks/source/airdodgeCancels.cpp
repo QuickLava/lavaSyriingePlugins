@@ -9,7 +9,7 @@ namespace airdodgeCancels
     u8 infiniteMeterModeFlags = 0;
     const u32 maxStocks = 0x5;
     const float meterStockSize = 50.0f;
-    fighterMeters::meterConfiguration meterConf = { meterStockSize * maxStocks, meterStockSize };
+    const fighterMeters::meterConfiguration meterConf = { meterStockSize * maxStocks, meterStockSize };
 
     const u32 hitboxConnectedVar = 0x22000020;
     const u32 meterPaidVar = 0x22000021;
@@ -29,7 +29,7 @@ namespace airdodgeCancels
         if (fighterPlayerNo < fighterHooks::maxFighterCount)
         {
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
-            targetMeterBundle->setMeterConfig(&meterConf, 1);
+            targetMeterBundle->setMeterConfig(meterConf, 1);
         }
     }
 

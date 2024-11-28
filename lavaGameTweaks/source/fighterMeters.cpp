@@ -4,143 +4,81 @@ namespace fighterMeters
 {
     // == playerMeterBundle ==
 
-    meterConfiguration* meterBundle::getMeterConfig()
+    const meterConfiguration disabledMeterConf = {0.0f, 1.0f};
+
+    meterBundle::meterBundle() : meter(0.0f), currMeterConfig(&disabledMeterConf) {};
+    const meterConfiguration* meterBundle::getMeterConfig()
     {
         return currMeterConfig;
     }
     float meterBundle::getMeter()
     {
-        float result = 0.0f;
-
-        if (currMeterConfig != NULL)
-        {
-            result = meter;
-        }
-
-        return result;
+        return meter;
     }
     float meterBundle::getMeterStockRemainder()
     {
-        float result = 0.0f;
-
-        if (currMeterConfig != NULL)
-        {
-            result = fmod(meter, currMeterConfig->meterStockSize);
-        }
-
-        return result;
+        return fmod(meter, currMeterConfig->meterStockSize);
     }
     u32 meterBundle::getMeterStocks()
     {
-        u32 result = 0x00;
-
-        if (currMeterConfig != NULL)
-        {
-            result = meter / currMeterConfig->meterStockSize;
-        }
-
-        return result;
+        return meter / currMeterConfig->meterStockSize;
     }
 
-    void meterBundle::setMeterConfig(meterConfiguration* configIn, bool doReset)
+    void meterBundle::setMeterConfig(const meterConfiguration& configIn, bool doReset)
     {
-        currMeterConfig = configIn;
+        currMeterConfig = &configIn;
         if (doReset)
         {
             resetMeter();
         }
         addMeter(0.0f);
     }
-    bool meterBundle::setMeter(float meterIn)
+    void meterBundle::setMeter(float meterIn)
     {
-        bool result = 0;
-
-        if (currMeterConfig != NULL)
-        {
-            resetMeter();
-            addMeter(meterIn);
-        }
-
-        return result;
+        resetMeter();
+        addMeter(meterIn);
     }
-    bool meterBundle::setMeterStockRemainder(float meterIn)
+    void meterBundle::setMeterStockRemainder(float meterIn)
     {
-        bool result = 0;
-
-        if (currMeterConfig != NULL)
-        {
-            roundDownMeter();
-            addMeter(meterIn);
-        }
-
-        return result;
+        roundDownMeter();
+        addMeter(meterIn);
     }
-    bool meterBundle::setMeterStocks(u32 stocksIn)
+    void meterBundle::setMeterStocks(u32 stocksIn)
     {
-        bool result = 0;
-
-        if (currMeterConfig != NULL)
-        {
-            resetMeter();
-            addMeter(stocksIn * currMeterConfig->meterStockSize);
-        }
-
-        return result;
+        resetMeter();
+        addMeter(stocksIn * currMeterConfig->meterStockSize);
     }
 
     void meterBundle::resetMeter()
     {
         meter = 0.0f;
     }
-    bool meterBundle::addMeter(float meterIn)
+    void meterBundle::disableMeter()
     {
-        bool result = 0;
-
-        if (currMeterConfig != NULL)
-        {
-            meter += meterIn;
-            meter = MAX(meter, 0.0f);
-            meter = MIN(meter, currMeterConfig->maxMeter);
-        }
-
-        return result;
+        currMeterConfig = &disabledMeterConf;
+        resetMeter();
     }
-    bool meterBundle::addMeterStocks(int meterStocksIn)
+    void meterBundle::addMeter(float meterIn)
     {
-        bool result = 0;
-
-        if (currMeterConfig != NULL)
-        {
-            addMeter(meterStocksIn * currMeterConfig->meterStockSize);
-        }
-
-        return result;
+        float currMeter = meter + meterIn;
+        currMeter = MAX(currMeter, 0.0f);
+        currMeter = MIN(currMeter, currMeterConfig->maxMeter);
+        meter = currMeter;
     }
-    bool meterBundle::roundUpMeter()
+    void meterBundle::addMeterStocks(int meterStocksIn)
     {
-        bool result = 0;
-
-        if (currMeterConfig != NULL)
-        {
-            addMeter(currMeterConfig->meterStockSize - getMeterStockRemainder());
-        }
-
-        return result;
+        addMeter(meterStocksIn * currMeterConfig->meterStockSize);
     }
-    bool meterBundle::roundDownMeter()
+    void meterBundle::roundUpMeter()
     {
-        bool result = 0;
-
-        if (currMeterConfig != NULL)
-        {
-            addMeter(-getMeterStockRemainder());
-        }
-
-        return result;
+        addMeter(currMeterConfig->meterStockSize - getMeterStockRemainder());
+    }
+    void meterBundle::roundDownMeter()
+    {
+        addMeter(-getMeterStockRemainder());
     }
 
     meterBundle playerMeters[fighterHooks::maxFighterCount];
-
 
     void registerHooks();
 }

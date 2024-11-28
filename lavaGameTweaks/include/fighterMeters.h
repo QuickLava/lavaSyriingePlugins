@@ -15,29 +15,31 @@ namespace fighterMeters
     {
     private:
         float meter;
-        meterConfiguration* currMeterConfig;
+        const meterConfiguration* currMeterConfig;
 
     public:
-        meterBundle(){};
+
+        meterBundle();
 
         // Getters
-        meterConfiguration* getMeterConfig();
+        const meterConfiguration* getMeterConfig();
         float getMeter();
         float getMeterStockRemainder();
         u32 getMeterStocks();
 
         // Setters
-        void setMeterConfig(meterConfiguration* configIn, bool doReset);
-        bool setMeter(float meterIn);
-        bool setMeterStockRemainder(float meterIn);
-        bool setMeterStocks(u32 stocksIn);
+        void setMeterConfig(const meterConfiguration& configIn, bool doReset);
+        void setMeter(float meterIn);
+        void setMeterStockRemainder(float meterIn);
+        void setMeterStocks(u32 stocksIn);
 
         // Modifiers
         void resetMeter();
-        bool addMeter(float meterIn);
-        bool addMeterStocks(int meterStocksIn);
-        bool roundUpMeter();
-        bool roundDownMeter();
+        void disableMeter();
+        void addMeter(float meterIn);
+        void addMeterStocks(int meterStocksIn);
+        void roundUpMeter();
+        void roundDownMeter();
     };
     extern meterBundle playerMeters[fighterHooks::maxFighterCount];
 

@@ -2,6 +2,8 @@
 
 namespace fighterHooks
 {
+	const char outputTag[] = "[fighterHooks] ";
+	const char observerMessageFmt[] = "%s%s: [manageID: 0x%02X, unitID: 0x%02X, sendID: 0x%02X]!\n";
 	const char callbackHookMsgFmt[] = "%s%s: entryID = 0x%08X, playerID = 0x%02X!\n";
 
 	u32 getFighterSlotNo(Fighter* fighterIn)

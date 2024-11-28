@@ -17,8 +17,8 @@
 
 namespace fighterHooks
 {
-	const char outputTag[] = "[fighterHooks] ";
-	const char observerMessageFmt[] = "%s%s: [manageID: 0x%02X, unitID: 0x%02X, sendID: 0x%02X]!\n";
+	extern const char outputTag[];
+	extern const char observerMessageFmt[];
 
 	const u32 maxFighterCount = 0x8;
 
