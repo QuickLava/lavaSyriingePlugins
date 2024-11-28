@@ -111,7 +111,6 @@ namespace airdodgeCancels
                 statusModule->changeStatusForce(Fighter::Status_Escape_Air, fighterIn->m_moduleAccesser);
                 transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Attack);
                 transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Special);
-                transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Cliff);
                 transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump);
                 transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Jump_Aerial);
 
