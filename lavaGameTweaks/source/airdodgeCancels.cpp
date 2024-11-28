@@ -6,63 +6,57 @@ namespace airdodgeCancels
     const char outputTag[] = "[lavaAirdodgeCancels] ";
     const char meterChangeStr[] = "%sFighter[%02X] %s: %+.1f Meter, Total: %d (%.1f)!\n";
 
+    u8 infiniteMeterModeFlags = 0;
+    const u32 maxStocks = 0x5;
+    const float meterStockSize = 50.0f;
+    fighterMeters::meterConfiguration meterConf = { meterStockSize * maxStocks, meterStockSize };
+
+    const u32 hitboxConnectedVar = 0x22000020;
+    const u32 meterPaidVar = 0x22000021;
+
     const u32 allTauntPadMask = 
         INPUT_PAD_BUTTON_MASK_APPEAL_HI | INPUT_PAD_BUTTON_MASK_APPEAL_S | INPUT_PAD_BUTTON_MASK_APPEAL_LW |
         INPUT_PAD_BUTTON_MASK_APPEAL_S_L | INPUT_PAD_BUTTON_MASK_APPEAL_S_R;    
 
-    float currMeterArray[fighterHooks::maxFighterCount] = {};
-    u8 currMeterStocksArray[fighterHooks::maxFighterCount] = {};
-    u8 infiniteMeterModeFlags = 0;
-
-    const u32 hitboxConnectedVar = 0x22000020;
-    const u32 meterPaidVar = 0x22000021;
-    const float maxMeter = 50.0f;
-    const u32 maxStocks = 0x5;
     Vec3f zeroVec = { 0.0f, 0.0f, 0.0f };
     char graphicRootBoneName[] = "XRotN";
     const float indirectConnectMaxCancelDistance = 30.0f;
     const float onCancelSlowRadius = 30.0f;
 
-    void doMeterReset(Fighter* fighterIn)
+    void onFighterCreateCallback(Fighter* fighterIn)
     {
-        u8 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
+        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
         if (fighterPlayerNo < fighterHooks::maxFighterCount)
         {
-            currMeterArray[fighterPlayerNo] = 0.0f;
-            currMeterStocksArray[fighterPlayerNo] = 0;
+            fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
+            targetMeterBundle->setMeterConfig(&meterConf, 1);
         }
     }
+
     void doMeterGain(Fighter* fighterIn, float damage)
     {
-        u8 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
+        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
         if (fighterPlayerNo < fighterHooks::maxFighterCount)
         {
             soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
+            fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
 
-            float currMeter = currMeterArray[fighterPlayerNo];
-            u8 currStocks = currMeterStocksArray[fighterPlayerNo];
+            int initialStockCount = targetMeterBundle->getMeterStocks();
+            targetMeterBundle->addMeter(damage);
+            int finalStockCount = targetMeterBundle->getMeterStocks();
+            int changeInStockCount = finalStockCount - initialStockCount;
 
-            currMeter += damage;
-            if (currMeter >= maxMeter && currStocks < maxStocks)
+            if (changeInStockCount > 0)
             {
-                int gainedStocks = currMeter / maxMeter;
-                currMeter -= gainedStocks * maxMeter;
-                currStocks += (int)gainedStocks;
-                currStocks = MIN(currStocks, maxStocks);
-
-                moduleEnum->m_soundModule->playSE((SndID)((snd_se_narration_one + 1) - currStocks), 1, 1, 0);
+                moduleEnum->m_soundModule->playSE((SndID)((snd_se_narration_one + 1) - finalStockCount), 1, 1, 0);
                 u32 targetBoneID = moduleEnum->m_modelModule->getNodeId(graphicRootBoneName);
                 moduleEnum->m_effectModule->reqFollow(ef_ptc_common_hit_ice, targetBoneID, &zeroVec, &zeroVec, 0.75f, 0, 0, 0, 0);
             }
-            currMeter = MIN(currMeter, maxMeter);
 
-            currMeterArray[fighterPlayerNo] = currMeter;
-            currMeterStocksArray[fighterPlayerNo] = currStocks;
-
-            OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, currStocks, currMeter);
-
+            OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, finalStockCount, targetMeterBundle->getMeterStockRemainder());
         }
     }
+
     void clearInfiniteMeterFlags()
     {
         infiniteMeterModeFlags = 0;
@@ -98,7 +92,7 @@ namespace airdodgeCancels
     }
     void onUpdateCallback(Fighter* fighterIn)
     {
-        u8 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
+        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
         if (fighterPlayerNo < fighterHooks::maxFighterCount)
         {
             soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
@@ -107,13 +101,13 @@ namespace airdodgeCancels
             soTransitionModule* transitionModule = statusModule->m_transitionModule;
             soControllerModule* controllerModule = moduleEnum->m_controllerModule;
             
-            float currMeter = currMeterArray[fighterPlayerNo];
-            u8 currStocks = currMeterStocksArray[fighterPlayerNo];
+            fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
+            u32 currMeterStocks = targetMeterBundle->getMeterStocks();
             bool infiniteMeterMode = infiniteMeterModeFlags & (1 << fighterPlayerNo);
 
             ipPadButton justPressed = controllerModule->getTrigger();
             if (workManageModule->isFlag(hitboxConnectedVar)
-                && (currStocks > 0 || infiniteMeterMode)
+                && (currMeterStocks > 0 || infiniteMeterMode)
                 && (justPressed.m_mask & allTauntPadMask))
             {
                 statusModule->changeStatusForce(Fighter::Status_Escape_Air, fighterIn->m_moduleAccesser);
@@ -123,8 +117,7 @@ namespace airdodgeCancels
                 transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump);
                 transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Jump_Aerial);
 
-                currStocks -= 1;
-                currMeterStocksArray[fighterPlayerNo] = currStocks;
+                targetMeterBundle->addMeterStocks(-1);
 
                 workManageModule->setFlag(1, meterPaidVar);
                 moduleEnum->m_soundModule->playSE(snd_se_item_Ice_Crash, 1, 1, 0);
@@ -151,14 +144,16 @@ namespace airdodgeCancels
                         currFighter->setSlow(1, 2, 20, 1);
                     }
                 }
-                OSReport_N(meterChangeStr, outputTag, fighterHooks::getFighterPlayerNo(fighterIn), "Airdodge Cancel", -maxMeter, currStocks, currMeter);
+
+                OSReport_N(meterChangeStr, outputTag, fighterHooks::getFighterPlayerNo(fighterIn), "Airdodge Cancel", 
+                    -meterStockSize, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
             }
 
             ipPadButton pressed = controllerModule->getButton();
             if (pressed.m_attack && pressed.m_special && pressed.m_jump && (justPressed.m_mask & allTauntPadMask))
             {
                 infiniteMeterModeFlags ^= (1 << fighterPlayerNo);
-                doMeterReset(fighterIn);
+                targetMeterBundle->resetMeter();
                 OSReport_N("%sInfinite Meter Mode Status: %d!\n", outputTag, !infiniteMeterMode);
             }
         }
@@ -170,7 +165,7 @@ namespace airdodgeCancels
         fighterHooks::ftCallbackMgr::registerOnAttackCallback(onHitCallback);
         fighterHooks::ftCallbackMgr::registerOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onIndirectHitCallback);
         fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onIndirectHitCallback);
-        fighterHooks::ftCallbackMgr::registerOnCreateCallback(doMeterReset);
+        fighterHooks::ftCallbackMgr::registerOnCreateCallback(onFighterCreateCallback);
         fighterHooks::ftCallbackMgr::registerOnUpdateCallback(onUpdateCallback);
     }
 }

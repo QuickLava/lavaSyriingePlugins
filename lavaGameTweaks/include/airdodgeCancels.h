@@ -3,6 +3,7 @@
 
 #include <cstdlib>
 #include "fighterHooks.h"
+#include "fighterMeters.h"
 
 namespace airdodgeCancels
 {
