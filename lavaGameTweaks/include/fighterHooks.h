@@ -40,8 +40,8 @@ namespace fighterHooks
 
 #define INCLUDE_OUTSIDE_OBSERVER false
 
-	u8 getFighterSlotNo(Fighter* fighterIn);
-	u8 getFighterPlayerNo(Fighter* fighterIn);
+	u32 getFighterSlotNo(Fighter* fighterIn);
+	u32 getFighterPlayerNo(Fighter* fighterIn);
 
 	class ftCallbackMgr
 	{

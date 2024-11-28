@@ -4,11 +4,11 @@ namespace fighterHooks
 {
 	const char callbackHookMsgFmt[] = "%s%s: entryID = 0x%08X, playerID = 0x%02X!\n";
 
-	u8 getFighterSlotNo(Fighter* fighterIn)
+	u32 getFighterSlotNo(Fighter* fighterIn)
 	{
 		return fighterIn->m_entryId & 0xFF;
 	}
-	u8 getFighterPlayerNo(Fighter* fighterIn)
+	u32 getFighterPlayerNo(Fighter* fighterIn)
 	{
 		return g_ftManager->getPlayerNo(fighterIn->m_entryId);
 	}
