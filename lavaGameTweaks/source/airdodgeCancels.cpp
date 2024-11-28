@@ -23,16 +23,6 @@ namespace airdodgeCancels
     const float indirectConnectMaxCancelDistance = 30.0f;
     const float onCancelSlowRadius = 30.0f;
 
-    void onFighterCreateCallback(Fighter* fighterIn)
-    {
-        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
-        if (fighterPlayerNo < fighterHooks::maxFighterCount)
-        {
-            fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
-            targetMeterBundle->setMeterConfig(meterConf, 1);
-        }
-    }
-
     void doMeterGain(Fighter* fighterIn, float damage)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
@@ -57,11 +47,19 @@ namespace airdodgeCancels
         }
     }
 
-    void clearInfiniteMeterFlags()
+    void onMeleeStartCallback()
     {
         infiniteMeterModeFlags = 0;
     }
-
+    void onFighterCreateCallback(Fighter* fighterIn)
+    {
+        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
+        if (fighterPlayerNo < fighterHooks::maxFighterCount)
+        {
+            fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
+            targetMeterBundle->setMeterConfig(meterConf, 1);
+        }
+    }
     void onHitCallback(Fighter* attacker, StageObject* target, float damage)
     {
         soModuleEnumeration* moduleEnum = attacker->m_moduleAccesser->m_enumerationStart;
@@ -161,7 +159,7 @@ namespace airdodgeCancels
 
     void registerHooks()
     {
-        fighterHooks::ftCallbackMgr::registerMeleeOnStartCallback(clearInfiniteMeterFlags);
+        fighterHooks::ftCallbackMgr::registerMeleeOnStartCallback(onMeleeStartCallback);
         fighterHooks::ftCallbackMgr::registerOnAttackCallback(onHitCallback);
         fighterHooks::ftCallbackMgr::registerOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onIndirectHitCallback);
         fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onIndirectHitCallback);
