@@ -3,6 +3,7 @@
 #include "meleeGameSetFreeze.h"
 #include "reflectOnHit.h"
 #include "airdodgeCancels.h"
+#include "slimeCancels.h"
 
 namespace lavaGameTweaks
 {
@@ -13,7 +14,8 @@ namespace lavaGameTweaks
         //magicSeries::registerHooks();
         //meleeFreeze::registerHooks();
         //reflectOnHit::registerHooks();
-        airdodgeCancels::registerHooks();
+        //airdodgeCancels::registerHooks();
+        slimeCancels::registerHooks();
     }
 
     void Destroy()

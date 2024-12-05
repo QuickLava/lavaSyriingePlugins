@@ -11,16 +11,19 @@ namespace slimeCancels
     const float meterStockSize = 33.0f;
     const fighterMeters::meterConfiguration meterConf = { meterStockSize * maxStocks, meterStockSize };
 
-    const u32 meterPaidVar = 0x22000021;
-    const u32 beenFrozenVar = 0x22000022;
-    const u32 didSlimeCancelVar = 0x22000023;
+    const u32 meterPaidVar = 0x22000038;
+    const u32 beenFrozenVar = 0x22000039;
+    const u32 didSlimeCancelVar = 0x2200003A;
     Vec3f zeroVec = { 0.0f, 0.0f, 0.0f };
+    Vec3f faceScreenRotVec = { 0.0f, -90.0f, 0.0f };
+    Vec3f flattenSclVec = { 2.0f, 2.0f, 0.1f };
     char graphicRootBoneName[] = "XRotN";
 
     const u32 allTauntPadMask = 
         INPUT_PAD_BUTTON_MASK_APPEAL_HI | INPUT_PAD_BUTTON_MASK_APPEAL_S | INPUT_PAD_BUTTON_MASK_APPEAL_LW |
         INPUT_PAD_BUTTON_MASK_APPEAL_S_L | INPUT_PAD_BUTTON_MASK_APPEAL_S_R;    
 
+    const u32 onCancelStopBaseDuration = 15;
     const float onCancelStopRadius = 20.0f;
     const float onCancelStopWindowLength = 5.0f;
 
@@ -40,6 +43,8 @@ namespace slimeCancels
             if (changeInStockCount > 0)
             {
                 moduleEnum->m_soundModule->playSE((SndID)((snd_se_narration_one + 1) - finalStockCount), 1, 1, 0);
+                u32 targetBoneID = moduleEnum->m_modelModule->getNodeId(graphicRootBoneName);
+                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_cliff_catch, targetBoneID, &zeroVec, &zeroVec, 2.5f, 0, 0, 0, 0);
             }
 
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, finalStockCount, targetMeterBundle->getMeterStockRemainder());
@@ -108,24 +113,9 @@ namespace slimeCancels
                 u32 targetBoneID = moduleEnum->m_modelModule->getNodeId(graphicRootBoneName);
                 moduleEnum->m_soundModule->playSE(snd_se_item_pasaran_growth, 1, 1, 0);
                 moduleEnum->m_soundModule->playSE(snd_se_item_spring_02, 1, 1, 0);
-                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_spflash, targetBoneID, &zeroVec, &zeroVec, 1.0f, 0, 0, 0, 0);
-                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_cliff_catch, targetBoneID, &zeroVec, &zeroVec, 3.0f, 0, 0, 0, 0);
-
-                soControllerImpl* controllerPtr = (soControllerImpl*)controllerModule->getController();
-                controllerPtr->m_trigger &= ~allTauntPadMask;
-                if (moduleEnum->m_situationModule->getKind() == 0x00)
-                {
-                    statusModule->changeStatusForce(Fighter::Status_Wait, fighterIn->m_moduleAccesser);
-                }
-                else
-                {
-                    u32 tauntInputBak = controllerPtr->m_button & allTauntPadMask;
-                    controllerPtr->m_button &= ~tauntInputBak;
-                    statusModule->changeStatusForce(Fighter::Status_Fall_Aerial, fighterIn->m_moduleAccesser);
-                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Tread_Jump);
-                    controllerPtr->m_button |= tauntInputBak;
-                    workManageModule->onFlag(didSlimeCancelVar);
-                }
+                u32 effectHandle = moduleEnum->m_effectModule->reqFollow(ef_ptc_common_ray_gun_shot, targetBoneID, &zeroVec, &faceScreenRotVec, 1.0f, 0, 0, 0, 0);
+                g_ecMgr->setScl(effectHandle, &flattenSclVec);
+                g_ecMgr->setSlowRate(effectHandle, 2);
 
                 ftManager* fighterMgr = g_ftManager;
                 const int fighterCount = fighterMgr->getEntryCount();
@@ -148,20 +138,36 @@ namespace slimeCancels
 
                     soStopModule* attackerStopModule = fighterIn->m_moduleAccesser->m_enumerationStart->m_stopModule;
                     soStopModule* targetStopModule = currFighter->m_moduleAccesser->m_moduleEnumeration.m_stopModule;
-                    u32 attackerHitstop = 15;
-                    u32 targetHitstop = attackerHitstop;
+                    u32 attackerHitstop = onCancelStopBaseDuration;
+                    u32 targetHitstop = onCancelStopBaseDuration;
 
                     if (targetStopModule->isDamage())
                     {
-                        u32 remainingHitstop = targetStopModule->getHitStopRealFrame();
-                        targetHitstop += remainingHitstop;
+                        targetHitstop += damageLog->m_hitStopFrame;
                         moduleEnum->m_soundModule->playSE(snd_se_Audience_Kansei_s, 1, 1, 0);
-                        OSReport_N("%sPerfect Cancel: %d Frames of Hitstop Remaining\n", outputTag, remainingHitstop);
+                        u32 remainingHitstop = targetStopModule->getHitStopRealFrame();
+                        OSReport_N("%sPerfect Cancel: Defender Hitstop Restarted (+%d Frames)\n", outputTag, damageLog->m_hitStopFrame);
                     }
 
                     attackerStopModule->setHitStopFrame(attackerHitstop, 0);
                     targetStopModule->setHitStopFrame(targetHitstop, 1);
                     targetWorkManageModule->onFlag(beenFrozenVar);
+                }
+
+                soControllerImpl* controllerPtr = (soControllerImpl*)controllerModule->getController();
+                controllerPtr->m_trigger &= ~allTauntPadMask;
+                if (moduleEnum->m_situationModule->getKind() == 0x00)
+                {
+                    statusModule->changeStatusForce(Fighter::Status_Wait, fighterIn->m_moduleAccesser);
+                }
+                else
+                {
+                    u32 tauntInputBak = controllerPtr->m_button & allTauntPadMask;
+                    controllerPtr->m_button &= ~tauntInputBak;
+                    statusModule->changeStatusForce(Fighter::Status_Fall_Aerial, fighterIn->m_moduleAccesser);
+                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Tread_Jump);
+                    controllerPtr->m_button |= tauntInputBak;
+                    workManageModule->onFlag(didSlimeCancelVar);
                 }
 
                 OSReport_N(meterChangeStr, outputTag, fighterHooks::getFighterPlayerNo(fighterIn), "Slime Cancel", 
