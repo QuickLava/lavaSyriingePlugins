@@ -52,11 +52,7 @@ namespace slimeCancels
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, finalStockCount, targetMeterBundle->getMeterStockRemainder());
         }
     }
-
-    void onMeleeStartCallback()
-    {
-        infiniteMeterModeFlags = 0;
-    }
+    
     void onFighterCreateCallback(Fighter* fighterIn)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
@@ -188,13 +184,30 @@ namespace slimeCancels
         }
     }
 
+    void onMeleeStartCallback()
+    {
+        infiniteMeterModeFlags = 0;
+
+        if (hubAddon::getActiveMechanic() == hubAddon::amid_SLIME_CANCELS)
+        {
+            fighterHooks::ftCallbackMgr::registerOnAttackCallback(onHitCallback);
+            fighterHooks::ftCallbackMgr::registerOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onHitCallback);
+            fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onHitCallback);
+            fighterHooks::ftCallbackMgr::registerOnCreateCallback(onFighterCreateCallback);
+            fighterHooks::ftCallbackMgr::registerOnUpdateCallback(onUpdateCallback);
+        }
+        else
+        {
+            fighterHooks::ftCallbackMgr::unregisterOnAttackCallback(onHitCallback);
+            fighterHooks::ftCallbackMgr::unregisterOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onHitCallback);
+            fighterHooks::ftCallbackMgr::unregisterOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onHitCallback);
+            fighterHooks::ftCallbackMgr::unregisterOnCreateCallback(onFighterCreateCallback);
+            fighterHooks::ftCallbackMgr::unregisterOnUpdateCallback(onUpdateCallback);
+        }
+    }
+
     void registerHooks()
     {
         fighterHooks::ftCallbackMgr::registerMeleeOnStartCallback(onMeleeStartCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackCallback(onHitCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onHitCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onHitCallback);
-        fighterHooks::ftCallbackMgr::registerOnCreateCallback(onFighterCreateCallback);
-        fighterHooks::ftCallbackMgr::registerOnUpdateCallback(onUpdateCallback);
     }
 }

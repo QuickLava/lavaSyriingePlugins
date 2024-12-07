@@ -1,0 +1,20 @@
+<addon name="Mechanics Hub v1.0.0 [QuickLava]" shortName="MECH_HUB" makeINDEXFile="true">
+	<codeMenuPage shortName="_SPECIAL">
+		<codeMenuSubmenu name="Extra Mechanic Settings" shortName="MECHPAGE"/>
+	</codeMenuPage>
+	<codeMenuPage shortName="MECHPAGE">
+		<codeMenuComment text="Active Mechanics: "/>
+		<codeMenuSelection name="Enabled Active Mechanic" shortName="ACTVMECH">
+			<defaultOption index="0" />
+			<option value="None" />
+			<option value="Airdodge Cancels" />
+			<option value="Slime Cancels" />
+		</codeMenuSelection>
+		<codeMenuComment text=""/>
+		<codeMenuComment text="Passive Mechanics: "/>
+		<codeMenuToggle name="Magic Series Enabled" shortName="MAGICSRS">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+	</codeMenuPage>
+</addon>
+

@@ -1,6 +1,7 @@
 #include "magicSeries.h"
 #include <ft/fighter.h>
 
+using namespace codeMenu;
 namespace magicSeries
 {
     const char outputTag[] = "[lavaMagicSeries] ";
@@ -58,8 +59,21 @@ namespace magicSeries
         }
     }
 
+    void onMeleeStartCallback()
+    {
+        cmSelectionLine* magicSeriesToggleLine = (cmSelectionLine*)hubAddon::indexBuffer[hubAddon::lid_MAGIC_SERIES_ENABLED];
+        if (magicSeriesToggleLine != NULL && magicSeriesToggleLine->m_value)
+        {
+            fighterHooks::ftCallbackMgr::registerOnAttackCallback(magicSeriesCallback);
+        }
+        else
+        {
+            fighterHooks::ftCallbackMgr::unregisterOnAttackCallback(magicSeriesCallback);
+        }
+    }
+
     void registerHooks()
     {
-        fighterHooks::ftCallbackMgr::registerOnAttackCallback(magicSeriesCallback);
+        fighterHooks::ftCallbackMgr::registerMeleeOnStartCallback(onMeleeStartCallback);
     }
 }

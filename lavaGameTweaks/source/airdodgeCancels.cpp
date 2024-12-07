@@ -47,10 +47,6 @@ namespace airdodgeCancels
         }
     }
 
-    void onMeleeStartCallback()
-    {
-        infiniteMeterModeFlags = 0;
-    }
     void onFighterCreateCallback(Fighter* fighterIn)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
@@ -156,13 +152,30 @@ namespace airdodgeCancels
         }
     }
 
+    void onMeleeStartCallback()
+    {
+        infiniteMeterModeFlags = 0;
+
+        if (hubAddon::getActiveMechanic() == hubAddon::amid_AIRDODGE_CANCELS)
+        {
+            fighterHooks::ftCallbackMgr::registerOnAttackCallback(onHitCallback);
+            fighterHooks::ftCallbackMgr::registerOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onIndirectHitCallback);
+            fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onIndirectHitCallback);
+            fighterHooks::ftCallbackMgr::registerOnCreateCallback(onFighterCreateCallback);
+            fighterHooks::ftCallbackMgr::registerOnUpdateCallback(onUpdateCallback);
+        }
+        else
+        {
+            fighterHooks::ftCallbackMgr::unregisterOnAttackCallback(onHitCallback);
+            fighterHooks::ftCallbackMgr::unregisterOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onIndirectHitCallback);
+            fighterHooks::ftCallbackMgr::unregisterOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onIndirectHitCallback);
+            fighterHooks::ftCallbackMgr::unregisterOnCreateCallback(onFighterCreateCallback);
+            fighterHooks::ftCallbackMgr::unregisterOnUpdateCallback(onUpdateCallback);
+        }
+    }
+
     void registerHooks()
     {
         fighterHooks::ftCallbackMgr::registerMeleeOnStartCallback(onMeleeStartCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackCallback(onHitCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onIndirectHitCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onIndirectHitCallback);
-        fighterHooks::ftCallbackMgr::registerOnCreateCallback(onFighterCreateCallback);
-        fighterHooks::ftCallbackMgr::registerOnUpdateCallback(onUpdateCallback);
     }
 }
