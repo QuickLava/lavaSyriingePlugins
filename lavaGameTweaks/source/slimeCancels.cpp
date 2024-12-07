@@ -26,6 +26,8 @@ namespace slimeCancels
     const u32 onCancelStopBaseDuration = 15;
     const float onCancelStopRadius = 20.0f;
     const float onCancelStopWindowLength = 5.0f;
+    Vec3f onCancelStopKBMult = { 0.75f, 0.75f, 0.75f };
+    const float onCancelSpeedLimit = 4.0f;
 
     void doMeterGain(Fighter* fighterIn, float damage)
     {
@@ -152,6 +154,9 @@ namespace slimeCancels
                     attackerStopModule->setHitStopFrame(attackerHitstop, 0);
                     targetStopModule->setHitStopFrame(targetHitstop, 1);
                     targetWorkManageModule->onFlag(beenFrozenVar);
+
+                    soKineticEnergy* kbEnergy = currFighter->m_moduleAccesser->getKineticModule()->getEnergy(Fighter::Kinetic_Energy_Damage);
+                    kbEnergy->mulSpeed(&onCancelStopKBMult);
                 }
 
                 soControllerImpl* controllerPtr = (soControllerImpl*)controllerModule->getController();
