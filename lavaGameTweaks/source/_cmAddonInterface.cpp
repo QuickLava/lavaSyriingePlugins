@@ -24,6 +24,7 @@ namespace codeMenu
                 u32 expectedLength = entryCount * 4;
                 result = FAFread(buffer, 1, expectedLength, streamHandlePtr) == expectedLength;
             }
+            FAFclose(streamHandlePtr);
         }
 
         return result;
