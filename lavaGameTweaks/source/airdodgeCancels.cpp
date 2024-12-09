@@ -11,8 +11,8 @@ namespace airdodgeCancels
     const float meterStockSize = 50.0f;
     const fighterMeters::meterConfiguration meterConf = { meterStockSize * maxStocks, meterStockSize };
 
-    const u32 hitboxConnectedVar = 0x22000020;
-    const u32 meterPaidVar = 0x22000021;
+    const u32 hitboxConnectedVar = 0x22000038;
+    const u32 meterPaidVar = 0x22000039;
 
     const u32 allTauntPadMask = 
         INPUT_PAD_BUTTON_MASK_APPEAL_HI | INPUT_PAD_BUTTON_MASK_APPEAL_S | INPUT_PAD_BUTTON_MASK_APPEAL_LW |
@@ -22,7 +22,7 @@ namespace airdodgeCancels
     char graphicRootBoneName[] = "XRotN";
     const float indirectConnectMaxCancelDistance = 30.0f;
     const float onCancelSlowRadius = 30.0f;
-
+    
     void doMeterGain(Fighter* fighterIn, float damage)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
@@ -50,7 +50,7 @@ namespace airdodgeCancels
     void onFighterCreateCallback(Fighter* fighterIn)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
-        if (fighterPlayerNo < fighterHooks::maxFighterCount)
+        if (hubAddon::getActiveMechanicEnabled(fighterPlayerNo, hubAddon::amid_AIRDODGE_CANCELS))
         {
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
             targetMeterBundle->setMeterConfig(meterConf, 1);
@@ -58,36 +58,40 @@ namespace airdodgeCancels
     }
     void onHitCallback(Fighter* attacker, StageObject* target, float damage)
     {
-        soModuleEnumeration* moduleEnum = attacker->m_moduleAccesser->m_enumerationStart;
-        if (moduleEnum != NULL)
+        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
+        if (hubAddon::getActiveMechanicEnabled(fighterPlayerNo, hubAddon::amid_AIRDODGE_CANCELS))
         {
+            soModuleEnumeration* moduleEnum = attacker->m_moduleAccesser->m_enumerationStart;
             doMeterGain(attacker, damage);
             moduleEnum->m_workManageModule->setFlag(1, hitboxConnectedVar);
         }
     }
     void onIndirectHitCallback(Fighter* attacker, StageObject* target, float damage, StageObject* projectile)
     {
-        soModuleEnumeration* attackerModuleEnum = attacker->m_moduleAccesser->m_enumerationStart;
-        soModuleEnumeration* targetModuleEnum = target->m_moduleAccesser->m_enumerationStart;
-
-        if (attackerModuleEnum != NULL && targetModuleEnum != NULL)
+        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
+        if (hubAddon::getActiveMechanicEnabled(fighterPlayerNo, hubAddon::amid_AIRDODGE_CANCELS))
         {
-            doMeterGain(attacker, damage);
-
-            Vec3f attackerPos = attackerModuleEnum->m_postureModule->getPrevPos();
-            Vec3f targetPos = targetModuleEnum->m_postureModule->getPrevPos();
-            float distance = attackerPos.distance(&targetPos);
-            OSReport_N("%sProjectile Connected %.2f Units Away!\n", outputTag, distance);
-            if (distance < indirectConnectMaxCancelDistance)
+            soModuleEnumeration* attackerModuleEnum = attacker->m_moduleAccesser->m_enumerationStart;
+            soModuleEnumeration* targetModuleEnum = target->m_moduleAccesser->m_enumerationStart;
+            if (targetModuleEnum != NULL)
             {
-                attackerModuleEnum->m_workManageModule->setFlag(1, hitboxConnectedVar);
+                doMeterGain(attacker, damage);
+
+                Vec3f attackerPos = attackerModuleEnum->m_postureModule->getPrevPos();
+                Vec3f targetPos = targetModuleEnum->m_postureModule->getPrevPos();
+                float distance = attackerPos.distance(&targetPos);
+                OSReport_N("%sProjectile Connected %.2f Units Away!\n", outputTag, distance);
+                if (distance < indirectConnectMaxCancelDistance)
+                {
+                    attackerModuleEnum->m_workManageModule->setFlag(1, hitboxConnectedVar);
+                }
             }
         }
     }
     void onUpdateCallback(Fighter* fighterIn)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
-        if (fighterPlayerNo < fighterHooks::maxFighterCount)
+        if (hubAddon::getActiveMechanicEnabled(fighterPlayerNo, hubAddon::amid_AIRDODGE_CANCELS))
         {
             soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
             soWorkManageModule* workManageModule = moduleEnum->m_workManageModule;
@@ -97,7 +101,7 @@ namespace airdodgeCancels
             
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
             u32 currMeterStocks = targetMeterBundle->getMeterStocks();
-            bool infiniteMeterMode = infiniteMeterModeFlags & (1 << fighterPlayerNo);
+            bool infiniteMeterMode = (infiniteMeterModeFlags >> fighterPlayerNo) & 0b1;
 
             ipPadButton justPressed = controllerModule->getTrigger();
             if (workManageModule->isFlag(hitboxConnectedVar)
@@ -151,31 +155,18 @@ namespace airdodgeCancels
             }
         }
     }
-
     void onMeleeStartCallback()
     {
         infiniteMeterModeFlags = 0;
-
-        if (hubAddon::getActiveMechanic() == hubAddon::amid_AIRDODGE_CANCELS)
-        {
-            fighterHooks::ftCallbackMgr::registerOnAttackCallback(onHitCallback);
-            fighterHooks::ftCallbackMgr::registerOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onIndirectHitCallback);
-            fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onIndirectHitCallback);
-            fighterHooks::ftCallbackMgr::registerOnCreateCallback(onFighterCreateCallback);
-            fighterHooks::ftCallbackMgr::registerOnUpdateCallback(onUpdateCallback);
-        }
-        else
-        {
-            fighterHooks::ftCallbackMgr::unregisterOnAttackCallback(onHitCallback);
-            fighterHooks::ftCallbackMgr::unregisterOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onIndirectHitCallback);
-            fighterHooks::ftCallbackMgr::unregisterOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onIndirectHitCallback);
-            fighterHooks::ftCallbackMgr::unregisterOnCreateCallback(onFighterCreateCallback);
-            fighterHooks::ftCallbackMgr::unregisterOnUpdateCallback(onUpdateCallback);
-        }
     }
 
     void registerHooks()
     {
         fighterHooks::ftCallbackMgr::registerMeleeOnStartCallback(onMeleeStartCallback);
+        fighterHooks::ftCallbackMgr::registerOnAttackCallback(onHitCallback);
+        fighterHooks::ftCallbackMgr::registerOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onIndirectHitCallback);
+        fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onIndirectHitCallback);
+        fighterHooks::ftCallbackMgr::registerOnCreateCallback(onFighterCreateCallback);
+        fighterHooks::ftCallbackMgr::registerOnUpdateCallback(onUpdateCallback);
     }
 }

@@ -11,9 +11,9 @@ namespace slimeCancels
     const float meterStockSize = 33.0f;
     const fighterMeters::meterConfiguration meterConf = { meterStockSize * maxStocks, meterStockSize };
 
-    const u32 meterPaidVar = 0x22000038;
-    const u32 beenFrozenVar = 0x22000039;
-    const u32 didSlimeCancelVar = 0x2200003A;
+    const u32 meterPaidVar = 0x22000039;
+    const u32 beenFrozenVar = 0x2200003A;
+    const u32 didSlimeCancelVar = 0x2200003B;
     Vec3f zeroVec = { 0.0f, 0.0f, 0.0f };
     Vec3f faceScreenRotVec = { 0.0f, -90.0f, 0.0f };
     Vec3f flattenSclVec = { 2.0f, 2.0f, 0.1f };
@@ -29,6 +29,15 @@ namespace slimeCancels
     Vec3f onCancelStopKBMult = { 0.75f, 0.75f, 0.75f };
     const float onCancelSpeedLimit = 4.0f;
 
+    bool getFlagForPlayer(u8 flagByte, u32 playerNo)
+    {
+        return flagByte & (1 << playerNo);
+    }
+    void setFlagForPlayer(u8& flagByte, u32 playerNo, bool stateIn)
+    {
+        flagByte &= ~(1 << playerNo);
+        flagByte |= stateIn << playerNo;
+    }
     void doMeterGain(Fighter* fighterIn, float damage)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
@@ -56,7 +65,7 @@ namespace slimeCancels
     void onFighterCreateCallback(Fighter* fighterIn)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
-        if (fighterPlayerNo < fighterHooks::maxFighterCount)
+        if (hubAddon::getActiveMechanicEnabled(fighterPlayerNo, hubAddon::amid_SLIME_CANCELS))
         {
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
             targetMeterBundle->setMeterConfig(meterConf, 1);
@@ -64,8 +73,8 @@ namespace slimeCancels
     }
     void onHitCallback(Fighter* attacker, StageObject* target, float damage)
     {
-        soModuleEnumeration* moduleEnum = attacker->m_moduleAccesser->m_enumerationStart;
-        if (moduleEnum != NULL)
+        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
+        if (hubAddon::getActiveMechanicEnabled(fighterPlayerNo, hubAddon::amid_SLIME_CANCELS))
         {
             doMeterGain(attacker, damage);
         }
@@ -73,7 +82,7 @@ namespace slimeCancels
     void onUpdateCallback(Fighter* fighterIn)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
-        if (fighterPlayerNo < fighterHooks::maxFighterCount)
+        if (hubAddon::getActiveMechanicEnabled(fighterPlayerNo, hubAddon::amid_SLIME_CANCELS))
         {
             soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
             soStatusModule* statusModule = moduleEnum->m_statusModule;
@@ -83,7 +92,7 @@ namespace slimeCancels
             
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
             u32 currMeterStocks = targetMeterBundle->getMeterStocks();
-            bool infiniteMeterMode = infiniteMeterModeFlags & (1 << fighterPlayerNo);
+            bool infiniteMeterMode = (infiniteMeterModeFlags >> fighterPlayerNo) & 0b1;
 
             ipPadButton justPressed = controllerModule->getTrigger();
             ipPadButton pressed = controllerModule->getButton();
@@ -187,27 +196,15 @@ namespace slimeCancels
     void onMeleeStartCallback()
     {
         infiniteMeterModeFlags = 0;
-
-        if (hubAddon::getActiveMechanic() == hubAddon::amid_SLIME_CANCELS)
-        {
-            fighterHooks::ftCallbackMgr::registerOnAttackCallback(onHitCallback);
-            fighterHooks::ftCallbackMgr::registerOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onHitCallback);
-            fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onHitCallback);
-            fighterHooks::ftCallbackMgr::registerOnCreateCallback(onFighterCreateCallback);
-            fighterHooks::ftCallbackMgr::registerOnUpdateCallback(onUpdateCallback);
-        }
-        else
-        {
-            fighterHooks::ftCallbackMgr::unregisterOnAttackCallback(onHitCallback);
-            fighterHooks::ftCallbackMgr::unregisterOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onHitCallback);
-            fighterHooks::ftCallbackMgr::unregisterOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onHitCallback);
-            fighterHooks::ftCallbackMgr::unregisterOnCreateCallback(onFighterCreateCallback);
-            fighterHooks::ftCallbackMgr::unregisterOnUpdateCallback(onUpdateCallback);
-        }
     }
 
     void registerHooks()
     {
         fighterHooks::ftCallbackMgr::registerMeleeOnStartCallback(onMeleeStartCallback);
+        fighterHooks::ftCallbackMgr::registerOnAttackCallback(onHitCallback);
+        fighterHooks::ftCallbackMgr::registerOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onHitCallback);
+        fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onHitCallback);
+        fighterHooks::ftCallbackMgr::registerOnCreateCallback(onFighterCreateCallback);
+        fighterHooks::ftCallbackMgr::registerOnUpdateCallback(onUpdateCallback);
     }
 }

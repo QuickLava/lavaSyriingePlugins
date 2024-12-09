@@ -2,7 +2,7 @@
 #define LAVA_MAGIC_SERIES_H_V1
 
 #include <cstdlib>
-#include "_hubAddon.h"
+#include "_mechanicsHub.h"
 #include "fighterHooks.h"
 
 namespace magicSeries

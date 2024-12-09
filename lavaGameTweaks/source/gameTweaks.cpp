@@ -4,15 +4,16 @@
 #include "reflectOnHit.h"
 #include "airdodgeCancels.h"
 #include "slimeCancels.h"
-#include "_hubAddon.h"
+#include "_mechanicsHub.h"
 
 // Note: 0x8070AA14 is SORA_MELEE base address
 namespace lavaGameTweaks
 {
     void Init()
     {
-        hubAddon::populate();
         fighterHooks::registerFighterHooks();
+        hubAddon::populate();
+        hubAddon::registerHooks();
         airdodgeCancels::registerHooks();
         slimeCancels::registerHooks();
         magicSeries::registerHooks();
