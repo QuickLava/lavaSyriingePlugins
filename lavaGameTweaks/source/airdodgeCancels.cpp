@@ -14,11 +14,6 @@ namespace airdodgeCancels
     const u32 hitboxConnectedVar = 0x22000038;
     const u32 meterPaidVar = 0x22000039;
 
-    const u32 allTauntPadMask = 
-        INPUT_PAD_BUTTON_MASK_APPEAL_HI | INPUT_PAD_BUTTON_MASK_APPEAL_S | INPUT_PAD_BUTTON_MASK_APPEAL_LW |
-        INPUT_PAD_BUTTON_MASK_APPEAL_S_L | INPUT_PAD_BUTTON_MASK_APPEAL_S_R;    
-
-    Vec3f zeroVec = { 0.0f, 0.0f, 0.0f };
     const float indirectConnectMaxCancelDistance = 30.0f;
     const float onCancelSlowRadius = 30.0f;
     
@@ -37,7 +32,8 @@ namespace airdodgeCancels
 
             if (changeInStockCount > 0)
             {
-                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_hit_ice, hubAddon::fighterHipNodeID, &zeroVec, &zeroVec, 0.75f, 0, 0, 0, 0);
+                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_hit_ice, 
+                    mechHub::ftHipNodeID, &mechHub::zeroVec, &mechHub::zeroVec, 0.75f, 0, 0, 0, 0);
             }
 
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, finalStockCount, targetMeterBundle->getMeterStockRemainder());
@@ -47,7 +43,7 @@ namespace airdodgeCancels
     void onFighterCreateCallback(Fighter* fighterIn)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
-        if (hubAddon::getActiveMechanicEnabled(fighterPlayerNo, hubAddon::amid_AIRDODGE_CANCELS))
+        if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_AIRDODGE_CANCELS))
         {
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
             targetMeterBundle->setMeterConfig(meterConf, 1);
@@ -56,7 +52,7 @@ namespace airdodgeCancels
     void onHitCallback(Fighter* attacker, StageObject* target, float damage)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
-        if (hubAddon::getActiveMechanicEnabled(fighterPlayerNo, hubAddon::amid_AIRDODGE_CANCELS))
+        if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_AIRDODGE_CANCELS))
         {
             soModuleEnumeration* moduleEnum = attacker->m_moduleAccesser->m_enumerationStart;
             doMeterGain(attacker, damage);
@@ -66,7 +62,7 @@ namespace airdodgeCancels
     void onIndirectHitCallback(Fighter* attacker, StageObject* target, float damage, StageObject* projectile)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
-        if (hubAddon::getActiveMechanicEnabled(fighterPlayerNo, hubAddon::amid_AIRDODGE_CANCELS))
+        if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_AIRDODGE_CANCELS))
         {
             soModuleEnumeration* attackerModuleEnum = attacker->m_moduleAccesser->m_enumerationStart;
             soModuleEnumeration* targetModuleEnum = target->m_moduleAccesser->m_enumerationStart;
@@ -74,7 +70,7 @@ namespace airdodgeCancels
             {
                 doMeterGain(attacker, damage);
 
-                float distance = hubAddon::getDistanceBetween(attacker, target, 1);
+                float distance = mechHub::getDistanceBetween(attacker, target, 1);
                 OSReport_N("%sProjectile Connected %.2f Units Away!\n", outputTag, distance);
                 if (distance <= indirectConnectMaxCancelDistance)
                 {
@@ -86,7 +82,7 @@ namespace airdodgeCancels
     void onUpdateCallback(Fighter* fighterIn)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
-        if (hubAddon::getActiveMechanicEnabled(fighterPlayerNo, hubAddon::amid_AIRDODGE_CANCELS))
+        if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_AIRDODGE_CANCELS))
         {
             soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
             soWorkManageModule* workManageModule = moduleEnum->m_workManageModule;
@@ -101,7 +97,7 @@ namespace airdodgeCancels
             ipPadButton justPressed = controllerModule->getTrigger();
             if (workManageModule->isFlag(hitboxConnectedVar)
                 && (currMeterStocks > 0 || infiniteMeterMode)
-                && (justPressed.m_mask & allTauntPadMask))
+                && (justPressed.m_mask & mechHub::allTauntPadMask))
             {
                 statusModule->changeStatusForce(Fighter::Status_Escape_Air, fighterIn->m_moduleAccesser);
                 transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Attack);
@@ -115,8 +111,10 @@ namespace airdodgeCancels
                 moduleEnum->m_soundModule->playSE(snd_se_item_Ice_Crash, 1, 1, 0);
                 moduleEnum->m_soundModule->playSE(snd_se_system_collection_delete, 1, 1, 0);
 
-                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_hit_ice, hubAddon::fighterHipNodeID, &zeroVec, &zeroVec, 1.0f, 0, 0, 0, 0);
-                u32 circleEfHandle = moduleEnum->m_effectModule->reqFollow(ef_ptc_common_guard_mark, hubAddon::fighterHipNodeID, &zeroVec, &zeroVec, 3.0f, 0, 0, 0, 0);
+                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_hit_ice, 
+                    mechHub::ftHipNodeID, &mechHub::zeroVec, &mechHub::zeroVec, 1.0f, 0, 0, 0, 0);
+                u32 circleEfHandle = moduleEnum->m_effectModule->reqFollow(ef_ptc_common_guard_mark, 
+                    mechHub::ftHipNodeID, &mechHub::zeroVec, &mechHub::zeroVec, 3.0f, 0, 0, 0, 0);
                 g_ecMgr->setSlowRate(circleEfHandle, 2);
 
                 ftManager* fighterMgr = g_ftManager;
@@ -127,7 +125,7 @@ namespace airdodgeCancels
                     Fighter* currFighter = fighterMgr->getFighter(currEntryID, 0);
                     if (soExternalValueAccesser::getTeamNo(fighterIn) == soExternalValueAccesser::getTeamNo(currFighter)) continue;
 
-                    float distance = hubAddon::getDistanceBetween(fighterIn, currFighter, 1);
+                    float distance = mechHub::getDistanceBetween(fighterIn, currFighter, 1);
                     if (distance <= onCancelSlowRadius)
                     {
                         currFighter->setSlow(1, 2, 20, 1);
@@ -139,7 +137,7 @@ namespace airdodgeCancels
             }
 
             ipPadButton pressed = controllerModule->getButton();
-            if (pressed.m_attack && pressed.m_special && pressed.m_jump && (justPressed.m_mask & allTauntPadMask))
+            if (pressed.m_attack && pressed.m_special && pressed.m_jump && (justPressed.m_mask & mechHub::allTauntPadMask))
             {
                 infiniteMeterModeFlags ^= (1 << fighterPlayerNo);
                 targetMeterBundle->resetMeter();

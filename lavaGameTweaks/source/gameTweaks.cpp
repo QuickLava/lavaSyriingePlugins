@@ -12,8 +12,8 @@ namespace lavaGameTweaks
     void Init()
     {
         fighterHooks::registerFighterHooks();
-        hubAddon::populate();
-        hubAddon::registerHooks();
+        mechHub::populate();
+        mechHub::registerHooks();
         airdodgeCancels::registerHooks();
         slimeCancels::registerHooks();
         magicSeries::registerHooks();

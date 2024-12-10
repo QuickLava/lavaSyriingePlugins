@@ -3,9 +3,10 @@
 
 #include <sy_core.h>
 #include "fighterHooks.h"
+#include "fighterMeters.h"
 #include "_cmAddonInterface.h"
 
-namespace hubAddon
+namespace mechHub
 {
     enum _lineIDs
     {
@@ -30,8 +31,15 @@ namespace hubAddon
         pmid__COUNT,
     };
 
+    const u32 ftHipNodeID = 0x12D;
+    extern Vec3f zeroVec;
+    extern Vec3f gfxFaceScreenRotVec;
+    extern Vec3f gfxFlattenSclVec;
+    const u32 allTauntPadMask =
+        INPUT_PAD_BUTTON_MASK_APPEAL_HI | INPUT_PAD_BUTTON_MASK_APPEAL_S | INPUT_PAD_BUTTON_MASK_APPEAL_LW |
+        INPUT_PAD_BUTTON_MASK_APPEAL_S_L | INPUT_PAD_BUTTON_MASK_APPEAL_S_R;
+
     extern u32 indexBuffer[];
-    const u32 fighterHipNodeID = 0x12D;
 
     bool populate();
     void registerHooks();

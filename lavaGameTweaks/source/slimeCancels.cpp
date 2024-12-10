@@ -14,13 +14,6 @@ namespace slimeCancels
     const u32 meterPaidVar = 0x22000039;
     const u32 beenFrozenVar = 0x2200003A;
     const u32 didSlimeCancelVar = 0x2200003B;
-    Vec3f zeroVec = { 0.0f, 0.0f, 0.0f };
-    Vec3f faceScreenRotVec = { 0.0f, -90.0f, 0.0f };
-    Vec3f flattenSclVec = { 2.0f, 2.0f, 0.1f };
-
-    const u32 allTauntPadMask = 
-        INPUT_PAD_BUTTON_MASK_APPEAL_HI | INPUT_PAD_BUTTON_MASK_APPEAL_S | INPUT_PAD_BUTTON_MASK_APPEAL_LW |
-        INPUT_PAD_BUTTON_MASK_APPEAL_S_L | INPUT_PAD_BUTTON_MASK_APPEAL_S_R;    
 
     const u32 onCancelStopBaseDuration = 15;
     const float onCancelStopRadius = 20.0f;
@@ -52,7 +45,8 @@ namespace slimeCancels
 
             if (changeInStockCount > 0)
             {
-                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_cliff_catch, hubAddon::fighterHipNodeID, &zeroVec, &zeroVec, 2.5f, 0, 0, 0, 0);
+                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_cliff_catch,
+                    mechHub::ftHipNodeID, &mechHub::zeroVec, &mechHub::zeroVec, 2.5f, 0, 0, 0, 0);
             }
 
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, finalStockCount, targetMeterBundle->getMeterStockRemainder());
@@ -62,7 +56,7 @@ namespace slimeCancels
     void onFighterCreateCallback(Fighter* fighterIn)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
-        if (hubAddon::getActiveMechanicEnabled(fighterPlayerNo, hubAddon::amid_SLIME_CANCELS))
+        if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_SLIME_CANCELS))
         {
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
             targetMeterBundle->setMeterConfig(meterConf, 1);
@@ -71,7 +65,7 @@ namespace slimeCancels
     void onHitCallback(Fighter* attacker, StageObject* target, float damage)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
-        if (hubAddon::getActiveMechanicEnabled(fighterPlayerNo, hubAddon::amid_SLIME_CANCELS))
+        if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_SLIME_CANCELS))
         {
             doMeterGain(attacker, damage);
         }
@@ -79,7 +73,7 @@ namespace slimeCancels
     void onUpdateCallback(Fighter* fighterIn)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
-        if (hubAddon::getActiveMechanicEnabled(fighterPlayerNo, hubAddon::amid_SLIME_CANCELS))
+        if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_SLIME_CANCELS))
         {
             soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
             soStatusModule* statusModule = moduleEnum->m_statusModule;
@@ -99,7 +93,7 @@ namespace slimeCancels
             if ((currStatus >= Fighter::Status_Attack && currStatus <= Fighter::Status_Attack_Air)
                 || (currStatus >= 0x112 && currStatus != 0x116))
             {
-                slimeCancelInput = justPressed.m_mask & allTauntPadMask;
+                slimeCancelInput = justPressed.m_mask & mechHub::allTauntPadMask;
             }
             
             if (workManageModule->isFlag(didSlimeCancelVar))
@@ -116,8 +110,9 @@ namespace slimeCancels
 
                 moduleEnum->m_soundModule->playSE(snd_se_item_pasaran_growth, 1, 1, 0);
                 moduleEnum->m_soundModule->playSE(snd_se_item_spring_02, 1, 1, 0);
-                u32 effectHandle = moduleEnum->m_effectModule->reqFollow(ef_ptc_common_ray_gun_shot, hubAddon::fighterHipNodeID, &zeroVec, &faceScreenRotVec, 1.0f, 0, 0, 0, 0);
-                g_ecMgr->setScl(effectHandle, &flattenSclVec);
+                u32 effectHandle = moduleEnum->m_effectModule->reqFollow(ef_ptc_common_ray_gun_shot,
+                    mechHub::ftHipNodeID, &mechHub::zeroVec, &mechHub::gfxFaceScreenRotVec, 1.0f, 0, 0, 0, 0);
+                g_ecMgr->setScl(effectHandle, &mechHub::gfxFlattenSclVec);
                 g_ecMgr->setSlowRate(effectHandle, 2);
 
                 ftManager* fighterMgr = g_ftManager;
@@ -161,14 +156,14 @@ namespace slimeCancels
                 }
 
                 soControllerImpl* controllerPtr = (soControllerImpl*)controllerModule->getController();
-                controllerPtr->m_trigger &= ~allTauntPadMask;
+                controllerPtr->m_trigger &= ~mechHub::allTauntPadMask;
                 if (moduleEnum->m_situationModule->getKind() == 0x00)
                 {
                     statusModule->changeStatusForce(Fighter::Status_Wait, fighterIn->m_moduleAccesser);
                 }
                 else
                 {
-                    u32 tauntInputBak = controllerPtr->m_button & allTauntPadMask;
+                    u32 tauntInputBak = controllerPtr->m_button & mechHub::allTauntPadMask;
                     controllerPtr->m_button &= ~tauntInputBak;
                     statusModule->changeStatusForce(Fighter::Status_Fall_Aerial, fighterIn->m_moduleAccesser);
                     statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Tread_Jump);
@@ -180,7 +175,7 @@ namespace slimeCancels
                     -meterStockSize, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
             }
 
-            if (pressed.m_attack && pressed.m_special && pressed.m_jump && (justPressed.m_mask & allTauntPadMask))
+            if (pressed.m_attack && pressed.m_special && pressed.m_jump && (justPressed.m_mask & mechHub::allTauntPadMask))
             {
                 infiniteMeterModeFlags ^= (1 << fighterPlayerNo);
                 targetMeterBundle->resetMeter();

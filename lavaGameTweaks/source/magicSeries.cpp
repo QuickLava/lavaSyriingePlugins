@@ -8,11 +8,11 @@ namespace magicSeries
 
     void magicSeriesCallback(Fighter* attacker, StageObject* target, float damage)
     {
-        OSReport_N("%sAttack Detected!\n", outputTag);
-
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
-        if (hubAddon::getPassiveMechanicEnabled(fighterPlayerNo, hubAddon::pmid_MAGIC_SERIES))
+        if (mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_MAGIC_SERIES))
         {
+            OSReport_N("%sAttack Detected!\n", outputTag);
+
             soModuleEnumeration* moduleEnum = &attacker->m_moduleAccesser->m_moduleEnumeration;
             int currStatus = moduleEnum->m_statusModule->getStatusKind();
             soTransitionModule* transitionModule = ((soStatusModuleImpl*)moduleEnum->m_statusModule)->m_transitionModule;
@@ -29,9 +29,9 @@ namespace magicSeries
                     transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Hi3, 0x4);
                     transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Lw3, 0x4);
                 }
-                transitionModule->enableTerm(Fighter::Status_Attack_S4_Start, 0x4);
-                transitionModule->enableTerm(Fighter::Status_Attack_Hi4_Start, 0x4);
-                transitionModule->enableTerm(Fighter::Status_Attack_Lw4_Start, 0x4);
+                transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_S4_Start, 0x4);
+                transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Hi4_Start, 0x4);
+                transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Lw4_Start, 0x4);
 
                 OSReport_N("- Enabled Attack Cancels!\n");
             }

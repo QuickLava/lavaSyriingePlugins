@@ -1,7 +1,11 @@
 #include "_mechanicsHub.h"
 
-namespace hubAddon
+namespace mechHub
 {
+    Vec3f zeroVec = { 0.0f, 0.0f, 0.0f };
+    Vec3f gfxFaceScreenRotVec = { 0.0f, -90.0f, 0.0f };
+    Vec3f gfxFlattenSclVec = { 2.0f, 2.0f, 0.1f };
+
     u32 indexBuffer[lid__COUNT] = {};
 
     const char outputTag[] = "[lavaMechHub] ";
@@ -130,14 +134,14 @@ namespace hubAddon
 
     bool getMechanicEnabled(u32 playerNo, u32 mechanicID, u8* maskArray)
     {
-        return (*mechanicsDisabledMask == 0x00) ? getFlagForPlayer(mechanicEnabledMasks[mechanicID], playerNo) : false;
+        return (*mechanicsDisabledMask == 0x00) ? getFlagForPlayer(maskArray[mechanicID], playerNo) : false;
     }
     bool getActiveMechanicEnabled(u32 playerNo, activeMechanicIDs mechanicID)
     {
         asm
         {
-            lis r5, activeMechanicEnabledMasks@h;
-            ori r5, r5, activeMechanicEnabledMasks@l;
+            lis r5, activeMechanicEnabledMasks@ha;
+            lwz r5, activeMechanicEnabledMasks@l(r5);
             bl getMechanicEnabled;
         }
     }
@@ -145,8 +149,8 @@ namespace hubAddon
     {
         asm
         {
-            lis r5, passiveMechanicEnabledMasks@h;
-            ori r5, r5, passiveMechanicEnabledMasks@l;
+            lis r5, passiveMechanicEnabledMasks@ha;
+            lwz r5, passiveMechanicEnabledMasks@l(r5);
             bl getMechanicEnabled;
         }
     }
