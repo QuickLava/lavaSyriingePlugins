@@ -36,6 +36,8 @@ namespace hubAddon
     void registerHooks();
     bool getActiveMechanicEnabled(u32 playerNo, activeMechanicIDs mechanicID);
     bool getPassiveMechanicEnabled(u32 playerNo, passiveMechanicIDs mechanicID);
+
+    float getDistanceBetween(StageObject* obj1, StageObject* obj2, bool usePrevPos);
 }
 
 #endif

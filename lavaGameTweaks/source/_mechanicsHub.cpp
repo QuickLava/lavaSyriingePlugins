@@ -128,12 +128,56 @@ namespace hubAddon
         fighterHooks::ftCallbackMgr::registerMeleeOnStartCallback(updateMechanicEnabledMasks);
     }
 
+    bool getMechanicEnabled(u32 playerNo, u32 mechanicID, u8* maskArray)
+    {
+        return (*mechanicsDisabledMask == 0x00) ? getFlagForPlayer(mechanicEnabledMasks[mechanicID], playerNo) : false;
+    }
     bool getActiveMechanicEnabled(u32 playerNo, activeMechanicIDs mechanicID)
     {
-        return (*mechanicsDisabledMask == 0x00) ? getFlagForPlayer(activeMechanicEnabledMasks[mechanicID], playerNo) : false;
+        asm
+        {
+            lis r5, activeMechanicEnabledMasks@h;
+            ori r5, r5, activeMechanicEnabledMasks@l;
+            bl getMechanicEnabled;
+        }
     }
     bool getPassiveMechanicEnabled(u32 playerNo, passiveMechanicIDs mechanicID)
     {
-        return (*mechanicsDisabledMask == 0x00) ? getFlagForPlayer(passiveMechanicEnabledMasks[mechanicID], playerNo) : false;
+        asm
+        {
+            lis r5, passiveMechanicEnabledMasks@h;
+            ori r5, r5, passiveMechanicEnabledMasks@l;
+            bl getMechanicEnabled;
+        }
+    }
+
+    float getDistanceBetween(StageObject* obj1, StageObject* obj2, bool usePrevPos)
+    {
+        register float result;
+
+        register soPostureModule* postureModule1 = obj1->m_moduleAccesser->getPostureModule();
+        register soPostureModule* postureModule2 = obj2->m_moduleAccesser->getPostureModule();
+        Vec3f pos1, pos2;
+
+        register Vec3f* pos1Ptr = &pos1;
+        register Vec3f* pos2Ptr = &pos2;
+        register u32 posFuncOff = (usePrevPos) ? 0x20 : 0x18;
+        asm
+        {
+            mr r3, pos1Ptr;
+            mr r4, postureModule1;
+            lwz r12, 0x00(r4);
+            lwzx r12, r12, posFuncOff;
+            mtctr r12;
+            bctrl;
+            mr r3, pos2Ptr;
+            mr r4, postureModule2;
+            lwz r12, 0x00(r4);
+            lwzx r12, r12, posFuncOff;
+            mtctr r12;
+            bctrl;
+        }
+        
+        return pos1.distance(&pos2);
     }
 }

@@ -77,11 +77,9 @@ namespace airdodgeCancels
             {
                 doMeterGain(attacker, damage);
 
-                Vec3f attackerPos = attackerModuleEnum->m_postureModule->getPrevPos();
-                Vec3f targetPos = targetModuleEnum->m_postureModule->getPrevPos();
-                float distance = attackerPos.distance(&targetPos);
+                float distance = hubAddon::getDistanceBetween(attacker, target, 1);
                 OSReport_N("%sProjectile Connected %.2f Units Away!\n", outputTag, distance);
-                if (distance < indirectConnectMaxCancelDistance)
+                if (distance <= indirectConnectMaxCancelDistance)
                 {
                     attackerModuleEnum->m_workManageModule->setFlag(1, hitboxConnectedVar);
                 }
@@ -127,16 +125,14 @@ namespace airdodgeCancels
 
                 ftManager* fighterMgr = g_ftManager;
                 const int fighterCount = fighterMgr->getEntryCount();
-                Vec3f fighterPos = moduleEnum->m_postureModule->getPrevPos();
                 for (int i = 0; i < fighterCount; i++)
                 {
                     int currEntryID = fighterMgr->getEntryIdFromIndex(i);
                     Fighter* currFighter = fighterMgr->getFighter(currEntryID, 0);
                     if (soExternalValueAccesser::getTeamNo(fighterIn) == soExternalValueAccesser::getTeamNo(currFighter)) continue;
 
-                    Vec3f currFighterPos = currFighter->m_moduleAccesser->getPostureModule()->getPrevPos();
-                    float distance = fighterPos.distance(&currFighterPos);
-                    if (distance < onCancelSlowRadius)
+                    float distance = hubAddon::getDistanceBetween(fighterIn, currFighter, 1);
+                    if (distance <= onCancelSlowRadius)
                     {
                         currFighter->setSlow(1, 2, 20, 1);
                     }
