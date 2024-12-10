@@ -46,7 +46,7 @@ namespace slimeCancels
             if (changeInStockCount > 0)
             {
                 moduleEnum->m_effectModule->reqFollow(ef_ptc_common_cliff_catch,
-                    mechHub::ftHipNodeID, &mechHub::zeroVec, &mechHub::zeroVec, 2.5f, 0, 0, 0, 0);
+                    mechHub::gfxRootBoneID, &mechHub::zeroVec, &mechHub::zeroVec, 2.5f, 0, 0, 0, 0);
             }
 
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, finalStockCount, targetMeterBundle->getMeterStockRemainder());
@@ -111,7 +111,7 @@ namespace slimeCancels
                 moduleEnum->m_soundModule->playSE(snd_se_item_pasaran_growth, 1, 1, 0);
                 moduleEnum->m_soundModule->playSE(snd_se_item_spring_02, 1, 1, 0);
                 u32 effectHandle = moduleEnum->m_effectModule->reqFollow(ef_ptc_common_ray_gun_shot,
-                    mechHub::ftHipNodeID, &mechHub::zeroVec, &mechHub::gfxFaceScreenRotVec, 1.0f, 0, 0, 0, 0);
+                    mechHub::gfxRootBoneID, &mechHub::zeroVec, &mechHub::gfxFaceScreenRotVec, 1.0f, 0, 0, 0, 0);
                 g_ecMgr->setScl(effectHandle, &mechHub::gfxFlattenSclVec);
                 g_ecMgr->setSlowRate(effectHandle, 2);
 

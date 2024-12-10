@@ -31,7 +31,21 @@ namespace mechHub
         pmid__COUNT,
     };
 
-    const u32 ftHipNodeID = 0x12D;
+    // These are used with soModelModule::getCorrectBoneID(), they map consistent values to certain other bones!
+    enum SpecialBoneIDs
+    {
+        sbid_ThrowN = 300,
+        sbid_HipN,
+        sbid_XRotN,
+        sbid_YRotN,
+        sbid_TransN,
+        sbid_LHaveN,
+        sbid_LShoulderN,
+        sbid_RShoulderN,
+        sbid_RShoulderN2, // Unsure why this and the above are the same.
+        sbid_WaistN,
+    };
+    const u32 gfxRootBoneID = sbid_XRotN;
     extern Vec3f zeroVec;
     extern Vec3f gfxFaceScreenRotVec;
     extern Vec3f gfxFlattenSclVec;

@@ -33,7 +33,7 @@ namespace airdodgeCancels
             if (changeInStockCount > 0)
             {
                 moduleEnum->m_effectModule->reqFollow(ef_ptc_common_hit_ice, 
-                    mechHub::ftHipNodeID, &mechHub::zeroVec, &mechHub::zeroVec, 0.75f, 0, 0, 0, 0);
+                    mechHub::gfxRootBoneID, &mechHub::zeroVec, &mechHub::zeroVec, 0.75f, 0, 0, 0, 0);
             }
 
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, finalStockCount, targetMeterBundle->getMeterStockRemainder());
@@ -112,9 +112,9 @@ namespace airdodgeCancels
                 moduleEnum->m_soundModule->playSE(snd_se_system_collection_delete, 1, 1, 0);
 
                 moduleEnum->m_effectModule->reqFollow(ef_ptc_common_hit_ice, 
-                    mechHub::ftHipNodeID, &mechHub::zeroVec, &mechHub::zeroVec, 1.0f, 0, 0, 0, 0);
+                    mechHub::gfxRootBoneID, &mechHub::zeroVec, &mechHub::zeroVec, 1.0f, 0, 0, 0, 0);
                 u32 circleEfHandle = moduleEnum->m_effectModule->reqFollow(ef_ptc_common_guard_mark, 
-                    mechHub::ftHipNodeID, &mechHub::zeroVec, &mechHub::zeroVec, 3.0f, 0, 0, 0, 0);
+                    mechHub::gfxRootBoneID, &mechHub::zeroVec, &mechHub::zeroVec, 3.0f, 0, 0, 0, 0);
                 g_ecMgr->setSlowRate(circleEfHandle, 2);
 
                 ftManager* fighterMgr = g_ftManager;
