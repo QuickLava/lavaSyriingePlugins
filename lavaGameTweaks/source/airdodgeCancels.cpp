@@ -19,7 +19,6 @@ namespace airdodgeCancels
         INPUT_PAD_BUTTON_MASK_APPEAL_S_L | INPUT_PAD_BUTTON_MASK_APPEAL_S_R;    
 
     Vec3f zeroVec = { 0.0f, 0.0f, 0.0f };
-    char graphicRootBoneName[] = "XRotN";
     const float indirectConnectMaxCancelDistance = 30.0f;
     const float onCancelSlowRadius = 30.0f;
     
@@ -38,9 +37,7 @@ namespace airdodgeCancels
 
             if (changeInStockCount > 0)
             {
-                moduleEnum->m_soundModule->playSE((SndID)((snd_se_narration_one + 1) - finalStockCount), 1, 1, 0);
-                u32 targetBoneID = moduleEnum->m_modelModule->getNodeId(graphicRootBoneName);
-                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_hit_ice, targetBoneID, &zeroVec, &zeroVec, 0.75f, 0, 0, 0, 0);
+                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_hit_ice, hubAddon::fighterHipNodeID, &zeroVec, &zeroVec, 0.75f, 0, 0, 0, 0);
             }
 
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, finalStockCount, targetMeterBundle->getMeterStockRemainder());
@@ -118,9 +115,8 @@ namespace airdodgeCancels
                 moduleEnum->m_soundModule->playSE(snd_se_item_Ice_Crash, 1, 1, 0);
                 moduleEnum->m_soundModule->playSE(snd_se_system_collection_delete, 1, 1, 0);
 
-                u32 targetBoneID = moduleEnum->m_modelModule->getNodeId(graphicRootBoneName);
-                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_hit_ice, targetBoneID, &zeroVec, &zeroVec, 1.0f, 0, 0, 0, 0);
-                u32 circleEfHandle = moduleEnum->m_effectModule->reqFollow(ef_ptc_common_guard_mark, targetBoneID, &zeroVec, &zeroVec, 3.0f, 0, 0, 0, 0);
+                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_hit_ice, hubAddon::fighterHipNodeID, &zeroVec, &zeroVec, 1.0f, 0, 0, 0, 0);
+                u32 circleEfHandle = moduleEnum->m_effectModule->reqFollow(ef_ptc_common_guard_mark, hubAddon::fighterHipNodeID, &zeroVec, &zeroVec, 3.0f, 0, 0, 0, 0);
                 g_ecMgr->setSlowRate(circleEfHandle, 2);
 
                 ftManager* fighterMgr = g_ftManager;

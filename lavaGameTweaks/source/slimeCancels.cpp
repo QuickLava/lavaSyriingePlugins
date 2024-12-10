@@ -17,7 +17,6 @@ namespace slimeCancels
     Vec3f zeroVec = { 0.0f, 0.0f, 0.0f };
     Vec3f faceScreenRotVec = { 0.0f, -90.0f, 0.0f };
     Vec3f flattenSclVec = { 2.0f, 2.0f, 0.1f };
-    char graphicRootBoneName[] = "XRotN";
 
     const u32 allTauntPadMask = 
         INPUT_PAD_BUTTON_MASK_APPEAL_HI | INPUT_PAD_BUTTON_MASK_APPEAL_S | INPUT_PAD_BUTTON_MASK_APPEAL_LW |
@@ -53,9 +52,7 @@ namespace slimeCancels
 
             if (changeInStockCount > 0)
             {
-                moduleEnum->m_soundModule->playSE((SndID)((snd_se_narration_one + 1) - finalStockCount), 1, 1, 0);
-                u32 targetBoneID = moduleEnum->m_modelModule->getNodeId(graphicRootBoneName);
-                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_cliff_catch, targetBoneID, &zeroVec, &zeroVec, 2.5f, 0, 0, 0, 0);
+                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_cliff_catch, hubAddon::fighterHipNodeID, &zeroVec, &zeroVec, 2.5f, 0, 0, 0, 0);
             }
 
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, finalStockCount, targetMeterBundle->getMeterStockRemainder());
@@ -117,10 +114,9 @@ namespace slimeCancels
                 targetMeterBundle->addMeterStocks(-1);
                 workManageModule->setFlag(1, meterPaidVar);
 
-                u32 targetBoneID = moduleEnum->m_modelModule->getNodeId(graphicRootBoneName);
                 moduleEnum->m_soundModule->playSE(snd_se_item_pasaran_growth, 1, 1, 0);
                 moduleEnum->m_soundModule->playSE(snd_se_item_spring_02, 1, 1, 0);
-                u32 effectHandle = moduleEnum->m_effectModule->reqFollow(ef_ptc_common_ray_gun_shot, targetBoneID, &zeroVec, &faceScreenRotVec, 1.0f, 0, 0, 0, 0);
+                u32 effectHandle = moduleEnum->m_effectModule->reqFollow(ef_ptc_common_ray_gun_shot, hubAddon::fighterHipNodeID, &zeroVec, &faceScreenRotVec, 1.0f, 0, 0, 0, 0);
                 g_ecMgr->setScl(effectHandle, &flattenSclVec);
                 g_ecMgr->setSlowRate(effectHandle, 2);
 

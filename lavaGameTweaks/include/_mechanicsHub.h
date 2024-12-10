@@ -31,6 +31,7 @@ namespace hubAddon
     };
 
     extern u32 indexBuffer[];
+    const u32 fighterHipNodeID = 0x12D;
 
     bool populate();
     void registerHooks();
