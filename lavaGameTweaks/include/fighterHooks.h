@@ -25,13 +25,15 @@ namespace fighterHooks
 	typedef int (*gfTaskGetCategory)(gfTask*);
 	const gfTaskGetCategory getCatPtr = (gfTaskGetCategory)0x8098C010;
 
-	typedef void (*MeleeOnStartCB)();
-	typedef void (*MeleeOnReadyGoCB)();
-	typedef void (*MeleeOnGameSetCB)();
-	typedef void (*FighterOnCreateCB)(Fighter*);
-	typedef void (*FighterOnStartCB)(Fighter*);
-	typedef void (*FighterOnRemoveCB)(Fighter*);
-	typedef void (*FighterOnUpdateCB)(Fighter*);
+	typedef void (*GenericArglessCB)();
+	typedef GenericArglessCB MeleeOnStartCB;
+	typedef GenericArglessCB MeleeOnReadyGoCB;
+	typedef GenericArglessCB MeleeOnGameSetCB;
+	typedef void (*GenericFighterEventCB)(Fighter*);
+	typedef GenericFighterEventCB FighterOnCreateCB;
+	typedef GenericFighterEventCB FighterOnStartCB;
+	typedef GenericFighterEventCB FighterOnRemoveCB;
+	typedef GenericFighterEventCB FighterOnUpdateCB;
 
 	typedef void (*FighterOnAttackGenericCB)(Fighter*, StageObject*, float, StageObject*);
 	typedef void (*FighterOnAttackCB)(Fighter*, StageObject*, float);
@@ -76,6 +78,8 @@ namespace fighterHooks
 
 		static bool _registerCallback(Vector<void*>* targetVector, void* callbackIn);
 		static bool _unregisterCallback(Vector<void*>* targetVector, void* callbackIn);
+		static void _performArglessCallbacks(Vector<void*>* targetVector);
+		static void _performFighterEventCallbacks(Vector<void*>* targetVector, Fighter* fighterIn);
 		template<typename cbType>
 		static inline bool registerCallback(Vector<void*>& targetVector, cbType callbackIn)
 		{

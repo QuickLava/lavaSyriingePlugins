@@ -105,6 +105,24 @@ namespace fighterHooks
 
 		return result;
 	}
+	void ftCallbackMgr::_performArglessCallbacks(Vector<void*>* targetVector)
+	{
+		// Execute Callbacks
+		for (int i = 0; i < targetVector->size(); i++)
+		{
+			GenericArglessCB currCallback = (GenericArglessCB)(*targetVector)[i];
+			currCallback();
+		}
+	}
+	void ftCallbackMgr::_performFighterEventCallbacks(Vector<void*>* targetVector, Fighter* fighterIn)
+	{
+		// Execute Callbacks
+		for (int i = 0; i < targetVector->size(); i++)
+		{
+			GenericFighterEventCB currCallback = (GenericFighterEventCB)(*targetVector)[i];
+			currCallback(fighterIn);
+		}
+	}
 
 	// MeleeOnStart Callbacks
 	bool ftCallbackMgr::registerMeleeOnStartCallback(MeleeOnStartCB callbackIn)
@@ -120,11 +138,7 @@ namespace fighterHooks
 		OSReport_N("%sOnMeleeStart Callbacks\n", outputTag);
 
 		// Execute Callbacks
-		for (int i = 0; i < m_onMeleeStartCallbacks.size(); i++)
-		{
-			MeleeOnStartCB currCallback = (MeleeOnStartCB)m_onMeleeStartCallbacks[i];
-			currCallback();
-		}
+		_performArglessCallbacks(&m_onMeleeStartCallbacks);
 
 #if INCLUDE_OUTSIDE_OBSERVER
 		// Subscribe Event Watcher
@@ -146,11 +160,7 @@ namespace fighterHooks
 		OSReport_N("%sOnMeleeReadyGo Callbacks\n", outputTag);
 
 		// Execute Callbacks
-		for (int i = 0; i < m_onMeleeReadyGoCallbacks.size(); i++)
-		{
-			MeleeOnReadyGoCB currCallback = (MeleeOnReadyGoCB)m_onMeleeReadyGoCallbacks[i];
-			currCallback();
-		}
+		_performArglessCallbacks(&m_onMeleeReadyGoCallbacks);
 	}
 
 	// MeleeOnGameSet Callbacks
@@ -167,11 +177,7 @@ namespace fighterHooks
 		OSReport_N("%sOnMeleeGameSet Callbacks\n", outputTag);
 
 		// Execute Callbacks
-		for (int i = 0; i < m_onMeleeGameSetCallbacks.size(); i++)
-		{
-			MeleeOnGameSetCB currCallback = (MeleeOnGameSetCB)m_onMeleeGameSetCallbacks[i];
-			currCallback();
-		}
+		_performArglessCallbacks(&m_onMeleeGameSetCallbacks);
 
 #if INCLUDE_OUTSIDE_OBSERVER
 		// Unsubscribe Event Watcher
@@ -200,11 +206,7 @@ namespace fighterHooks
 
 		// Execute Callbacks
 		Fighter* fighter = g_ftManager->getFighter(entryID, -1);
-		for (int i = 0; i < m_onCreateCallbacks.size(); i++)
-		{
-			FighterOnCreateCB currCallback = (FighterOnCreateCB)m_onCreateCallbacks[i];
-			currCallback(fighter);
-		}
+		_performFighterEventCallbacks(&m_onCreateCallbacks, fighter);
 	}
 
 	// OnStart Callbacks
@@ -230,11 +232,7 @@ namespace fighterHooks
 
 		// Execute Callbacks
 		Fighter* fighter = manager->getFighter(entryID, -1);
-		for (int i = 0; i < m_onStartCallbacks.size(); i++)
-		{
-			FighterOnStartCB currCallback = (FighterOnStartCB)m_onStartCallbacks[i];
-			currCallback(fighter);
-		}
+		_performFighterEventCallbacks(&m_onStartCallbacks, fighter);
 	}
 	
 	// OnRemove Callbacks
@@ -260,11 +258,7 @@ namespace fighterHooks
 
 		// Execute Callbacks
 		Fighter* fighter = manager->getFighter(entryID, -1);
-		for (int i = 0; i < m_onRemoveCallbacks.size(); i++)
-		{
-			FighterOnRemoveCB currCallback = (FighterOnRemoveCB)m_onRemoveCallbacks[i];
-			currCallback(fighter);
-		}
+		_performFighterEventCallbacks(&m_onRemoveCallbacks, fighter);
 	}
 
 	// Update Callbacks
@@ -284,11 +278,8 @@ namespace fighterHooks
 			mr fighter, r29
 		}
 
-		for (int i = 0; i < m_onUpdateCallbacks.size(); i++)
-		{
-			FighterOnUpdateCB currCallback = (FighterOnUpdateCB)m_onUpdateCallbacks[i];
-			currCallback(fighter);
-		}
+		// Execute Callbacks
+		_performFighterEventCallbacks(&m_onUpdateCallbacks, fighter);
 	}
 
 	// OnAttack Callbacks
