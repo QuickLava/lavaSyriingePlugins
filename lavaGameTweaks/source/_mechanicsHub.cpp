@@ -17,7 +17,7 @@ namespace mechHub
     u8* const activeMechanicEnabledMasks = mechanicEnabledMasks;
     u8* const passiveMechanicEnabledMasks = mechanicEnabledMasks + amid__COUNT;
 
-    u8 const passiveMechanicToggleLineIDs[pmid__COUNT] = { lid_MAGIC_SERIES_ENABLED };
+    u8 const passiveMechanicP1ToggleLineIDs[pmid__COUNT] = { lid_MAGIC_SERIES_TOGGLE_P1 };
 
     bool getFlagForPlayer(register u8 flagByte, register u32 playerNo)
     {
@@ -99,16 +99,23 @@ namespace mechHub
         for (u32 i = 0; i < pmid__COUNT; i++)
         {
             currMask++;
-            u32 mechanicToggleLineID = passiveMechanicToggleLineIDs[i];
-            u32 mechanicToggleStatus = ((codeMenu::cmSelectionLine*)indexBuffer[mechanicToggleLineID])->m_value;
-            if (mechanicToggleStatus == 0)
+            u32 p1ToggleLineID = passiveMechanicP1ToggleLineIDs[i];
+            u8 maskValue = *currMask;
+            u8 currMaskBit = 0b1;
+            for (u32 u = 0; u < 4; u++)
             {
-                *currMask = 0;
+                u32 mechanicEnabled = ((codeMenu::cmSelectionLine*)indexBuffer[p1ToggleLineID + u])->m_value;
+                if (mechanicEnabled != 0)
+                {
+                    maskValue |= currMaskBit;
+                }
+                else
+                {
+                    maskValue &= ~currMaskBit;
+                }
+                currMaskBit = currMaskBit << 1;
             }
-            else
-            {
-                *currMask = 0xFF;
-            }
+            *currMask = maskValue;
         }
     }
 

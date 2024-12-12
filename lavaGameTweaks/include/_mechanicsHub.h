@@ -15,7 +15,10 @@ namespace mechHub
         lid_ACTIVE_MECHANIC_P2,
         lid_ACTIVE_MECHANIC_P3,
         lid_ACTIVE_MECHANIC_P4,
-        lid_MAGIC_SERIES_ENABLED,
+        lid_MAGIC_SERIES_TOGGLE_P1,
+        lid_MAGIC_SERIES_TOGGLE_P2,
+        lid_MAGIC_SERIES_TOGGLE_P3,
+        lid_MAGIC_SERIES_TOGGLE_P4,
         lid__COUNT
     };
     enum activeMechanicIDs
