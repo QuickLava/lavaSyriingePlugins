@@ -64,6 +64,8 @@ namespace mechHub
     bool getPassiveMechanicEnabled(u32 playerNo, passiveMechanicIDs mechanicID);
 
     float getDistanceBetween(StageObject* obj1, StageObject* obj2, bool usePrevPos);
+    u32 reqCenteredGraphic(StageObject* obj1, EfID effectID, float scale);
+    u32 playSE(StageObject* objectIn, SndID soundID);
 }
 
 #endif

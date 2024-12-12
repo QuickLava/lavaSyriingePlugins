@@ -2,8 +2,9 @@
 
 namespace mechHub
 {
+    const float radianConvConstant = 3.141593f * 0.005555f;
+    Vec3f gfxFaceScreenRotVec = { 0.0f, -90.0f * radianConvConstant, 0.0f };
     Vec3f zeroVec = { 0.0f, 0.0f, 0.0f };
-    Vec3f gfxFaceScreenRotVec = { 0.0f, -90.0f, 0.0f };
     Vec3f gfxFlattenSclVec = { 2.0f, 2.0f, 0.1f };
 
     u32 indexBuffer[lid__COUNT] = {};
@@ -190,5 +191,13 @@ namespace mechHub
         }
         
         return pos1.distance(&pos2);
+    }
+    u32 reqCenteredGraphic(StageObject* objectIn, EfID effectID, float scale)
+    {
+        return objectIn->m_moduleAccesser->getEffectModule()->reqFollow(effectID, gfxRootBoneID, &zeroVec, &zeroVec, scale, 0, 0, 0, 0);
+    }
+    u32 playSE(StageObject* objectIn, SndID soundID)
+    {
+        return objectIn->m_moduleAccesser->getSoundModule()->playSE(soundID, 1, 1, 0);
     }
 }

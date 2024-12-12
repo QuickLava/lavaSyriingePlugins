@@ -45,8 +45,8 @@ namespace slimeCancels
 
             if (changeInStockCount > 0)
             {
-                moduleEnum->m_effectModule->reqFollow(ef_ptc_common_cliff_catch,
-                    mechHub::gfxRootBoneID, &mechHub::zeroVec, &mechHub::zeroVec, 2.5f, 0, 0, 0, 0);
+                mechHub::playSE(fighterIn, (SndID)((snd_se_narration_one + 1) - finalStockCount));
+                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_cliff_catch, 2.5f);
             }
 
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, finalStockCount, targetMeterBundle->getMeterStockRemainder());
@@ -108,10 +108,10 @@ namespace slimeCancels
                 targetMeterBundle->addMeterStocks(-1);
                 workManageModule->setFlag(1, meterPaidVar);
 
-                moduleEnum->m_soundModule->playSE(snd_se_item_pasaran_growth, 1, 1, 0);
-                moduleEnum->m_soundModule->playSE(snd_se_item_spring_02, 1, 1, 0);
-                u32 effectHandle = moduleEnum->m_effectModule->reqFollow(ef_ptc_common_ray_gun_shot,
-                    mechHub::gfxRootBoneID, &mechHub::zeroVec, &mechHub::gfxFaceScreenRotVec, 1.0f, 0, 0, 0, 0);
+                mechHub::playSE(fighterIn, snd_se_item_spring_02);
+                mechHub::playSE(fighterIn, snd_se_item_pasaran_growth);
+                u32 effectHandle = mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_ray_gun_shot, 1.0f);
+                g_ecMgr->setRot(effectHandle, &mechHub::gfxFaceScreenRotVec);
                 g_ecMgr->setScl(effectHandle, &mechHub::gfxFlattenSclVec);
                 g_ecMgr->setSlowRate(effectHandle, 2);
 
@@ -142,7 +142,7 @@ namespace slimeCancels
                     if (targetStopModule->isDamage())
                     {
                         targetHitstop += damageLog->m_hitStopFrame;
-                        moduleEnum->m_soundModule->playSE(snd_se_Audience_Kansei_s, 1, 1, 0);
+                        mechHub::playSE(fighterIn, snd_se_Audience_Kansei_s);
                         u32 remainingHitstop = targetStopModule->getHitStopRealFrame();
                         OSReport_N("%sPerfect Cancel: Defender Hitstop Restarted (+%d Frames)\n", outputTag, damageLog->m_hitStopFrame);
                     }
