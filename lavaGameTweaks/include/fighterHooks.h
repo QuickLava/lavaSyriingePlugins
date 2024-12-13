@@ -79,7 +79,7 @@ namespace fighterHooks
 		static bool _registerCallback(Vector<void*>* targetVector, void* callbackIn);
 		static bool _unregisterCallback(Vector<void*>* targetVector, void* callbackIn);
 		static void _performArglessCallbacks(Vector<void*>* targetVector);
-		static void _performFighterEventCallbacks(Vector<void*>* targetVector, Fighter* fighterIn);
+		static void _performFighterEventCallbacks(Vector<void*>* targetVector, u32 entryID);
 		template<typename cbType>
 		static inline bool registerCallback(Vector<void*>& targetVector, cbType callbackIn)
 		{

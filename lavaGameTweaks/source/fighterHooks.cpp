@@ -4,7 +4,7 @@ namespace fighterHooks
 {
 	const char outputTag[] = "[fighterHooks] ";
 	const char observerMessageFmt[] = "%s%s: [manageID: 0x%02X, unitID: 0x%02X, sendID: 0x%02X]!\n";
-	const char callbackHookMsgFmt[] = "%s%s: entryID = 0x%08X, playerID = 0x%02X!\n";
+	const char callbackHookMsgFmt[] = "%s%s: entryID = 0x%08X, playerNo = 0x%02X!\n";
 
 	u32 getFighterSlotNo(Fighter* fighterIn)
 	{
@@ -114,9 +114,10 @@ namespace fighterHooks
 			currCallback();
 		}
 	}
-	void ftCallbackMgr::_performFighterEventCallbacks(Vector<void*>* targetVector, Fighter* fighterIn)
+	void ftCallbackMgr::_performFighterEventCallbacks(Vector<void*>* targetVector, u32 entryID)
 	{
 		// Execute Callbacks
+		Fighter* fighterIn = g_ftManager->getFighter(entryID, -1);
 		for (int i = 0; i < targetVector->size(); i++)
 		{
 			GenericFighterEventCB currCallback = (GenericFighterEventCB)(*targetVector)[i];
@@ -205,8 +206,7 @@ namespace fighterHooks
 		OSReport_N(callbackHookMsgFmt, outputTag, "OnCreate Callbacks", entryID, g_ftManager->getPlayerNo(entryID));
 
 		// Execute Callbacks
-		Fighter* fighter = g_ftManager->getFighter(entryID, -1);
-		_performFighterEventCallbacks(&m_onCreateCallbacks, fighter);
+		_performFighterEventCallbacks(&m_onCreateCallbacks, entryID);
 	}
 
 	// OnStart Callbacks
@@ -220,19 +220,16 @@ namespace fighterHooks
 	}
 	void ftCallbackMgr::performOnStartCallbacks()
 	{
-		register ftManager* manager;
 		register u32 entryID;
 		asm
 		{
-			mr manager, r3;
 			mr entryID, r4;
 		}
 
-		OSReport_N(callbackHookMsgFmt, outputTag, "OnStart Callbacks", entryID, manager->getPlayerNo(entryID));
+		OSReport_N(callbackHookMsgFmt, outputTag, "OnStart Callbacks", entryID, g_ftManager->getPlayerNo(entryID));
 
 		// Execute Callbacks
-		Fighter* fighter = manager->getFighter(entryID, -1);
-		_performFighterEventCallbacks(&m_onStartCallbacks, fighter);
+		_performFighterEventCallbacks(&m_onStartCallbacks, entryID);
 	}
 	
 	// OnRemove Callbacks
@@ -246,19 +243,16 @@ namespace fighterHooks
 	}
 	void ftCallbackMgr::performOnRemoveCallbacks()
 	{
-		register ftManager* manager;
 		register u32 entryID;
 		asm
 		{
-			mr manager, r3;
 			mr entryID, r4;
 		}
 
-		OSReport_N(callbackHookMsgFmt, outputTag, "OnRemove Callbacks", entryID, manager->getPlayerNo(entryID));
+		OSReport_N(callbackHookMsgFmt, outputTag, "OnRemove Callbacks", entryID, g_ftManager->getPlayerNo(entryID));
 
 		// Execute Callbacks
-		Fighter* fighter = manager->getFighter(entryID, -1);
-		_performFighterEventCallbacks(&m_onRemoveCallbacks, fighter);
+		_performFighterEventCallbacks(&m_onRemoveCallbacks, entryID);
 	}
 
 	// Update Callbacks
@@ -279,7 +273,7 @@ namespace fighterHooks
 		}
 
 		// Execute Callbacks
-		_performFighterEventCallbacks(&m_onUpdateCallbacks, fighter);
+		_performFighterEventCallbacks(&m_onUpdateCallbacks, fighter->m_entryId);
 	}
 
 	// OnAttack Callbacks
