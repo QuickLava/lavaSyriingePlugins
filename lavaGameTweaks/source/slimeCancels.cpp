@@ -15,11 +15,9 @@ namespace slimeCancels
     const u32 beenFrozenVar = 0x2200003A;
     const u32 didSlimeCancelVar = 0x2200003B;
 
-    const u32 onCancelStopBaseDuration = 15;
-    const float onCancelStopRadius = 20.0f;
+    const u32 onCancelStopBaseDuration = 20;
     const float onCancelStopWindowLength = 5.0f;
-    Vec3f onCancelStopKBMult = { 0.75f, 0.75f, 0.75f };
-    const float onCancelSpeedLimit = 4.0f;
+    Vec3f onCancelStopKBMult = { 0.666f, 0.666f, 0.666f };
 
     bool getFlagForPlayer(u8 flagByte, u32 playerNo)
     {
@@ -110,6 +108,7 @@ namespace slimeCancels
 
                 mechHub::playSE(fighterIn, snd_se_item_spring_02);
                 mechHub::playSE(fighterIn, snd_se_item_pasaran_growth);
+                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_pokemon_latiaslatios_03, 0.75f);
                 u32 effectHandle = mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_ray_gun_shot, 1.0f);
                 g_ecMgr->setRot(effectHandle, &mechHub::gfxFaceScreenRotVec);
                 g_ecMgr->setScl(effectHandle, &mechHub::gfxFlattenSclVec);
@@ -117,7 +116,6 @@ namespace slimeCancels
 
                 ftManager* fighterMgr = g_ftManager;
                 const int fighterCount = fighterMgr->getEntryCount();
-                Vec3f fighterPos = moduleEnum->m_postureModule->getPrevPos();
                 for (int i = 0; i < fighterCount; i++)
                 {
                     int currEntryID = fighterMgr->getEntryIdFromIndex(i);
@@ -136,19 +134,18 @@ namespace slimeCancels
 
                     soStopModule* attackerStopModule = fighterIn->m_moduleAccesser->m_enumerationStart->m_stopModule;
                     soStopModule* targetStopModule = currFighter->m_moduleAccesser->m_moduleEnumeration.m_stopModule;
+
                     u32 attackerHitstop = onCancelStopBaseDuration;
                     u32 targetHitstop = onCancelStopBaseDuration;
-
                     if (targetStopModule->isDamage())
                     {
-                        targetHitstop += damageLog->m_hitStopFrame;
-                        mechHub::playSE(fighterIn, snd_se_Audience_Kansei_s);
-                        u32 remainingHitstop = targetStopModule->getHitStopRealFrame();
-                        OSReport_N("%sPerfect Cancel: Defender Hitstop Restarted (+%d Frames)\n", outputTag, damageLog->m_hitStopFrame);
+                        u32 hitstopBonus = damageLog->m_hitStopFrame / 2;
+                        targetHitstop += hitstopBonus;
+                        OSReport_N("%sPerfect Cancel: Defender Hitstop Restarted (+%d Frames)\n", outputTag, hitstopBonus);
                     }
 
                     attackerStopModule->setHitStopFrame(attackerHitstop, 0);
-                    targetStopModule->setHitStopFrame(targetHitstop, 1);
+                    targetStopModule->setHitStopFrame(targetHitstop, 0);
                     targetWorkManageModule->onFlag(beenFrozenVar);
 
                     soKineticEnergy* kbEnergy = currFighter->m_moduleAccesser->getKineticModule()->getEnergy(Fighter::Kinetic_Energy_Damage);
