@@ -219,5 +219,47 @@ namespace mechHub
     {
         return (statusKind >= Fighter::Status_Damage) || (statusKind <= Fighter::Status_Damage_Fly_Roll);
     }
-    
+    void initDefaultHitboxData(soCollisionAttackData* attackDataIn)
+    {
+        attackDataIn->m_power = 0x0;
+        attackDataIn->m_offsetPos.m_x = 0.0f;
+        attackDataIn->m_offsetPos.m_y = 0.0f;
+        attackDataIn->m_offsetPos.m_z = 0.0f;
+        attackDataIn->m_size = 1.0f;
+        attackDataIn->m_vector = 361;
+        attackDataIn->m_reactionEffect = 0x00;
+        attackDataIn->m_reactionFix = 0x00;
+        attackDataIn->m_reactionAdd = 0x0;
+        attackDataIn->m_slipChance = 0.0f;
+        attackDataIn->m_hitStopFrame = 1.0f;
+        attackDataIn->m_hitStopDelay = 1.0f;
+        attackDataIn->m_nodeIndex = 0x00;
+        attackDataIn->m_targetCategory = 0x3FF;
+        attackDataIn->m_targetSituation = 0x3;
+        attackDataIn->m_targetPart = 0xF;
+        attackDataIn->m_attribute = soCollisionAttackData::Attribute_Normal;
+        attackDataIn->m_soundLevel = soCollisionAttackData::Sound_Level_M;
+        attackDataIn->m_soundAttribute = soCollisionAttackData::Sound_Attribute_Punch;
+        attackDataIn->m_setOffKind = soCollisionAttackData::SetOff_Off;
+        attackDataIn->m_noScale = 0;
+        attackDataIn->m_isShieldable = 1;
+        attackDataIn->m_isReflectable = 0;
+        attackDataIn->m_isAbsorbable = 0;
+        attackDataIn->m_subShield = 0;
+        attackDataIn->field_0x34_9 = 0x00;
+        attackDataIn->m_serialHitFrame = 0x00;
+        attackDataIn->m_isDirect = 1;
+        attackDataIn->m_isInvalidInvincible = 0;
+        attackDataIn->m_isInvalidXlu = 0;
+        attackDataIn->m_lrCheck = soCollisionAttackData::Lr_Check_Pos;
+        attackDataIn->m_isCatch = 0;
+        attackDataIn->m_noTeam = 0;
+        attackDataIn->m_noHitStop = 0;
+        attackDataIn->m_noEffect = 0;
+        attackDataIn->m_noTransaction = 0;
+        attackDataIn->m_region = soCollisionAttackData::Region_None;
+        attackDataIn->m_shapeType = soCollision::Shape_Sphere;
+        attackDataIn->m_isDeath100 = 0;
+        attackDataIn->field_0x3c_2 = 0x0;
+    }
 }

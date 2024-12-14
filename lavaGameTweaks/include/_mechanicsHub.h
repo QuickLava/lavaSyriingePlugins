@@ -70,6 +70,7 @@ namespace mechHub
     u32 playSE(StageObject* objectIn, SndID soundID);
     bool isAttackingStatusKind(u32 statusKind);
     bool isDamageStatusKind(u32 statusKind);
+    void initDefaultHitboxData(soCollisionAttackData* attackDataIn);
 }
 
 #endif

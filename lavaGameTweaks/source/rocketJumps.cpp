@@ -12,12 +12,25 @@ namespace rocketJumps
 	const fighterMeters::meterConfiguration meterConf = { meterStockSize * maxStocks, meterStockSize };
 
 	const u32 curledVar = 0x2200003B;
-	const float chargeRate = 0.01667f;
-	const float chargeMax = 0.5f;
-	const float chargeForFastfall = 0.25f;
+	const float chargeMax = 1.0f;
+	const float chargeFramesToMax = 30.0f;
+	const float chargeRate = chargeMax / chargeFramesToMax;
+	const float chargeForFastfall = chargeMax * 0.25f;
 	float chargeBuffer[fighterHooks::maxFighterCount] = {};
 
 	soMotionChangeParam curlMotionReq = { Fighter::Motion_Item_Screw_Fall, 0.0f, 2.0f };
+
+	const u32 hitboxID = 0x00;
+	const u32 hitboxGroup = 0x00;
+	const u32 hitboxDuration = 2;
+	const float hitboxKBGBase = 0.0f;
+	const float hitboxKBGMax = 50.0f;
+	const float hitboxKBGChargeDiff = hitboxKBGMax - hitboxKBGBase;
+	const float hitboxDamageBase = 8.0f;
+	const float hitboxDamageMax = 12.0f;
+	const float hitboxDamageChargeDiff = hitboxDamageMax - hitboxDamageBase;
+	soCollisionAttackData baseHitbox;
+	u8 hitboxRemainingDurationBuffer[fighterHooks::maxFighterCount] = {};
 
 	void doMeterGain(Fighter* fighterIn, float damage)
 	{
@@ -76,6 +89,18 @@ namespace rocketJumps
 
 			bool infiniteMeterMode = (infiniteMeterModeFlags >> fighterPlayerNo) & 0b1;
 
+			u8* remainingDurationPtr = hitboxRemainingDurationBuffer + fighterPlayerNo;
+			u32 remainingDuration = *remainingDurationPtr;
+			if (remainingDuration > 0)
+			{
+				remainingDuration--;
+				*remainingDurationPtr = remainingDuration;
+			}
+			else
+			{
+				moduleEnum->m_collisionAttackModule->clear(hitboxID);
+			}
+
 			if (moduleEnum->m_situationModule->getKind() != 0x0
 				&& (infiniteMeterMode || targetMeterBundle->getMeterStocks() > 0)
 				&& (!mechHub::isAttackingStatusKind(currStatus)))
@@ -119,7 +144,7 @@ namespace rocketJumps
 						{
 							targetStatus = Fighter::Status_Item_Screw_Fall;
 							yBoostValue = soValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Jump_Speed_Y, 0);
-							yBoostValue *= (1.0f + chargeAmount);
+							yBoostValue *= (1.0f + (chargeAmount / 2.0f));
 						}
 						else
 						{
@@ -134,6 +159,12 @@ namespace rocketJumps
 						statusModule->changeStatus(targetStatus, moduleAccesser);
 						Vec3f boostVec = { 0.0f, yBoostValue, 0.0f };
 						kineticModule->addSpeed(&boostVec, moduleAccesser);
+
+						soCollisionAttackData* blastHitboxPtr = &baseHitbox;
+						blastHitboxPtr->m_power = (hitboxDamageChargeDiff * chargeAmount) + hitboxDamageBase;
+						blastHitboxPtr->m_reactionEffect = (hitboxKBGChargeDiff * chargeAmount) + hitboxKBGBase;
+						moduleEnum->m_collisionAttackModule->set(hitboxID, hitboxGroup, blastHitboxPtr);
+						*remainingDurationPtr = hitboxDuration;
 
 						OSReport_N("%sRocket Jump! Charge: %0.2f, Vel: %0.2f\n", outputTag, chargeAmount, yBoostValue);
 					}
@@ -152,6 +183,11 @@ namespace rocketJumps
 	void onMeleeStartCallback()
 	{
 		infiniteMeterModeFlags = 0;
+		mechHub::initDefaultHitboxData(&baseHitbox);
+		baseHitbox.m_vector = 84;
+		baseHitbox.m_reactionAdd = 110;
+		baseHitbox.m_size = 10.0f;
+		baseHitbox.m_attribute = soCollisionAttackData::Attribute_Fire;
 	}
 
 	void registerHooks()
