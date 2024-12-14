@@ -2,7 +2,6 @@
 
 namespace mechHub
 {
-    const float radianConvConstant = 3.141593f * 0.005555f;
     Vec3f gfxFaceScreenRotVec = { 0.0f, -90.0f * radianConvConstant, 0.0f };
     Vec3f zeroVec = { 0.0f, 0.0f, 0.0f };
     Vec3f gfxFlattenSclVec = { 2.0f, 2.0f, 0.1f };
@@ -200,4 +199,13 @@ namespace mechHub
     {
         return objectIn->m_moduleAccesser->getSoundModule()->playSE(soundID, 1, 1, 0);
     }
+    bool isAttackingStatusKind(u32 statusKind)
+    {
+        return (statusKind >= Fighter::Status_Attack && statusKind <= Fighter::Status_Attack_Air) || (statusKind >= 0x112 && statusKind != 0x116);
+    }
+    bool isDamageStatusKind(u32 statusKind)
+    {
+        return (statusKind >= Fighter::Status_Damage) || (statusKind <= Fighter::Status_Damage_Fly_Roll);
+    }
+    
 }

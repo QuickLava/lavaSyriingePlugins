@@ -49,6 +49,7 @@ namespace mechHub
         sbid_WaistN,
     };
     const u32 gfxRootBoneID = sbid_XRotN;
+    const float radianConvConstant = 3.141593f * 0.005555f;
     extern Vec3f zeroVec;
     extern Vec3f gfxFaceScreenRotVec;
     extern Vec3f gfxFlattenSclVec;
@@ -66,6 +67,8 @@ namespace mechHub
     float getDistanceBetween(StageObject* obj1, StageObject* obj2, bool usePrevPos);
     u32 reqCenteredGraphic(StageObject* obj1, EfID effectID, float scale);
     u32 playSE(StageObject* objectIn, SndID soundID);
+    bool isAttackingStatusKind(u32 statusKind);
+    bool isDamageStatusKind(u32 statusKind);
 }
 
 #endif

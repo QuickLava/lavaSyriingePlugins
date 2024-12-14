@@ -88,8 +88,7 @@ namespace slimeCancels
 
             bool slimeCancelInput = 0;
             u32 currStatus = statusModule->getStatusKind();
-            if ((currStatus >= Fighter::Status_Attack && currStatus <= Fighter::Status_Attack_Air)
-                || (currStatus >= 0x112 && currStatus != 0x116))
+            if (mechHub::isAttackingStatusKind(currStatus))
             {
                 slimeCancelInput = justPressed.m_mask & mechHub::allTauntPadMask;
             }
@@ -124,7 +123,7 @@ namespace slimeCancels
                     if (targetWorkManageModule->isFlag(beenFrozenVar)) continue;
 
                     u32 currFtStatus = currFighter->m_moduleAccesser->getStatusModule()->getStatusKind();
-                    if (currFtStatus < Fighter::Status_Damage || currFtStatus > Fighter::Status_Damage_Fly_Roll) continue;
+                    if (!mechHub::isDamageStatusKind(currFtStatus)) continue;
 
                     float currAnimFrame = currFighter->m_moduleAccesser->getMotionModule()->getFrame();
                     if (currAnimFrame > onCancelStopWindowLength) continue;
