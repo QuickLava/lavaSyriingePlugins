@@ -191,9 +191,21 @@ namespace mechHub
         
         return pos1.distance(&pos2);
     }
-    u32 reqCenteredGraphic(StageObject* objectIn, EfID effectID, float scale)
+    u32 reqCenteredGraphic(StageObject* objectIn, EfID effectID, float scale, bool follow)
     {
-        return objectIn->m_moduleAccesser->getEffectModule()->reqFollow(effectID, gfxRootBoneID, &zeroVec, &zeroVec, scale, 0, 0, 0, 0);
+        u32 result;
+
+        soEffectModule* effectModule = objectIn->m_moduleAccesser->getEffectModule();
+        if (!follow)
+        {
+            result = effectModule->req(effectID,gfxRootBoneID, &zeroVec, &zeroVec, scale, &zeroVec, &zeroVec, 0, 0);
+        }
+        else
+        {
+            result = effectModule->reqFollow(effectID, gfxRootBoneID, &zeroVec, &zeroVec, scale, 0, 0, 0, 0);
+        }
+
+        return result;
     }
     u32 playSE(StageObject* objectIn, SndID soundID)
     {

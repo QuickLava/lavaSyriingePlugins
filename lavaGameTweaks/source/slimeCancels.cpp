@@ -44,7 +44,7 @@ namespace slimeCancels
             if (changeInStockCount > 0)
             {
                 mechHub::playSE(fighterIn, (SndID)((snd_se_narration_one + 1) - finalStockCount));
-                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_cliff_catch, 2.5f);
+                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_cliff_catch, 2.5f, 1);
             }
 
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, finalStockCount, targetMeterBundle->getMeterStockRemainder());
@@ -107,8 +107,8 @@ namespace slimeCancels
 
                 mechHub::playSE(fighterIn, snd_se_item_spring_02);
                 mechHub::playSE(fighterIn, snd_se_item_pasaran_growth);
-                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_pokemon_latiaslatios_03, 0.75f);
-                u32 effectHandle = mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_ray_gun_shot, 1.0f);
+                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_pokemon_latiaslatios_03, 0.75f, 1);
+                u32 effectHandle = mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_ray_gun_shot, 1.0f, 1);
                 g_ecMgr->setRot(effectHandle, &mechHub::gfxFaceScreenRotVec);
                 g_ecMgr->setScl(effectHandle, &mechHub::gfxFlattenSclVec);
                 g_ecMgr->setSlowRate(effectHandle, 2);

@@ -26,6 +26,7 @@ namespace mechHub
         amid_NONE = 0,
         amid_AIRDODGE_CANCELS,
         amid_SLIME_CANCELS,
+        amid_ROCKET_JUMPS,
         amid__COUNT,
     };
     enum passiveMechanicIDs
@@ -65,7 +66,7 @@ namespace mechHub
     bool getPassiveMechanicEnabled(u32 playerNo, passiveMechanicIDs mechanicID);
 
     float getDistanceBetween(StageObject* obj1, StageObject* obj2, bool usePrevPos);
-    u32 reqCenteredGraphic(StageObject* obj1, EfID effectID, float scale);
+    u32 reqCenteredGraphic(StageObject* obj1, EfID effectID, float scale, bool follow);
     u32 playSE(StageObject* objectIn, SndID soundID);
     bool isAttackingStatusKind(u32 statusKind);
     bool isDamageStatusKind(u32 statusKind);

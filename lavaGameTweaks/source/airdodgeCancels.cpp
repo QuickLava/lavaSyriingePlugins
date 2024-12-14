@@ -33,7 +33,7 @@ namespace airdodgeCancels
             if (changeInStockCount > 0)
             {
                 mechHub::playSE(fighterIn, (SndID)((snd_se_narration_one + 1) - finalStockCount));
-                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_hit_ice, 0.75f);
+                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_hit_ice, 0.75f, 1);
             }
 
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, finalStockCount, targetMeterBundle->getMeterStockRemainder());
@@ -110,8 +110,8 @@ namespace airdodgeCancels
                 workManageModule->setFlag(1, meterPaidVar);
                 mechHub::playSE(fighterIn, snd_se_item_Ice_Crash);
                 mechHub::playSE(fighterIn, snd_se_system_collection_delete);
-                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_hit_ice, 1.0f);
-                u32 circleEfHandle = mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_guard_mark, 3.0f);
+                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_hit_ice, 1.0f, 1);
+                u32 circleEfHandle = mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_guard_mark, 3.0f, 1);
                 g_ecMgr->setSlowRate(circleEfHandle, 2);
 
                 ftManager* fighterMgr = g_ftManager;
