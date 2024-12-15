@@ -4,7 +4,7 @@
 #include <os/OSError.h>
 #include <types.h>
 
-#define __LOG_UTILS_ALLOW_LOGGING true
+#define __LOG_UTILS_ALLOW_LOGGING false
 #if __LOG_UTILS_ALLOW_LOGGING
 // Logging Enabled (via logUtils.h)!
 #define OSReport_N OSReport

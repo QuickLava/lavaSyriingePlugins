@@ -4,7 +4,7 @@
 using namespace codeMenu;
 namespace magicSeries
 {
-    const char outputTag[] = "[lavaMagicSeries] ";
+    char outputTag[] = "[lavaMagicSeries] ";
 
     void magicSeriesCallback(Fighter* attacker, StageObject* target, float damage)
     {

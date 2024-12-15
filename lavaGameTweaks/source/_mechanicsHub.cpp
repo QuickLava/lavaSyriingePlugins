@@ -8,7 +8,7 @@ namespace mechHub
 
     u32 indexBuffer[lid__COUNT] = {};
 
-    const char outputTag[] = "[lavaMechHub] ";
+    char outputTag[] = "[lavaMechHub] ";
     const char addonShortName[] = "MECH_HUB";
 
     const u32 totalMechanicsCount = amid__COUNT + pmid__COUNT;

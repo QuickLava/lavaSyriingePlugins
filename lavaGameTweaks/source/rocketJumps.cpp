@@ -3,8 +3,8 @@
 
 namespace rocketJumps
 {
-	const char outputTag[] = "[lavaRocketJumps] ";
-	const char meterChangeStr[] = "%sFighter[%02X] %s: %+.1f Meter, Total: %d (%.1f)!\n";
+	char outputTag[] = "[lavaRocketJumps] ";
+	char meterChangeStr[] = "%sFighter[%02X] %s: %+.1f Meter, Total: %d (%.1f)!\n";
 
 	u8 infiniteMeterModeFlags = 0;
 	const u32 maxStocks = 0x2;
