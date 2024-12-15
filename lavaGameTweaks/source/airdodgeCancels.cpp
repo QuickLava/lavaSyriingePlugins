@@ -16,29 +16,6 @@ namespace airdodgeCancels
 
     const float indirectConnectMaxCancelDistance = 30.0f;
     const float onCancelSlowRadius = 30.0f;
-    
-    void doMeterGain(Fighter* fighterIn, float damage)
-    {
-        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
-        if (fighterPlayerNo < fighterHooks::maxFighterCount)
-        {
-            soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
-            fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
-
-            int initialStockCount = targetMeterBundle->getMeterStocks();
-            targetMeterBundle->addMeter(damage);
-            int finalStockCount = targetMeterBundle->getMeterStocks();
-            int changeInStockCount = finalStockCount - initialStockCount;
-
-            if (changeInStockCount > 0)
-            {
-                mechHub::playSE(fighterIn, (SndID)((snd_se_narration_one + 1) - finalStockCount));
-                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_hit_ice, 0.75f, 1);
-            }
-
-            OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, finalStockCount, targetMeterBundle->getMeterStockRemainder());
-        }
-    }
 
     void onFighterCreateCallback(Fighter* fighterIn)
     {
@@ -54,9 +31,12 @@ namespace airdodgeCancels
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
         if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_AIRDODGE_CANCELS))
         {
-            soModuleEnumeration* moduleEnum = attacker->m_moduleAccesser->m_enumerationStart;
-            doMeterGain(attacker, damage);
-            moduleEnum->m_workManageModule->setFlag(1, hitboxConnectedVar);
+            attacker->m_moduleAccesser->getWorkManageModule()->setFlag(1, hitboxConnectedVar);
+
+            mechHub::doMeterGain(attacker, damage, ef_ptc_common_hit_ice, 0.75f, mechHub::announcerOnStockGain);
+            fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
+            OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed",
+                damage, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
         }
     }
     void onIndirectHitCallback(Fighter* attacker, StageObject* target, float damage, StageObject* projectile)
@@ -68,7 +48,8 @@ namespace airdodgeCancels
             soModuleEnumeration* targetModuleEnum = target->m_moduleAccesser->m_enumerationStart;
             if (targetModuleEnum != NULL)
             {
-                doMeterGain(attacker, damage);
+                OSReport_N(outputTag);
+                mechHub::doMeterGain(attacker, damage, ef_ptc_common_hit_ice, 0.75f, mechHub::announcerOnStockGain);
 
                 float distance = mechHub::getDistanceBetween(attacker, target, 1);
                 OSReport_N("%sProjectile Connected %.2f Units Away!\n", outputTag, distance);

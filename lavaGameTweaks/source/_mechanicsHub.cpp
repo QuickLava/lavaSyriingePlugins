@@ -162,6 +162,40 @@ namespace mechHub
         }
     }
 
+    int doMeterGain(Fighter* fighterIn, float meterIn, EfID meterGainGraphic, float graphicScale, u32 announcerClipCond)
+    {
+        int result = 0;
+
+        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
+        if (fighterPlayerNo < fighterHooks::maxFighterCount)
+        {
+            soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
+            fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
+
+            int initialStockCount = targetMeterBundle->getMeterStocks();
+            targetMeterBundle->addMeter(meterIn);
+            int finalStockCount = targetMeterBundle->getMeterStocks();
+            result = finalStockCount - initialStockCount;
+
+            bool doAnnouncerClip = 0;
+            if (result != 0)
+            {
+                doAnnouncerClip = (result > 0) ? announcerClipCond & announcerOnStockGain : announcerClipCond & announcerOnStockLoss;
+            }
+
+            if (result > 0)
+            {
+                if (doAnnouncerClip && finalStockCount <= 10)
+                {
+                    mechHub::playSE(fighterIn, (SndID)((snd_se_narration_one + 1) - finalStockCount));
+                }
+                mechHub::reqCenteredGraphic(fighterIn, meterGainGraphic, graphicScale, 1);
+            }
+        }
+
+        return result;
+    }
+
     float getDistanceBetween(StageObject* obj1, StageObject* obj2, bool usePrevPos)
     {
         register float result;

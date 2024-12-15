@@ -32,29 +32,6 @@ namespace rocketJumps
 	soCollisionAttackData baseHitbox;
 	u8 framesSinceJumpArr[fighterHooks::maxFighterCount] = { };
 
-	void doMeterGain(Fighter* fighterIn, float damage)
-	{
-		u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
-		if (fighterPlayerNo < fighterHooks::maxFighterCount)
-		{
-			soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
-			fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
-
-			int initialStockCount = targetMeterBundle->getMeterStocks();
-			targetMeterBundle->addMeter(damage);
-			int finalStockCount = targetMeterBundle->getMeterStocks();
-			int changeInStockCount = finalStockCount - initialStockCount;
-
-			if (changeInStockCount > 0)
-			{
-				mechHub::playSE(fighterIn, (SndID)((snd_se_narration_one + 1) - finalStockCount));
-				mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_cliff_catch, 2.5f, 1);
-			}
-
-			OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, finalStockCount, targetMeterBundle->getMeterStockRemainder());
-		}
-	}
-
 	void onFighterCreateCallback(Fighter* fighterIn)
 	{
 		u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
@@ -69,7 +46,10 @@ namespace rocketJumps
 		u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
 		if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_ROCKET_JUMPS))
 		{
-			doMeterGain(attacker, damage);
+			mechHub::doMeterGain(attacker, damage, ef_ptc_common_cliff_catch, 2.5f, mechHub::announcerOnStockGain);
+			fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
+			OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed",
+				damage, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
 		}
 	}
 	void onUpdateCallback(Fighter* fighterIn)

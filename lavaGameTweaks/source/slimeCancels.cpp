@@ -19,38 +19,6 @@ namespace slimeCancels
     const float onCancelStopWindowLength = 5.0f;
     Vec3f onCancelStopKBMult = { 0.666f, 0.666f, 0.666f };
 
-    bool getFlagForPlayer(u8 flagByte, u32 playerNo)
-    {
-        return flagByte & (1 << playerNo);
-    }
-    void setFlagForPlayer(u8& flagByte, u32 playerNo, bool stateIn)
-    {
-        flagByte &= ~(1 << playerNo);
-        flagByte |= stateIn << playerNo;
-    }
-    void doMeterGain(Fighter* fighterIn, float damage)
-    {
-        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
-        if (fighterPlayerNo < fighterHooks::maxFighterCount)
-        {
-            soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
-            fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
-
-            int initialStockCount = targetMeterBundle->getMeterStocks();
-            targetMeterBundle->addMeter(damage);
-            int finalStockCount = targetMeterBundle->getMeterStocks();
-            int changeInStockCount = finalStockCount - initialStockCount;
-
-            if (changeInStockCount > 0)
-            {
-                mechHub::playSE(fighterIn, (SndID)((snd_se_narration_one + 1) - finalStockCount));
-                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_cliff_catch, 2.5f, 1);
-            }
-
-            OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed", damage, finalStockCount, targetMeterBundle->getMeterStockRemainder());
-        }
-    }
-    
     void onFighterCreateCallback(Fighter* fighterIn)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
@@ -65,7 +33,10 @@ namespace slimeCancels
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
         if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_SLIME_CANCELS))
         {
-            doMeterGain(attacker, damage);
+            mechHub::doMeterGain(attacker, damage, ef_ptc_common_cliff_catch, 2.5f, mechHub::announcerOnStockGain);
+            fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
+            OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed",
+                damage, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
         }
     }
     void onUpdateCallback(Fighter* fighterIn)

@@ -65,6 +65,11 @@ namespace mechHub
     bool getActiveMechanicEnabled(u32 playerNo, activeMechanicIDs mechanicID);
     bool getPassiveMechanicEnabled(u32 playerNo, passiveMechanicIDs mechanicID);
 
+    // Returns change in Stock Count
+    const u32 announcerOnStockGain = 0x1;
+    const u32 announcerOnStockLoss = 0x2;
+    int doMeterGain(Fighter* fighterIn, float meterIn, EfID meterGainGraphic, float graphicScale, u32 announcerClipCond);
+
     float getDistanceBetween(StageObject* obj1, StageObject* obj2, bool usePrevPos);
     u32 reqCenteredGraphic(StageObject* obj1, EfID effectID, float scale, bool follow);
     u32 playSE(StageObject* objectIn, SndID soundID);
