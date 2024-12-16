@@ -67,12 +67,6 @@ namespace rocketBurst
 			ipPadButton justPressed = controllerModule->getTrigger();
 			ipPadButton pressed = controllerModule->getButton();
 
-			bool infiniteMeterMode = (infiniteMeterModeFlags >> fighterPlayerNo) & 0b1;
-
-			if (moduleEnum->m_situationModule->getKind() == 0x00)
-			{
-				chargeArr[fighterPlayerNo] = 0.0f;
-			}
 
 			u32 framesSinceJump = framesSinceJumpArr[fighterPlayerNo];
 			if (framesSinceJump < 0xFF)
@@ -93,22 +87,35 @@ namespace rocketBurst
 			u32 currStatusCurlCost = 0xFFFFFFFF;
 			soWorkManageModule* workManageModule = moduleEnum->m_workManageModule;
 			bool curled = workManageModule->isFlag(curledVar);
-			if (curled
-				|| (currStatus >= Fighter::Status_Jump && currStatus <= Fighter::Status_Fall_Aerial)
-				|| (currStatus == Fighter::Status_Item_Screw_Fall || currStatus == Fighter::Status_Pass)
-				|| currStatus == Fighter::Status_Damage_Fall)
+			u32 currMeterStocks = targetMeterBundle->getMeterStocks();
+			if (moduleEnum->m_situationModule->getKind() == 0x00)
 			{
-				currStatusCurlCost = 0x0;
+				chargeArr[fighterPlayerNo] = 0.0f;
 			}
-			else if (currStatus == Fighter::Status_Fall_Special || currStatus == Fighter::Status_Escape_Air)
+			else
 			{
-				currStatusCurlCost = 0x1;
-			}
-			else if (currStatus == Fighter::Status_Damage_Fly || currStatus == Fighter::Status_Damage_Fly_Roll)
-			{
-				currStatusCurlCost = 0x2;
+				if (curled
+					|| (currStatus >= Fighter::Status_Jump && currStatus <= Fighter::Status_Fall_Aerial)
+					|| currStatus == Fighter::Status_Item_Screw_Fall || currStatus == Fighter::Status_Pass
+					|| currStatus == Fighter::Status_Damage_Fall)
+				{
+					currStatusCurlCost = 0x0;
+					if (currMeterStocks > 0)
+					{
+						statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Tread_Jump);
+					}
+				}
+				else if (currStatus == Fighter::Status_Fall_Special || currStatus == Fighter::Status_Escape_Air)
+				{
+					currStatusCurlCost = 0x1;
+				}
+				else if (currStatus == Fighter::Status_Damage_Fly || currStatus == Fighter::Status_Damage_Fly_Roll)
+				{
+					currStatusCurlCost = 0x2;
+				}
 			}
 
+			bool infiniteMeterMode = (infiniteMeterModeFlags >> fighterPlayerNo) & 0b1;
 			if (infiniteMeterMode || (targetMeterBundle->getMeterStocks() > currStatusCurlCost))
 			{
 				float chargeAmount = chargeArr[fighterPlayerNo];
@@ -143,6 +150,7 @@ namespace rocketBurst
 							targetStatus = Fighter::Status_Item_Screw_Fall;
 							yBoostValue = soValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Jump_Speed_Y, 0);
 							float airJumpMult = soValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Jump_Aerial_Speed_Y, 0);
+							airJumpMult = MAX(airJumpMult, 0.75f);
 							yBoostValue *= (chargeAmount * 0.5f) + airJumpMult;
 						}
 						else
