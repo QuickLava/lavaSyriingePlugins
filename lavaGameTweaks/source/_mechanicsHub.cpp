@@ -251,7 +251,7 @@ namespace mechHub
     }
     bool isDamageStatusKind(u32 statusKind)
     {
-        return (statusKind >= Fighter::Status_Damage) || (statusKind <= Fighter::Status_Damage_Fly_Roll);
+        return (statusKind >= Fighter::Status_Damage && statusKind <= Fighter::Status_Damage_Fly_Roll);
     }
     void initDefaultHitboxData(soCollisionAttackData* attackDataIn)
     {
