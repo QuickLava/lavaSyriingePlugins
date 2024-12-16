@@ -33,7 +33,7 @@ namespace airdodgeCancels
         {
             attacker->m_moduleAccesser->getWorkManageModule()->setFlag(1, hitboxConnectedVar);
 
-            mechHub::doMeterGain(attacker, damage, ef_ptc_common_hit_ice, 0.75f, mechHub::announcerOnStockGain);
+            mechHub::doMeterGain(attacker, damage, ef_ptc_common_hit_ice, 0.75f, mechHub::mgac_ON_STOCK_GAIN);
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed",
                 damage, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
@@ -49,7 +49,7 @@ namespace airdodgeCancels
             if (targetModuleEnum != NULL)
             {
                 OSReport_N(outputTag);
-                mechHub::doMeterGain(attacker, damage, ef_ptc_common_hit_ice, 0.75f, mechHub::announcerOnStockGain);
+                mechHub::doMeterGain(attacker, damage, ef_ptc_common_hit_ice, 0.75f, mechHub::mgac_ON_STOCK_GAIN);
 
                 float distance = mechHub::getDistanceBetween(attacker, target, 1);
                 OSReport_N("%sProjectile Connected %.2f Units Away!\n", outputTag, distance);

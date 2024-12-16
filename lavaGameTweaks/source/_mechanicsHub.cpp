@@ -162,7 +162,7 @@ namespace mechHub
         }
     }
 
-    int doMeterGain(Fighter* fighterIn, float meterIn, EfID meterGainGraphic, float graphicScale, u32 announcerClipCond)
+    int doMeterGain(Fighter* fighterIn, float meterIn, EfID meterGainGraphic, float graphicScale, meterGainAnnouncerCond announcerClipCond)
     {
         int result = 0;
 
@@ -180,7 +180,7 @@ namespace mechHub
             bool doAnnouncerClip = 0;
             if (result != 0)
             {
-                doAnnouncerClip = (result > 0) ? announcerClipCond & announcerOnStockGain : announcerClipCond & announcerOnStockLoss;
+                doAnnouncerClip = (result > 0) ? announcerClipCond & mgac_ON_STOCK_GAIN : announcerClipCond & mgac_ON_STOCK_LOSS;
             }
 
             if (result > 0)

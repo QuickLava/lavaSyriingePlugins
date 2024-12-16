@@ -33,7 +33,7 @@ namespace slimeCancels
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
         if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_SLIME_CANCELS))
         {
-            mechHub::doMeterGain(attacker, damage, ef_ptc_common_cliff_catch, 2.5f, mechHub::announcerOnStockGain);
+            mechHub::doMeterGain(attacker, damage, ef_ptc_common_cliff_catch, 2.5f, mechHub::mgac_ON_STOCK_GAIN);
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed",
                 damage, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
