@@ -46,7 +46,7 @@ namespace rocketBurst
 		u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
 		if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_ROCKET_BURST))
 		{
-			mechHub::doMeterGain(attacker, damage, ef_ptc_common_cliff_catch, 2.5f, mechHub::announcerOnStockGain);
+			mechHub::doMeterGain(attacker, damage, ef_ptc_common_hit_normal_b, 1.0f, mechHub::announcerOnStockGain);
 			fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
 			OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed",
 				damage, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
