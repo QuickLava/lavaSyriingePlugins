@@ -2,7 +2,7 @@
 
 namespace reflectOnHit
 {
-    const char outputTag[] = "[lavaReflectOnHit] ";
+    const char outputTag[] = "[reflectOnHit] ";
 
 	void reflectBoxCB(Fighter* fighterIn)
 	{

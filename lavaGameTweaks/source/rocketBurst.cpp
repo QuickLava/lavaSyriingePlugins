@@ -3,7 +3,7 @@
 
 namespace rocketBurst
 {
-    char outputTag[] = "[lavaRocketBurst] ";
+    char outputTag[] = "[rocketBurst] ";
     char meterChangeStr[] = "%sFighter[%02X] %s: %+.1f Meter, Total: %d (%.1f)!\n";
 
     u8 infiniteMeterModeFlags = 0;
