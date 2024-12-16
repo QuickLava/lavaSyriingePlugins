@@ -23,12 +23,18 @@ namespace rocketBurst
     const u32 hitboxID = 0x00;
     const u32 hitboxGroup = 0x00;
     const u32 hitboxDuration = 3;
-    const float hitboxKBGBase = 25.0f;
-    const float hitboxKBGMax = 50.0f;
+    const float hitboxKBGBase = 50.0f;
+    const float hitboxKBGMax = 70.0f;
     const float hitboxKBGChargeDiff = hitboxKBGMax - hitboxKBGBase;
-    const float hitboxDamageBase = 10.0f;
-    const float hitboxDamageMax = 16.0f;
+    const float hitboxDamageBase = 8.0f;
+    const float hitboxDamageMax = 12.0f;
     const float hitboxDamageChargeDiff = hitboxDamageMax - hitboxDamageBase;
+    const float hitboxSizeBase = 10.0f;
+    const float hitboxSizeMax = 12.5f;
+    const float hitboxSizeChargeDiff = hitboxSizeMax - hitboxSizeBase;
+    const float hitboxGFXSizeBase = 1.0f;
+    const float hitboxGFXSizeMax = 1.25f;
+    const float hitboxGFXSizeChargeDiff = hitboxGFXSizeMax - hitboxGFXSizeBase;
     soCollisionAttackData baseHitbox;
     u8 framesSinceJumpArr[fighterHooks::maxFighterCount] = { };
 
@@ -67,7 +73,6 @@ namespace rocketBurst
             ipPadButton justPressed = controllerModule->getTrigger();
             ipPadButton pressed = controllerModule->getButton();
 
-
             u32 framesSinceJump = framesSinceJumpArr[fighterPlayerNo];
             if (framesSinceJump < 0xFF)
             {
@@ -75,9 +80,11 @@ namespace rocketBurst
             }
             if (framesSinceJump == 0x01 && (currStatus == Fighter::Status_Item_Screw_Fall || currStatus == Fighter::Status_Pass))
             {
+                float chargeAmount = chargeArr[fighterPlayerNo];
+                float graphicSize = (chargeAmount * hitboxGFXSizeChargeDiff) + hitboxGFXSizeBase;
                 mechHub::playSE(fighterIn, snd_se_item_Clacker_exp);
-                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_bomb_a, 1.0f, 0);
-                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_clacker_bomb, 1.0f, 0);
+                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_bomb_a, graphicSize, 0);
+                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_clacker_bomb, graphicSize, 0);
             }
             else if (framesSinceJump == hitboxDuration)
             {
@@ -114,9 +121,12 @@ namespace rocketBurst
                     currStatusCurlCost = 0x2;
                 }
             }
-
             bool infiniteMeterMode = (infiniteMeterModeFlags >> fighterPlayerNo) & 0b1;
-            if (infiniteMeterMode || (targetMeterBundle->getMeterStocks() > currStatusCurlCost))
+            if (infiniteMeterMode)
+            {
+                currMeterStocks = maxStocks;
+            }
+            if (currMeterStocks > currStatusCurlCost)
             {
                 float chargeAmount = chargeArr[fighterPlayerNo];
                 if (!curled && (justPressed.m_mask & mechHub::allTauntPadMask) != 0x00)
@@ -167,6 +177,7 @@ namespace rocketBurst
                         soCollisionAttackData* blastHitboxPtr = &baseHitbox;
                         blastHitboxPtr->m_power = (hitboxDamageChargeDiff * chargeAmount) + hitboxDamageBase;
                         blastHitboxPtr->m_reactionEffect = (hitboxKBGChargeDiff * chargeAmount) + hitboxKBGBase;
+                        blastHitboxPtr->m_size = (hitboxSizeChargeDiff * chargeAmount) + hitboxSizeBase;
                         moduleEnum->m_collisionAttackModule->set(hitboxID, hitboxGroup, blastHitboxPtr);
 
                         targetMeterBundle->addMeterStocks(-1);
@@ -198,9 +209,9 @@ namespace rocketBurst
         framesSinceArrPtr[0x01] = 0xFFFFFFFF;
 
         mechHub::initDefaultHitboxData(&baseHitbox);
-        baseHitbox.m_vector = 88;
+        baseHitbox.m_vector = 84;
         baseHitbox.m_reactionAdd = 90;
-        baseHitbox.m_size = 10.0f;
+        baseHitbox.m_hitStopFrame = 1.5f;
         baseHitbox.m_attribute = soCollisionAttackData::Attribute_Fire;
     }
 
