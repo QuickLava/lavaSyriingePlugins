@@ -26,7 +26,7 @@ namespace mechHub
         amid_NONE = 0,
         amid_AIRDODGE_CANCELS,
         amid_SLIME_CANCELS,
-        amid_ROCKET_JUMPS,
+        amid_ROCKET_BURST,
         amid__COUNT,
     };
     enum passiveMechanicIDs

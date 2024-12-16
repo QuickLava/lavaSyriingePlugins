@@ -17,7 +17,7 @@
 			<option value="None" />
 			<option value="Airdodge Cancels" />
 			<option value="Slime Cancels" />
-			<option value="Rocket Jumps" />
+			<option value="Rocket Burst" />
 		</codeMenuSelection>
 		<codeMenuComment text="Passive Mechanics: "/>
 		<codeMenuToggle name="Magic Series Enabled" shortName="LINE_005">
