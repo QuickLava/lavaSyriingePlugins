@@ -34,7 +34,18 @@ namespace mechHub
         pmid_MAGIC_SERIES,
         pmid__COUNT,
     };
+    
+    extern u32 indexBuffer[];
 
+    bool populate();
+    void registerHooks();
+    bool getActiveMechanicEnabled(u32 playerNo, activeMechanicIDs mechanicID);
+    bool getPassiveMechanicEnabled(u32 playerNo, passiveMechanicIDs mechanicID);
+}
+
+// Utility Functions and Constants
+namespace mechUtil
+{
     // These are used with soModelModule::getCorrectBoneID(), they map consistent values to certain other bones!
     enum SpecialBoneIDs
     {
@@ -58,18 +69,11 @@ namespace mechHub
         INPUT_PAD_BUTTON_MASK_APPEAL_HI | INPUT_PAD_BUTTON_MASK_APPEAL_S | INPUT_PAD_BUTTON_MASK_APPEAL_LW |
         INPUT_PAD_BUTTON_MASK_APPEAL_S_L | INPUT_PAD_BUTTON_MASK_APPEAL_S_R;
 
-    extern u32 indexBuffer[];
-
-    bool populate();
-    void registerHooks();
-    bool getActiveMechanicEnabled(u32 playerNo, activeMechanicIDs mechanicID);
-    bool getPassiveMechanicEnabled(u32 playerNo, passiveMechanicIDs mechanicID);
-
     enum meterGainAnnouncerCond
     {
         mgac_ON_STOCK_GAIN = 0x1,
         mgac_ON_STOCK_LOSS = 0x2,
-        mgac_ALWAYS =  0x3,
+        mgac_ALWAYS = 0x3,
     };
     // Returns change in Stock Count
     int doMeterGain(Fighter* fighterIn, float meterIn, EfID meterGainGraphic, float graphicScale, meterGainAnnouncerCond announcerClipCond);

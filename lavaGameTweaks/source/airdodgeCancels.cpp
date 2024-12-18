@@ -33,7 +33,7 @@ namespace airdodgeCancels
         {
             attacker->m_moduleAccesser->getWorkManageModule()->setFlag(1, hitboxConnectedVar);
 
-            mechHub::doMeterGain(attacker, damage, ef_ptc_common_hit_ice, 0.75f, mechHub::mgac_ON_STOCK_GAIN);
+            mechUtil::doMeterGain(attacker, damage, ef_ptc_common_hit_ice, 0.75f, mechUtil::mgac_ON_STOCK_GAIN);
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed",
                 damage, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
@@ -49,9 +49,9 @@ namespace airdodgeCancels
             if (targetModuleEnum != NULL)
             {
                 OSReport_N(outputTag);
-                mechHub::doMeterGain(attacker, damage, ef_ptc_common_hit_ice, 0.75f, mechHub::mgac_ON_STOCK_GAIN);
+                mechUtil::doMeterGain(attacker, damage, ef_ptc_common_hit_ice, 0.75f, mechUtil::mgac_ON_STOCK_GAIN);
 
-                float distance = mechHub::getDistanceBetween(attacker, target, 1);
+                float distance = mechUtil::getDistanceBetween(attacker, target, 1);
                 OSReport_N("%sProjectile Connected %.2f Units Away!\n", outputTag, distance);
                 if (distance <= indirectConnectMaxCancelDistance)
                 {
@@ -78,7 +78,7 @@ namespace airdodgeCancels
             ipPadButton justPressed = controllerModule->getTrigger();
             if (workManageModule->isFlag(hitboxConnectedVar)
                 && (currMeterStocks > 0 || infiniteMeterMode)
-                && (justPressed.m_mask & mechHub::allTauntPadMask))
+                && (justPressed.m_mask & mechUtil::allTauntPadMask))
             {
                 statusModule->changeStatusForce(Fighter::Status_Escape_Air, fighterIn->m_moduleAccesser);
                 transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Attack);
@@ -89,10 +89,10 @@ namespace airdodgeCancels
                 targetMeterBundle->addMeterStocks(-1);
 
                 workManageModule->setFlag(1, meterPaidVar);
-                mechHub::playSE(fighterIn, snd_se_item_Ice_Crash);
-                mechHub::playSE(fighterIn, snd_se_system_collection_delete);
-                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_hit_ice, 1.0f, 1);
-                u32 circleEfHandle = mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_guard_mark, 3.0f, 1);
+                mechUtil::playSE(fighterIn, snd_se_item_Ice_Crash);
+                mechUtil::playSE(fighterIn, snd_se_system_collection_delete);
+                mechUtil::reqCenteredGraphic(fighterIn, ef_ptc_common_hit_ice, 1.0f, 1);
+                u32 circleEfHandle = mechUtil::reqCenteredGraphic(fighterIn, ef_ptc_common_guard_mark, 3.0f, 1);
                 g_ecMgr->setSlowRate(circleEfHandle, 2);
 
                 ftManager* fighterMgr = g_ftManager;
@@ -103,7 +103,7 @@ namespace airdodgeCancels
                     Fighter* currFighter = fighterMgr->getFighter(currEntryID, 0);
                     if (soExternalValueAccesser::getTeamNo(fighterIn) == soExternalValueAccesser::getTeamNo(currFighter)) continue;
 
-                    float distance = mechHub::getDistanceBetween(fighterIn, currFighter, 1);
+                    float distance = mechUtil::getDistanceBetween(fighterIn, currFighter, 1);
                     if (distance <= onCancelSlowRadius)
                     {
                         currFighter->setSlow(1, 2, 20, 1);
@@ -115,7 +115,7 @@ namespace airdodgeCancels
             }
 
             ipPadButton pressed = controllerModule->getButton();
-            if (pressed.m_attack && pressed.m_special && pressed.m_jump && (justPressed.m_mask & mechHub::allTauntPadMask))
+            if (pressed.m_attack && pressed.m_special && pressed.m_jump && (justPressed.m_mask & mechUtil::allTauntPadMask))
             {
                 infiniteMeterModeFlags ^= (1 << fighterPlayerNo);
                 targetMeterBundle->resetMeter();

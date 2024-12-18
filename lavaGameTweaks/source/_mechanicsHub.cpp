@@ -2,10 +2,6 @@
 
 namespace mechHub
 {
-    Vec3f gfxFaceScreenRotVec = { 0.0f, -90.0f * radianConvConstant, 0.0f };
-    Vec3f zeroVec = { 0.0f, 0.0f, 0.0f };
-    Vec3f gfxFlattenSclVec = { 2.0f, 2.0f, 0.1f };
-
     u32 indexBuffer[lid__COUNT] = {};
 
     char outputTag[] = "[mechHub] ";
@@ -161,6 +157,12 @@ namespace mechHub
             bl getMechanicEnabled;
         }
     }
+}
+namespace mechUtil
+{
+    Vec3f gfxFaceScreenRotVec = { 0.0f, -90.0f * radianConvConstant, 0.0f };
+    Vec3f zeroVec = { 0.0f, 0.0f, 0.0f };
+    Vec3f gfxFlattenSclVec = { 2.0f, 2.0f, 0.1f };
 
     int doMeterGain(Fighter* fighterIn, float meterIn, EfID meterGainGraphic, float graphicScale, meterGainAnnouncerCond announcerClipCond)
     {
@@ -187,9 +189,9 @@ namespace mechHub
             {
                 if (doAnnouncerClip && finalStockCount <= 10)
                 {
-                    mechHub::playSE(fighterIn, (SndID)((snd_se_narration_one + 1) - finalStockCount));
+                    mechUtil::playSE(fighterIn, (SndID)((snd_se_narration_one + 1) - finalStockCount));
                 }
-                mechHub::reqCenteredGraphic(fighterIn, meterGainGraphic, graphicScale, 1);
+                mechUtil::reqCenteredGraphic(fighterIn, meterGainGraphic, graphicScale, 1);
             }
         }
 
@@ -222,7 +224,7 @@ namespace mechHub
             mtctr r12;
             bctrl;
         }
-        
+
         return pos1.distance(&pos2);
     }
     u32 reqCenteredGraphic(StageObject* objectIn, EfID effectID, float scale, bool follow)
@@ -232,7 +234,7 @@ namespace mechHub
         soEffectModule* effectModule = objectIn->m_moduleAccesser->getEffectModule();
         if (!follow)
         {
-            result = effectModule->req(effectID,gfxRootBoneID, &zeroVec, &zeroVec, scale, &zeroVec, &zeroVec, 0, 0);
+            result = effectModule->req(effectID, gfxRootBoneID, &zeroVec, &zeroVec, scale, &zeroVec, &zeroVec, 0, 0);
         }
         else
         {

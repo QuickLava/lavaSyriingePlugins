@@ -33,7 +33,7 @@ namespace slimeCancels
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
         if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_SLIME_CANCELS))
         {
-            mechHub::doMeterGain(attacker, damage, ef_ptc_common_cliff_catch, 2.5f, mechHub::mgac_ON_STOCK_GAIN);
+            mechUtil::doMeterGain(attacker, damage, ef_ptc_common_cliff_catch, 2.5f, mechUtil::mgac_ON_STOCK_GAIN);
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed",
                 damage, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
@@ -59,9 +59,9 @@ namespace slimeCancels
 
             bool slimeCancelInput = 0;
             u32 currStatus = statusModule->getStatusKind();
-            if (mechHub::isAttackingStatusKind(currStatus))
+            if (mechUtil::isAttackingStatusKind(currStatus))
             {
-                slimeCancelInput = justPressed.m_mask & mechHub::allTauntPadMask;
+                slimeCancelInput = justPressed.m_mask & mechUtil::allTauntPadMask;
             }
             
             if (workManageModule->isFlag(didSlimeCancelVar))
@@ -76,12 +76,12 @@ namespace slimeCancels
                 targetMeterBundle->addMeterStocks(-1);
                 workManageModule->setFlag(1, meterPaidVar);
 
-                mechHub::playSE(fighterIn, snd_se_item_spring_02);
-                mechHub::playSE(fighterIn, snd_se_item_pasaran_growth);
-                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_pokemon_latiaslatios_03, 0.75f, 1);
-                u32 effectHandle = mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_ray_gun_shot, 1.0f, 1);
-                g_ecMgr->setRot(effectHandle, &mechHub::gfxFaceScreenRotVec);
-                g_ecMgr->setScl(effectHandle, &mechHub::gfxFlattenSclVec);
+                mechUtil::playSE(fighterIn, snd_se_item_spring_02);
+                mechUtil::playSE(fighterIn, snd_se_item_pasaran_growth);
+                mechUtil::reqCenteredGraphic(fighterIn, ef_ptc_pokemon_latiaslatios_03, 0.75f, 1);
+                u32 effectHandle = mechUtil::reqCenteredGraphic(fighterIn, ef_ptc_common_ray_gun_shot, 1.0f, 1);
+                g_ecMgr->setRot(effectHandle, &mechUtil::gfxFaceScreenRotVec);
+                g_ecMgr->setScl(effectHandle, &mechUtil::gfxFlattenSclVec);
                 g_ecMgr->setSlowRate(effectHandle, 2);
 
                 ftManager* fighterMgr = g_ftManager;
@@ -94,7 +94,7 @@ namespace slimeCancels
                     if (targetWorkManageModule->isFlag(beenFrozenVar)) continue;
 
                     u32 currFtStatus = currFighter->m_moduleAccesser->getStatusModule()->getStatusKind();
-                    if (!mechHub::isDamageStatusKind(currFtStatus)) continue;
+                    if (!mechUtil::isDamageStatusKind(currFtStatus)) continue;
 
                     float currAnimFrame = currFighter->m_moduleAccesser->getMotionModule()->getFrame();
                     if (currAnimFrame > onCancelStopWindowLength) continue;
@@ -123,14 +123,14 @@ namespace slimeCancels
                 }
 
                 soControllerImpl* controllerPtr = (soControllerImpl*)controllerModule->getController();
-                controllerPtr->m_trigger &= ~mechHub::allTauntPadMask;
+                controllerPtr->m_trigger &= ~mechUtil::allTauntPadMask;
                 if (moduleEnum->m_situationModule->getKind() == 0x00)
                 {
                     statusModule->changeStatusForce(Fighter::Status_Wait, fighterIn->m_moduleAccesser);
                 }
                 else
                 {
-                    u32 tauntInputBak = controllerPtr->m_button & mechHub::allTauntPadMask;
+                    u32 tauntInputBak = controllerPtr->m_button & mechUtil::allTauntPadMask;
                     controllerPtr->m_button &= ~tauntInputBak;
                     statusModule->changeStatusForce(Fighter::Status_Fall_Aerial, fighterIn->m_moduleAccesser);
                     statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Tread_Jump);
@@ -142,7 +142,7 @@ namespace slimeCancels
                     -meterStockSize, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
             }
 
-            if (pressed.m_attack && pressed.m_special && pressed.m_jump && (justPressed.m_mask & mechHub::allTauntPadMask))
+            if (pressed.m_attack && pressed.m_special && pressed.m_jump && (justPressed.m_mask & mechUtil::allTauntPadMask))
             {
                 infiniteMeterModeFlags ^= (1 << fighterPlayerNo);
                 targetMeterBundle->resetMeter();

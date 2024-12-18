@@ -52,7 +52,7 @@ namespace rocketBurst
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
         if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_ROCKET_BURST))
         {
-            mechHub::doMeterGain(attacker, damage, ef_ptc_common_hit_normal_b, 1.0f, mechHub::mgac_ON_STOCK_GAIN);
+            mechUtil::doMeterGain(attacker, damage, ef_ptc_common_hit_normal_b, 1.0f, mechUtil::mgac_ON_STOCK_GAIN);
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed",
                 damage, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
@@ -82,9 +82,9 @@ namespace rocketBurst
             {
                 float chargeAmount = chargeArr[fighterPlayerNo];
                 float graphicSize = (chargeAmount * hitboxGFXSizeChargeDiff) + hitboxGFXSizeBase;
-                mechHub::playSE(fighterIn, snd_se_item_Clacker_exp);
-                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_bomb_a, graphicSize, 0);
-                mechHub::reqCenteredGraphic(fighterIn, ef_ptc_common_clacker_bomb, graphicSize, 0);
+                mechUtil::playSE(fighterIn, snd_se_item_Clacker_exp);
+                mechUtil::reqCenteredGraphic(fighterIn, ef_ptc_common_bomb_a, graphicSize, 0);
+                mechUtil::reqCenteredGraphic(fighterIn, ef_ptc_common_clacker_bomb, graphicSize, 0);
             }
             else if (framesSinceJump == hitboxDuration)
             {
@@ -129,7 +129,7 @@ namespace rocketBurst
             if (currMeterStocks > currStatusCurlCost)
             {
                 float chargeAmount = chargeArr[fighterPlayerNo];
-                if (!curled && (justPressed.m_mask & mechHub::allTauntPadMask) != 0x00)
+                if (!curled && (justPressed.m_mask & mechUtil::allTauntPadMask) != 0x00)
                 {
                     workManageModule->onFlag(curledVar);
                     targetMeterBundle->addMeterStocks(-currStatusCurlCost);
@@ -146,7 +146,7 @@ namespace rocketBurst
                     chargeAmount += chargeRate;
 
                     if (chargeAmount >= chargeMax 
-                        || ((pressed.m_mask & mechHub::allTauntPadMask) == 0x00))
+                        || ((pressed.m_mask & mechUtil::allTauntPadMask) == 0x00))
                     {
                         soKineticModule* kineticModule = moduleEnum->m_kineticModule;
                         kineticModule->getEnergy(Fighter::Kinetic_Energy_Gravity)->clearSpeed();
@@ -191,7 +191,7 @@ namespace rocketBurst
                 chargeArr[fighterPlayerNo] = chargeAmount;
             }
 
-            if (pressed.m_attack && pressed.m_special && pressed.m_jump && (justPressed.m_mask & mechHub::allTauntPadMask))
+            if (pressed.m_attack && pressed.m_special && pressed.m_jump && (justPressed.m_mask & mechUtil::allTauntPadMask))
             {
                 infiniteMeterModeFlags ^= (1 << fighterPlayerNo);
                 targetMeterBundle->resetMeter();
@@ -208,7 +208,7 @@ namespace rocketBurst
         framesSinceArrPtr[0x00] = 0xFFFFFFFF;
         framesSinceArrPtr[0x01] = 0xFFFFFFFF;
 
-        mechHub::initDefaultHitboxData(&baseHitbox);
+        mechUtil::initDefaultHitboxData(&baseHitbox);
         baseHitbox.m_vector = 84;
         baseHitbox.m_reactionAdd = 90;
         baseHitbox.m_hitStopFrame = 1.5f;
