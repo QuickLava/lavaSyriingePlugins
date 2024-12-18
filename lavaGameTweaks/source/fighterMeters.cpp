@@ -15,13 +15,17 @@ namespace fighterMeters
     {
         return meter;
     }
+    u32 meterBundle::getMeterStocks()
+    {
+        return meter / currMeterConfig->meterStockSize;
+    }
     float meterBundle::getMeterStockRemainder()
     {
         return fmod(meter, currMeterConfig->meterStockSize);
     }
-    u32 meterBundle::getMeterStocks()
+    bool meterBundle::getMeterEnabled()
     {
-        return meter / currMeterConfig->meterStockSize;
+        return currMeterConfig != &disabledMeterConf;
     }
 
     void meterBundle::setMeterConfig(const meterConfiguration& configIn, bool doReset)
@@ -33,20 +37,18 @@ namespace fighterMeters
         }
         addMeter(0.0f);
     }
-    void meterBundle::setMeter(float meterIn)
+    int meterBundle::setMeter(float meterIn)
     {
-        resetMeter();
-        addMeter(meterIn);
+        return addMeter(meterIn - meter);
+    }
+    int meterBundle::setMeterStocks(u32 stocksIn)
+    {
+        return addMeter((stocksIn * currMeterConfig->meterStockSize) - meter);
     }
     void meterBundle::setMeterStockRemainder(float meterIn)
     {
         roundDownMeter();
         addMeter(meterIn);
-    }
-    void meterBundle::setMeterStocks(u32 stocksIn)
-    {
-        resetMeter();
-        addMeter(stocksIn * currMeterConfig->meterStockSize);
     }
 
     void meterBundle::resetMeter()
@@ -55,27 +57,28 @@ namespace fighterMeters
     }
     void meterBundle::disableMeter()
     {
-        currMeterConfig = &disabledMeterConf;
-        resetMeter();
+        setMeterConfig(disabledMeterConf, 1);
     }
-    void meterBundle::addMeter(float meterIn)
+    int meterBundle::addMeter(float meterIn)
     {
+        int initialStocks = getMeterStocks();
         float currMeter = meter + meterIn;
         currMeter = MAX(currMeter, 0.0f);
         currMeter = MIN(currMeter, currMeterConfig->maxMeter);
         meter = currMeter;
+        return getMeterStocks() - initialStocks;
     }
-    void meterBundle::addMeterStocks(int meterStocksIn)
+    int meterBundle::addMeterStocks(int meterStocksIn)
     {
-        addMeter(meterStocksIn * currMeterConfig->meterStockSize);
+        return addMeter(meterStocksIn * currMeterConfig->meterStockSize);
     }
-    void meterBundle::roundUpMeter()
+    int meterBundle::roundUpMeter()
     {
-        addMeter(currMeterConfig->meterStockSize - getMeterStockRemainder());
+        return addMeter(currMeterConfig->meterStockSize - getMeterStockRemainder());
     }
-    void meterBundle::roundDownMeter()
+    int meterBundle::roundDownMeter()
     {
-        addMeter(-getMeterStockRemainder());
+        return addMeter(-getMeterStockRemainder());
     }
 
     meterBundle playerMeters[fighterHooks::maxFighterCount];
