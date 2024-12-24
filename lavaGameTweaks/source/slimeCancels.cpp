@@ -13,7 +13,6 @@ namespace slimeCancels
 
     const u32 meterPaidVar = 0x22000039;
     const u32 beenFrozenVar = 0x2200003A;
-    const u32 didSlimeCancelVar = 0x2200003B;
 
     const u32 onCancelStopBaseDuration = 20;
     const float onCancelStopWindowLength = 5.0f;
@@ -64,13 +63,6 @@ namespace slimeCancels
                 slimeCancelInput = justPressed.m_mask & mechUtil::allTauntPadMask;
             }
             
-            if (workManageModule->isFlag(didSlimeCancelVar))
-            {
-                statusModule->enableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Tread_Jump);
-                workManageModule->offFlag(didSlimeCancelVar);
-                OSReport_N("%sRe-Enabled: Footstool!\n", outputTag);
-            }
-
             if (slimeCancelInput && (currMeterStocks > 0 || infiniteMeterMode) && !workManageModule->isFlag(meterPaidVar))
             {
                 targetMeterBundle->addMeterStocks(-1);
@@ -130,12 +122,8 @@ namespace slimeCancels
                 }
                 else
                 {
-                    u32 tauntInputBak = controllerPtr->m_button & mechUtil::allTauntPadMask;
-                    controllerPtr->m_button &= ~tauntInputBak;
+                    workManageModule->setInt(0x1, Fighter::Instance_Work_Int_No_Tread_Frame);
                     statusModule->changeStatusForce(Fighter::Status_Fall_Aerial, fighterIn->m_moduleAccesser);
-                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Tread_Jump);
-                    controllerPtr->m_button |= tauntInputBak;
-                    workManageModule->onFlag(didSlimeCancelVar);
                 }
 
                 OSReport_N(meterChangeStr, outputTag, fighterHooks::getFighterPlayerNo(fighterIn), "Slime Cancel", 

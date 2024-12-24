@@ -7,8 +7,8 @@ namespace rocketBurst
     char meterChangeStr[] = "%sFighter[%02X] %s: %+.1f Meter, Total: %d (%.1f)!\n";
 
     u8 infiniteMeterModeFlags = 0;
-    const u32 maxStocks = 0x3;
-    const float meterStockSize = 25.0f;
+    const u32 maxStocks = 0x2;
+    const float meterStockSize = 50.0f;
     const fighterMeters::meterConfiguration meterConf = { meterStockSize * maxStocks, meterStockSize };
 
     const u32 curledVar = 0x2200003B;
@@ -17,12 +17,11 @@ namespace rocketBurst
     const float chargeRate = chargeMax / chargeFramesToMax;
     float chargeArr[fighterHooks::maxFighterCount] = {};
 
-    soMotionChangeParam curlMotionReq = { Fighter::Motion_Item_Screw_Fall, 0.0f, 2.0f };
     Vec3f curlKnockbackMul = { 0.5f, 0.5f, 0.0f };
 
     const u32 hitboxID = 0x00;
     const u32 hitboxGroup = 0x00;
-    const u32 hitboxDuration = 3;
+    const u32 hitboxDuration = 4;
     const float hitboxKBGBase = 50.0f;
     const float hitboxKBGMax = 70.0f;
     const float hitboxKBGChargeDiff = hitboxKBGMax - hitboxKBGBase;
@@ -35,8 +34,7 @@ namespace rocketBurst
     const float hitboxGFXSizeBase = 1.0f;
     const float hitboxGFXSizeMax = 1.25f;
     const float hitboxGFXSizeChargeDiff = hitboxGFXSizeMax - hitboxGFXSizeBase;
-    soCollisionAttackData baseHitbox;
-    u8 framesSinceJumpArr[fighterHooks::maxFighterCount] = { };
+    u8 framesSinceBurstArr[fighterHooks::maxFighterCount] = { };
 
     void onFighterCreateCallback(Fighter* fighterIn)
     {
@@ -63,22 +61,22 @@ namespace rocketBurst
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
         if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_ROCKET_BURST))
         {
-            soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
+            soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
 
-            soStatusModule* statusModule = moduleEnum->m_statusModule;
+            soStatusModule* statusModule = moduleAccesser->getStatusModule();
             u32 currStatus = statusModule->getStatusKind();
 
-            soControllerModule* controllerModule = moduleEnum->m_controllerModule;
+            soControllerModule* controllerModule = moduleAccesser->getControllerModule();
             ipPadButton justPressed = controllerModule->getTrigger();
             ipPadButton pressed = controllerModule->getButton();
 
-            u32 framesSinceJump = framesSinceJumpArr[fighterPlayerNo];
-            if (framesSinceJump < 0xFF)
+            u32 framesSinceBurst = framesSinceBurstArr[fighterPlayerNo];
+            if (framesSinceBurst < 0xFF)
             {
-                framesSinceJumpArr[fighterPlayerNo] = ++framesSinceJump;
+                framesSinceBurstArr[fighterPlayerNo] = ++framesSinceBurst;
             }
-            if (framesSinceJump == 0x01 && (currStatus == Fighter::Status_Item_Screw_Fall || currStatus == Fighter::Status_Pass))
+            if (framesSinceBurst == 0x01 && (currStatus == Fighter::Status_Item_Screw_Fall || currStatus == Fighter::Status_Pass))
             {
                 float chargeAmount = chargeArr[fighterPlayerNo];
                 float graphicSize = (chargeAmount * hitboxGFXSizeChargeDiff) + hitboxGFXSizeBase;
@@ -86,39 +84,28 @@ namespace rocketBurst
                 mechUtil::reqCenteredGraphic(fighterIn, ef_ptc_common_bomb_a, graphicSize, 0);
                 mechUtil::reqCenteredGraphic(fighterIn, ef_ptc_common_clacker_bomb, graphicSize, 0);
             }
-            else if (framesSinceJump == hitboxDuration)
+            else if (framesSinceBurst == hitboxDuration)
             {
-                moduleEnum->m_collisionAttackModule->clear(hitboxID);
+                moduleAccesser->getCollisionAttackModule()->clear(hitboxID);
             }
 
             u32 currStatusCurlCost = 0xFFFFFFFF;
-            soWorkManageModule* workManageModule = moduleEnum->m_workManageModule;
+            soWorkManageModule* workManageModule = moduleAccesser->getWorkManageModule();
             bool curled = workManageModule->isFlag(curledVar);
             u32 currMeterStocks = targetMeterBundle->getMeterStocks();
-            if (moduleEnum->m_situationModule->getKind() == 0x00)
+            if (moduleAccesser->getSituationModule()->getKind() == 0x00)
             {
                 chargeArr[fighterPlayerNo] = 0.0f;
             }
             else
             {
-                if (curled
-                    || (currStatus >= Fighter::Status_Jump && currStatus <= Fighter::Status_Fall_Aerial)
-                    || currStatus == Fighter::Status_Item_Screw_Fall || currStatus == Fighter::Status_Pass
-                    || currStatus == Fighter::Status_Damage_Fall)
+                if (curled || statusModule->isEnableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Attack))
                 {
                     currStatusCurlCost = 0x0;
-                    if (currMeterStocks > 0)
-                    {
-                        statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Tread_Jump);
-                    }
                 }
-                else if (currStatus == Fighter::Status_Fall_Special || currStatus == Fighter::Status_Escape_Air)
+                else if (currStatus == Fighter::Status_Fall_Special || currStatus == Fighter::Status_Damage_Fly || currStatus == Fighter::Status_Damage_Fly_Roll)
                 {
                     currStatusCurlCost = 0x1;
-                }
-                else if (currStatus == Fighter::Status_Damage_Fly || currStatus == Fighter::Status_Damage_Fly_Roll)
-                {
-                    currStatusCurlCost = 0x2;
                 }
             }
             bool infiniteMeterMode = (infiniteMeterModeFlags >> fighterPlayerNo) & 0b1;
@@ -131,14 +118,17 @@ namespace rocketBurst
                 float chargeAmount = chargeArr[fighterPlayerNo];
                 if (!curled && (justPressed.m_mask & mechUtil::allTauntPadMask) != 0x00)
                 {
-                    workManageModule->onFlag(curledVar);
                     targetMeterBundle->addMeterStocks(-currStatusCurlCost);
                     OSReport_N(meterChangeStr, outputTag, fighterHooks::getFighterPlayerNo(fighterIn), "Curl Init",
                         -meterStockSize * currStatusCurlCost, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
 
-                    soMotionModule* motionModule = moduleEnum->m_motionModule;
-                    motionModule->changeMotion(&curlMotionReq);
-                    motionModule->setLoopFlag(1);
+                    workManageModule->setInt(0x1, Fighter::Instance_Work_Int_No_Tread_Frame);
+                    statusModule->changeStatus(Fighter::Status_Item_Screw_Fall, moduleAccesser);
+                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Attack);
+                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Special);
+                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Escape);
+                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Jump_Aerial);
+                    workManageModule->onFlag(curledVar);
                     chargeAmount = 0.0f;
                 }
                 else if (curled)
@@ -148,12 +138,11 @@ namespace rocketBurst
                     if (chargeAmount >= chargeMax 
                         || ((pressed.m_mask & mechUtil::allTauntPadMask) == 0x00))
                     {
-                        soKineticModule* kineticModule = moduleEnum->m_kineticModule;
+                        soKineticModule* kineticModule = moduleAccesser->getKineticModule();
                         kineticModule->getEnergy(Fighter::Kinetic_Energy_Gravity)->clearSpeed();
                         kineticModule->getEnergy(Fighter::Kinetic_Energy_Damage)->mulSpeed(&curlKnockbackMul);
 
                         u32 targetStatus;
-                        soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
                         float yBoostValue = 0.0f;
                         if (controllerModule->getStickY() >= 0.0f)
                         {
@@ -168,23 +157,35 @@ namespace rocketBurst
                             targetStatus = Fighter::Status_Pass;
                             yBoostValue = -soValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Dive_Speed_Y, 0);
                         }
+                        float xBoostValue = soValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Jump_Aerial_Speed_X_Mul, 0);
+                        xBoostValue = (chargeAmount * 0.5f) + xBoostValue;
+                        xBoostValue *= soValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_X_Lr, 0);
 
                         statusModule->changeStatus(targetStatus, moduleAccesser);
-                        Vec3f boostVec = { 0.0f, yBoostValue, 0.0f };
+                        Vec3f boostVec = { xBoostValue, yBoostValue, 0.0f };
                         workManageModule->onFlag(Fighter::Instance_Work_Flag_No_Speed_Operation_Chk);
+                        if (!mechUtil::isDamageStatusKind(statusModule->getPrevStatusKind(0)))
+                        {
+                            kineticModule->clearSpeedAll();
+                        }
                         kineticModule->addSpeed(&boostVec, moduleAccesser);
 
-                        soCollisionAttackData* blastHitboxPtr = &baseHitbox;
-                        blastHitboxPtr->m_power = (hitboxDamageChargeDiff * chargeAmount) + hitboxDamageBase;
-                        blastHitboxPtr->m_reactionEffect = (hitboxKBGChargeDiff * chargeAmount) + hitboxKBGBase;
-                        blastHitboxPtr->m_size = (hitboxSizeChargeDiff * chargeAmount) + hitboxSizeBase;
-                        moduleEnum->m_collisionAttackModule->set(hitboxID, hitboxGroup, blastHitboxPtr);
+                        soCollisionAttackData blastHitbox;
+                        mechUtil::initDefaultHitboxData(&blastHitbox);
+                        blastHitbox.m_vector = 84;
+                        blastHitbox.m_reactionAdd = 90;
+                        blastHitbox.m_hitStopFrame = 1.5f;
+                        blastHitbox.m_attribute = soCollisionAttackData::Attribute_Fire;
+                        blastHitbox.m_power = (hitboxDamageChargeDiff * chargeAmount) + hitboxDamageBase;
+                        blastHitbox.m_reactionEffect = (hitboxKBGChargeDiff * chargeAmount) + hitboxKBGBase;
+                        blastHitbox.m_size = (hitboxSizeChargeDiff * chargeAmount) + hitboxSizeBase;
+                        moduleAccesser->getCollisionAttackModule()->set(hitboxID, hitboxGroup, &blastHitbox);
 
                         targetMeterBundle->addMeterStocks(-1);
                         OSReport_N(meterChangeStr, outputTag, fighterHooks::getFighterPlayerNo(fighterIn), "Rocket Jump",
                             -meterStockSize, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
-                        OSReport_N("%sRocket Jump! Charge: %0.2f, Vel: %0.2f\n", outputTag, chargeAmount, yBoostValue);
-                        framesSinceJumpArr[fighterPlayerNo] = 0x00;
+                        OSReport_N("%sRocket Jump! Charge: %0.2f, Vel: %0.2f, %0.2f\n", outputTag, chargeAmount, xBoostValue, yBoostValue);
+                        framesSinceBurstArr[fighterPlayerNo] = 0x00;
                     }
                 }
 
@@ -204,15 +205,9 @@ namespace rocketBurst
     {
         infiniteMeterModeFlags = 0;
 
-        u32* framesSinceArrPtr = (u32*)framesSinceJumpArr;
+        u32* framesSinceArrPtr = (u32*)framesSinceBurstArr;
         framesSinceArrPtr[0x00] = 0xFFFFFFFF;
         framesSinceArrPtr[0x01] = 0xFFFFFFFF;
-
-        mechUtil::initDefaultHitboxData(&baseHitbox);
-        baseHitbox.m_vector = 84;
-        baseHitbox.m_reactionAdd = 90;
-        baseHitbox.m_hitStopFrame = 1.5f;
-        baseHitbox.m_attribute = soCollisionAttackData::Attribute_Fire;
     }
 
     void registerHooks()
