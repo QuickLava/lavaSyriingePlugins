@@ -2,7 +2,8 @@
 #include <sy_core.h>
 #include <modules.h>
 #include <ft/fighter.h>
-#include <so/so_module_accesser.h>
+#include <gf/gf_archive.h>
+#include <so/resource/so_resource_module_impl.h>
 #include "customVariables.h"
 
 namespace customVars
@@ -10,8 +11,8 @@ namespace customVars
     const char outputTag[] = "[customVars] ";
     enum customVariableIDs
     {
-        ft_Dynamic_Ef_Bank_ID = 30100,
-        ft_Dynamic_Per_Costume_Ef_Bank_ID,
+        ft_Primary_Ef_Bank_ID = 30100,
+        ft_Secondary_Ef_Bank_ID,
     };
 
     u32 intVarIntercept(soModuleAccesser* moduleAccesser, u32 variableID, u32 originalResult)
@@ -23,17 +24,28 @@ namespace customVars
             Fighter* fighterPtr = (Fighter*)moduleAccesser->m_stageObject;
             switch (variableID)
             {
-            case ft_Dynamic_Ef_Bank_ID:
+            case ft_Primary_Ef_Bank_ID:
             {
-                result = fighterPtr->getFtKind() + 0x43B7;
-                result = result << 0x10;
+                soResourceModule* resModule = moduleAccesser->m_enumerationStart->m_resourceModule;
+                soResourceIdAccesser* resIDAccesser = resModule->getResourceIdAccesser();
+                char* fileData = (char*)resModule->getFile(resIDAccesser->getBinResId(), Data_Type_Effect, 0x00);
+                if (fileData != NULL)
+                {
+                    result = g_ecMgr->searchResourceID(fileData + 0x10);
+                    result = result << 0x10;
+                }
                 break;
             }
-            case ft_Dynamic_Per_Costume_Ef_Bank_ID:
+            case ft_Secondary_Ef_Bank_ID:
             {
-                result = (fighterPtr->getFtKind() * 0x80) + 0x3B7;
-                result += moduleAccesser->getWorkManageModule()->getInt(Fighter::Instance_Work_Int_Color);
-                result = result << 0x10;
+                soResourceModule* resModule = moduleAccesser->m_enumerationStart->m_resourceModule;
+                soResourceIdAccesser* resIDAccesser = resModule->getResourceIdAccesser();
+                char* fileData = (char*)resModule->getFile(resIDAccesser->getEtcResId(), Data_Type_Effect, 0x00);
+                if (fileData != NULL)
+                {
+                    result = g_ecMgr->searchResourceID(fileData + 0x10);
+                    result = result << 0x10;
+                }
                 break;
             }
             default:
