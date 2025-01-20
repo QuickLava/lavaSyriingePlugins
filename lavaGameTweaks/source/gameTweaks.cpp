@@ -5,7 +5,8 @@
 #include "airdodgeCancels.h"
 #include "slimeCancels.h"
 #include "rocketBurst.h"
-#include "transitionListener.h"
+#include "finalSmashMeter.h"
+//#include "transitionListener.h"
 #include "_mechanicsHub.h"
 
 // Note: 0x8070AA14 is SORA_MELEE base address
@@ -20,7 +21,8 @@ namespace lavaGameTweaks
         slimeCancels::registerHooks();
         magicSeries::registerHooks();
         rocketBurst::registerHooks();
-        transitionListener::registerHooks();
+        finalSmashMeter::registerHooks();
+        //transitionListener::registerHooks();
 
         //meleeFreeze::registerHooks();
         //reflectOnHit::registerHooks();

@@ -23,6 +23,9 @@
 		<codeMenuToggle name="Magic Series Enabled" shortName="LINE_005">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Final Smash Meter Enabled" shortName="LINE_009">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_002">
 		<codeMenuComment text="Player 2 Mechanic Settings: "/>
@@ -32,6 +35,9 @@
 		</codeMenuSelectionMirror>
 		<codeMenuComment text="Passive Mechanics: "/>
 		<codeMenuToggle name="Magic Series Enabled" shortName="LINE_006">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Final Smash Meter Enabled" shortName="LINE_010">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>
@@ -45,6 +51,9 @@
 		<codeMenuToggle name="Magic Series Enabled" shortName="LINE_007">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Final Smash Meter Enabled" shortName="LINE_011">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_004">
 		<codeMenuComment text="Player 4 Mechanic Settings: "/>
@@ -54,6 +63,9 @@
 		</codeMenuSelectionMirror>
 		<codeMenuComment text="Passive Mechanics: "/>
 		<codeMenuToggle name="Magic Series Enabled" shortName="LINE_008">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Final Smash Meter Enabled" shortName="LINE_012">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>

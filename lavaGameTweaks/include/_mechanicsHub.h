@@ -19,6 +19,10 @@ namespace mechHub
         lid_MAGIC_SERIES_TOGGLE_P2,
         lid_MAGIC_SERIES_TOGGLE_P3,
         lid_MAGIC_SERIES_TOGGLE_P4,
+        lid_FINAL_SMASH_METER_TOGGLE_P1,
+        lid_FINAL_SMASH_METER_TOGGLE_P2,
+        lid_FINAL_SMASH_METER_TOGGLE_P3,
+        lid_FINAL_SMASH_METER_TOGGLE_P4,
         lid__COUNT
     };
     enum activeMechanicIDs
@@ -32,6 +36,7 @@ namespace mechHub
     enum passiveMechanicIDs
     {
         pmid_MAGIC_SERIES,
+        pmid_FINAL_SMASH_METER,
         pmid__COUNT,
     };
     
