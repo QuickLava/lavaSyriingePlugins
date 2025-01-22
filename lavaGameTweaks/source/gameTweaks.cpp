@@ -6,6 +6,7 @@
 #include "slimeCancels.h"
 #include "rocketBurst.h"
 #include "finalSmashMeter.h"
+#include "focusAttacks.h"
 //#include "transitionListener.h"
 #include "_mechanicsHub.h"
 
@@ -22,6 +23,7 @@ namespace lavaGameTweaks
         magicSeries::registerHooks();
         rocketBurst::registerHooks();
         finalSmashMeter::registerHooks();
+        focusAttacks::registerHooks();
         //transitionListener::registerHooks();
 
         //meleeFreeze::registerHooks();

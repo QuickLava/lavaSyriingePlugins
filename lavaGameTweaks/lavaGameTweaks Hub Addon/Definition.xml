@@ -26,6 +26,9 @@
 		<codeMenuToggle name="Final Smash Meter Enabled" shortName="LINE_009">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Focus Attacks Enabled" shortName="LINE_013">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_002">
 		<codeMenuComment text="Player 2 Mechanic Settings: "/>
@@ -38,6 +41,9 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Final Smash Meter Enabled" shortName="LINE_010">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Focus Attacks Enabled" shortName="LINE_014">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>
@@ -54,6 +60,9 @@
 		<codeMenuToggle name="Final Smash Meter Enabled" shortName="LINE_011">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Focus Attacks Enabled" shortName="LINE_015">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_004">
 		<codeMenuComment text="Player 4 Mechanic Settings: "/>
@@ -66,6 +75,9 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Final Smash Meter Enabled" shortName="LINE_012">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Focus Attacks Enabled" shortName="LINE_016">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>
