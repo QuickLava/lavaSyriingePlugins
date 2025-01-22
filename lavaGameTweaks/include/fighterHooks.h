@@ -35,6 +35,7 @@ namespace fighterHooks
 	typedef GenericFighterEventCB FighterOnRemoveCB;
 	typedef GenericFighterEventCB FighterOnUpdateCB;
 
+	typedef void (*FighterOnHitCB)(Fighter*, StageObject*, float);
 	typedef void (*FighterOnAttackGenericCB)(Fighter*, StageObject*, float, StageObject*);
 	typedef void (*FighterOnAttackCB)(Fighter*, StageObject*, float);
 	typedef void (*FighterOnAttackItemCB)(Fighter*, StageObject*, float, BaseItem*);
@@ -72,6 +73,7 @@ namespace fighterHooks
 		static Vector<void*> m_onStartCallbacks;
 		static Vector<void*> m_onRemoveCallbacks;
 		static Vector<void*> m_onUpdateCallbacks;
+		static Vector<void*> m_onHitCallbacks;
 		static Vector<void*> m_onAttackCallbacks;
 		static Vector<void*> m_onAttackItemCallbacks;
 		static Vector<void*> m_onAttackArticleCallbacks;
@@ -140,6 +142,9 @@ namespace fighterHooks
 		static bool unregisterOnUpdateCallback(FighterOnUpdateCB callbackIn);
 		static void performOnUpdateCallbacks();
 
+		// OnHit Callbacks
+		static bool registerOnHitCallback(FighterOnHitCB callbackIn);
+		static bool unregisterOnHitCallback(FighterOnHitCB callbackIn);
 		// OnAttack Callbacks
 		static bool registerOnAttackCallback(FighterOnAttackCB callbackIn);
 		static bool unregisterOnAttackCallback(FighterOnAttackCB callbackIn);

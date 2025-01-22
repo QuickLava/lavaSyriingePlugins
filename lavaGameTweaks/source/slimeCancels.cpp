@@ -27,7 +27,7 @@ namespace slimeCancels
             targetMeterBundle->setMeterConfig(meterConf, 1);
         }
     }
-    void onHitCallback(Fighter* attacker, StageObject* target, float damage)
+    void onAttackCallback(Fighter* attacker, StageObject* target, float damage)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
         if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_SLIME_CANCELS))
@@ -147,9 +147,9 @@ namespace slimeCancels
     void registerHooks()
     {
         fighterHooks::ftCallbackMgr::registerMeleeOnStartCallback(onMeleeStartCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackCallback(onHitCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onHitCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onHitCallback);
+        fighterHooks::ftCallbackMgr::registerOnAttackCallback(onAttackCallback);
+        fighterHooks::ftCallbackMgr::registerOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onAttackCallback);
+        fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onAttackCallback);
         fighterHooks::ftCallbackMgr::registerOnCreateCallback(onFighterCreateCallback);
         fighterHooks::ftCallbackMgr::registerOnUpdateCallback(onUpdateCallback);
     }

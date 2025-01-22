@@ -65,6 +65,7 @@ namespace fighterHooks
 	Vector<void*> ftCallbackMgr::m_onStartCallbacks;
 	Vector<void*> ftCallbackMgr::m_onRemoveCallbacks;
 	Vector<void*> ftCallbackMgr::m_onUpdateCallbacks;
+	Vector<void*> ftCallbackMgr::m_onHitCallbacks;
 	Vector<void*> ftCallbackMgr::m_onAttackCallbacks;
 	Vector<void*> ftCallbackMgr::m_onAttackItemCallbacks;
 	Vector<void*> ftCallbackMgr::m_onAttackArticleCallbacks;
@@ -276,6 +277,16 @@ namespace fighterHooks
 		_performFighterEventCallbacks(&m_onUpdateCallbacks, fighter->m_entryId);
 	}
 
+
+	// OnHit Callbacks
+	bool ftCallbackMgr::registerOnHitCallback(FighterOnHitCB callbackIn)
+	{
+		return registerCallback<FighterOnHitCB>(m_onHitCallbacks, callbackIn);
+	}
+	bool ftCallbackMgr::unregisterOnHitCallback(FighterOnHitCB callbackIn)
+	{
+		return unregisterCallback<FighterOnHitCB>(m_onHitCallbacks, callbackIn);
+	}
 	// OnAttack Callbacks
 	bool ftCallbackMgr::registerOnAttackCallback(FighterOnAttackCB callbackIn)
 	{
@@ -320,9 +331,10 @@ namespace fighterHooks
 			fmr damageDealt, f31;
 		}
 
-		u32 attackerCategory = getCatPtr(attackerTask);
+		gfTask::Category attackerCategory = attackerTask->m_taskCategory;
+		gfTask::Category targetCategory = targetTask->m_taskCategory;
 
-		OSReport_N("%sOnAttack Callbacks: ??? 0x%02X, Damage: %2.0f\%!\n", outputTag, unsure, damageDealt);
+		OSReport_N("%sOnAttack & OnHit Callbacks: ??? 0x%02X, Damage: %2.0f\%!\n", outputTag, unsure, damageDealt);
 		OSReport_N(fmtStr1, outputTag, "Attacker", attackerTask->m_taskName, attackerTask->m_taskId, attackerCategory);
 		if (attackerParentTask != NULL && attackerParentTask != attackerTask)
 		{
@@ -338,7 +350,7 @@ namespace fighterHooks
 		}
 
 		Vector<void*>* callbackVector;
-		if (attackerCategory == 0xA)
+		if (attackerCategory == gfTask::Category_Fighter)
 		{
 			callbackVector = &m_onAttackCallbacks;
 		}
@@ -347,11 +359,11 @@ namespace fighterHooks
 			gfTask* temp = attackerTask;
 			attackerTask = attackerParentTask;
 			attackerParentTask = temp;
-			if (attackerCategory == 0xB)
+			if (attackerCategory == gfTask::Category_Item)
 			{
 				callbackVector = &m_onAttackItemCallbacks;
 			}
-			else if (attackerCategory == 0xC)
+			else if (attackerCategory == gfTask::Category_Weapon)
 			{
 				callbackVector = &m_onAttackArticleCallbacks;
 			}
@@ -364,11 +376,18 @@ namespace fighterHooks
 		{
 			return;
 		}
-
 		for (int i = 0; i < callbackVector->size(); i++)
 		{
 			FighterOnAttackGenericCB currCallback = (FighterOnAttackGenericCB)(*callbackVector)[i];
 			currCallback((Fighter*)attackerTask, (StageObject*)targetTask, damageDealt, (StageObject*)attackerParentTask);
+		}
+
+		if (targetCategory == gfTask::Category_Fighter)
+		{
+			for (int i = 0; i < m_onHitCallbacks.size(); i++)
+			{
+				((FighterOnHitCB)m_onHitCallbacks[i])((Fighter*)targetTask, (StageObject*)attackerTask, damageDealt);
+			}
 		}
 	}
 

@@ -7,7 +7,7 @@ namespace focusAttacks
     const u32 crumpled = 0x2200003B;
     const u32 inflictedCrumple = 0x2200003C;
 
-    void onHitCallback(Fighter* attacker, StageObject* target, float damage)
+    void onAttackCallback(Fighter* attacker, StageObject* target, float damage)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
         if (mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_FOCUS_ATTACKS)
@@ -71,8 +71,8 @@ namespace focusAttacks
     }
     void registerHooks()
     {
-        fighterHooks::ftCallbackMgr::registerOnAttackCallback(onHitCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onHitCallback);
+        fighterHooks::ftCallbackMgr::registerOnAttackCallback(onAttackCallback);
+        fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onAttackCallback);
         fighterHooks::ftCallbackMgr::registerOnUpdateCallback(onUpdateCallback);
     }
 }
