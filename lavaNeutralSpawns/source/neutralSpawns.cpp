@@ -15,7 +15,7 @@ namespace lavaNeutralSpawns {
     void doNeutralSpawns()
     {
         gmGlobalModeMelee* modeMelee = g_GameGlobal->m_modeMelee;
-        if (modeMelee->m_meleeInitData.m_isTeams && modeMelee->m_meleeInitData.m_numPlayers == 0x4)
+        if (modeMelee->m_meleeInitData.m_gameMode == Game_Mode_Melee && modeMelee->m_meleeInitData.m_isTeams && modeMelee->m_meleeInitData.m_numPlayers == 0x4)
         {
             register Stage* stagePtr; 
             asm
