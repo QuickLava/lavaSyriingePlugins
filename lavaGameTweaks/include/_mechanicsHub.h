@@ -94,6 +94,7 @@ namespace mechUtil
     bool isAttackingStatusKind(u32 statusKind);
     bool isDamageStatusKind(u32 statusKind);
     void initDefaultHitboxData(soCollisionAttackData* attackDataIn);
+    float currAnimProgress(StageObject* objectIn);
 }
 
 #endif

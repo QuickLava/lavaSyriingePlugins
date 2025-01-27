@@ -292,4 +292,16 @@ namespace mechUtil
         attackDataIn->m_isDeath100 = 0;
         attackDataIn->field_0x3c_2 = 0x0;
     }
+    float currAnimProgress(StageObject* objectIn)
+    {
+        float result = 0.0f;
+
+        soMotionModule* motionModule = objectIn->m_moduleAccesser->m_enumerationStart->m_motionModule;
+        if (motionModule != NULL)
+        {
+            result = motionModule->getFrame() / motionModule->getEndFrame();
+        }
+
+        return result;
+    }
 }
