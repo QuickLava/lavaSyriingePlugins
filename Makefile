@@ -10,9 +10,9 @@ export TOOLS 	:= $(CURDIR)/tools
 export LIB 		:= $(CURDIR)/lib
 
 
-.PHONY: all lavaInjectLoader lavaPSAExtensions lavaGameTweaks lavaNeutralSpawns
+.PHONY: all lavaInjectLoader lavaPSAExtensions lavaGameTweaks lavaNeutralSpawns lavaMenuTweaks
 
-all: lavaInjectLoader lavaPSAExtensions lavaGameTweaks lavaNeutralSpawns
+all: lavaInjectLoader lavaPSAExtensions lavaGameTweaks lavaNeutralSpawns lavaMenuTweaks
 
 lavaInjectLoader:
 	$(MAKE) -C lavaInjectLoader
@@ -29,6 +29,10 @@ lavaGameTweaks:
 lavaNeutralSpawns:
 	$(MAKE) -C lavaNeutralSpawns
 	@cp lavaNeutralSpawns/$@.rel ./output/$@.rel
+
+lavaMenuTweaks:
+	$(MAKE) -C lavaMenuTweaks
+	@cp lavaMenuTweaks/$@.rel ./output/$@.rel
 	
 clean:
 	@rm ./output/*.rel
@@ -36,3 +40,4 @@ clean:
 	$(MAKE) -s -C lavaPSAExtensions clean
 	$(MAKE) -s -C lavaGameTweaks clean
 	$(MAKE) -s -C lavaNeutralSpawns clean
+	$(MAKE) -s -C lavaMenuTweaks clean
