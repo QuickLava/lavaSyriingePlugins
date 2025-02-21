@@ -56,7 +56,7 @@ namespace lavaMenuTweaks {
             g_gfPadSystem->getSysPadStatus(playerArea->m_controllerNo, &padStatus);
             u32 downRZBits = (padStatus.m_buttonsCurrentFrame.bits >> 0x4) & 0b11;
             u32 justPressedRZBits = (padStatus.m_buttonsPressedThisFrame.bits >> 0x4) & 0b11;
-            if (justPressedRZBits != 0b00)
+            if (justPressedRZBits != 0b00 && downRZBits == 0b11)
             {
                 u8* altRequestArea = *altRequestAreaAddrLoc;
 
