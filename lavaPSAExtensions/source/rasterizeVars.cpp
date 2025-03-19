@@ -71,106 +71,82 @@ namespace rasterizeVars
     };
     const argTypeBank typeBankLibrary[tli_COUNT] =
     {
-        // EMPTY
-        {
+        [tli_EMPTY] = {
         },
-        // 033
-        { 
+        [tli_033] = { 
             at_INT, at_BOL, at_BOL
         },
-        // 0011111113
-        { 
+        [tli_0011111113] = { 
             at_INT, at_INT, at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, // 0011111113
             at_FLT, at_BOL                                                  // 13
         },
-        // 0011111111111113
-        {
+        [tli_0011111111111113] = {
             at_INT, at_INT, at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, // 00111111
             at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, at_BOL  // 11111113
         }, 
-        // 0001110111300111
-        {
+        [tli_0001110111300111] = {
             at_INT, at_INT, at_INT, at_FLT, at_FLT, at_FLT, at_INT, at_FLT, // 00011101
             at_FLT, at_FLT, at_BOL, at_INT, at_INT, at_FLT, at_FLT, at_FLT, // 11300111
         },
-        // 1111001
-        {
+        [tli_1111001] = {
             at_FLT, at_FLT, at_FLT, at_FLT, at_INT, at_INT, at_FLT          // 1111001
         },
-        // 01
-        {
+        [tli_01] = {
             at_INT, at_FLT
         },
-        // 000
-        {
+        [tli_000] = {
             at_INT, at_INT, at_INT
         },
-        // 030
-        {
+        [tli_030] = {
             at_INT, at_BOL, at_INT
         },
-        // 00111
-        {
+        [tli_00111] = {
             at_INT, at_INT, at_FLT, at_FLT, at_FLT
         },
-        // 00555
-        {
+        [tli_00555] = {
             at_INT, at_INT, at_NULL, at_NULL, at_NULL
         },
-        // 00111100
-        {
+        [tli_00111100] = {
             at_INT, at_INT, at_FLT, at_FLT, at_FLT, at_FLT, at_INT, at_INT  // 00111100
         },
-        // 000001111111000
-        {
+        [tli_000001111111000] = {
             at_INT, at_INT, at_INT, at_INT, at_INT, at_FLT, at_FLT, at_FLT, // 00000111
             at_FLT, at_FLT, at_FLT, at_FLT, at_INT, at_INT, at_INT          // 1111000
         },
-        // 0001111111111310
-        {
+        [tli_0001111111111310] = {
             at_INT, at_INT, at_INT, at_FLT, at_FLT, at_FLT, at_FLT, at_FLT, // 00011111
             at_FLT, at_FLT, at_FLT, at_FLT, at_BOL, at_FLT, at_INT          // 11111310
         },
-        // 0000000011100033
-        {
+        [tli_0000000011100033] = {
             at_INT, at_INT, at_INT, at_INT, at_INT, at_INT, at_INT, at_INT, // 00000000
             at_FLT, at_FLT, at_FLT, at_INT, at_INT, at_INT, at_BOL, at_BOL, // 11100033
         },
-        // 0001111000300303
-        {
+        [tli_0001111000300303] = {
             at_INT, at_INT, at_INT, at_FLT, at_FLT, at_FLT, at_FLT, at_INT, // 00011110
             at_INT, at_INT, at_BOL, at_INT, at_INT, at_BOL, at_INT, at_BOL, // 00300303
         },
-        // 0111
-        {
+        [tli_0111] = {
             at_INT, at_FLT, at_FLT, at_FLT
         },
-        // 1
-        {
+        [tli_1] = {
             at_FLT
         },
-        // 111
-        {
+        [tli_111] = {
             at_FLT, at_FLT, at_FLT
         },
-        // 0000
-        {
+        [tli_0000] = {
             at_INT, at_INT, at_INT, at_INT
         },
-        // 00000
-        {
+        [tli_00000] = {
             at_INT, at_INT, at_INT, at_INT, at_INT
         },
-        // 000011
-        {
+        [tli_000011] = {
             at_INT, at_INT, at_INT, at_INT, at_FLT, at_FLT
         },
-        // 0
-        {
+        [tli_0] = {
             at_INT
         },
-        // 1133
-        {
+        [tli_1133] = {
             at_FLT, at_FLT, at_BOL, at_BOL
         },
     };
