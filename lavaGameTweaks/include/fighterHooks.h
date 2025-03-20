@@ -41,11 +41,54 @@ namespace fighterHooks
 	typedef void (*FighterOnAttackItemCB)(Fighter*, StageObject*, float, BaseItem*);
 	typedef void (*FighterOnAttackArticleCB)(Fighter*, StageObject*, float, Weapon*);
 
+	typedef void (*GenericOnAttackCB)(Fighter*, StageObject*, float, StageObject*, u32, u32);
+
+	enum attackKind
+	{
+		ak_NULL = 0x00,
+		ak_ATTACK_1 = 0x01,
+		ak_ATTACK_2 = 0x02,
+		ak_ATTACK_3 = 0x03,
+		ak_ATTACK_100 = 0x04,
+		ak_ATTACK_DASH = 0x05,
+		ak_ATTACK_S3_1 = 0x06,
+		ak_ATTACK_S3_2 = 0x07,
+		ak_ATTACK_S3_3 = 0x08,
+		ak_ATTACK_Hi3 = 0x09,
+		ak_ATTACK_Lw3 = 0x0A,
+		ak_ATTACK_S4 = 0x0B,
+		ak_ATTACK_Hi4 = 0x0C,
+		ak_ATTACK_Lw4 = 0x0D,
+	};
+	enum attackSituation
+	{
+		as_NULL = 0x00,
+		as_AttackerFighter,
+		as_AttackerItem,
+		as_AttackerWeapon,
+	};
+	struct cbBundle
+	{
+		GenericArglessCB MeleeOnStartCB;
+		GenericArglessCB MeleeOnReadyGoCB;
+		GenericArglessCB MeleeOnGameSetCB;
+
+		GenericFighterEventCB FighterOnCreateCB;
+		GenericFighterEventCB FighterOnStartCB;
+		GenericFighterEventCB FighterOnRemoveCB;
+		GenericFighterEventCB FighterOnUpdateCB;
+
+		FighterOnHitCB FighterOnHitCB;
+		GenericOnAttackCB FighterOnAttackCB;
+	};
+#define CALLBACK_INDEX(callbackMember) offsetof(cbBundle, callbackMember) / sizeof(void*)
+
 #define INCLUDE_OUTSIDE_OBSERVER false
 
 	u32 getFighterSlotNo(Fighter* fighterIn);
 	u32 getFighterPlayerNo(Fighter* fighterIn);
 
+	const u32 maxBundleCount = 0x20;
 	class ftCallbackMgr
 	{
 	private:
@@ -65,6 +108,8 @@ namespace fighterHooks
 		static void subscribeEventWatcher();
 		static void unsubscribeEventWatcher();
 #endif
+		static u32 m_currBundleCount;
+		static cbBundle* m_callbackBundles[maxBundleCount];
 
 		static Vector<void*> m_onMeleeStartCallbacks;
 		static Vector<void*> m_onMeleeReadyGoCallbacks;
@@ -106,7 +151,13 @@ namespace fighterHooks
 			watcherIn.removeObserver();
 		}
 
+		static void _performArglessCallbacks(u32 funcIndex);
+		static void _performFighterEventCallbacks(u32 funcIndex, u32 entryID);
+
 	public:
+		static bool registerCallbackBundle(cbBundle* bundleIn);
+		static bool unregisterCallbackBundle(cbBundle* bundleIn);
+
 		// OnMeleeStart Callbacks
 		static bool registerMeleeOnStartCallback(MeleeOnStartCB callbackIn);
 		static bool unregisterMeleeOnStartCallback(MeleeOnStartCB callbackIn);

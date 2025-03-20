@@ -58,6 +58,9 @@ namespace fighterHooks
 	}
 #endif
 
+	u32 ftCallbackMgr::m_currBundleCount = 0x00;
+	cbBundle* ftCallbackMgr::m_callbackBundles[maxBundleCount];
+
 	Vector<void*> ftCallbackMgr::m_onMeleeStartCallbacks;
 	Vector<void*> ftCallbackMgr::m_onMeleeReadyGoCallbacks;
 	Vector<void*> ftCallbackMgr::m_onMeleeGameSetCallbacks;
@@ -126,6 +129,65 @@ namespace fighterHooks
 		}
 	}
 
+	void ftCallbackMgr::_performArglessCallbacks(u32 funcIndex)
+	{
+		for (u32 i = 0; i < m_currBundleCount; i++)
+		{
+			cbBundle* targetBundle = m_callbackBundles[i];
+			GenericArglessCB currCallback = ((GenericArglessCB*)targetBundle)[funcIndex];
+			currCallback();
+		}
+	}
+	void ftCallbackMgr::_performFighterEventCallbacks(u32 funcIndex, u32 fighterEntryID)
+	{
+		// Execute Callbacks
+		Fighter* fighterIn = g_ftManager->getFighter(fighterEntryID, -1);
+		for (u32 i = 0; i < m_currBundleCount; i++)
+		{
+			cbBundle* targetBundle = m_callbackBundles[i];
+			GenericFighterEventCB currCallback = ((GenericFighterEventCB*)targetBundle)[funcIndex];
+			currCallback(fighterIn);
+		}
+	}
+	bool ftCallbackMgr::registerCallbackBundle(cbBundle* bundleIn)
+	{
+		bool result = m_currBundleCount < maxBundleCount;
+
+		for (int i = 0; result && i < m_currBundleCount; i++)
+		{
+			result = m_callbackBundles[i] != bundleIn;
+		}
+
+		if (result)
+		{
+			m_callbackBundles[m_currBundleCount] = bundleIn;
+			m_currBundleCount++;
+		}
+
+		return result;
+	}
+	bool ftCallbackMgr::unregisterCallbackBundle(cbBundle* bundleIn)
+	{
+		bool result = 0;
+
+		for (int i = 0; !result && i < m_currBundleCount; i++)
+		{
+			if (result || m_callbackBundles[i] == bundleIn && ((i + 1) < m_currBundleCount))
+			{
+				result = 1;
+				m_callbackBundles[i] = m_callbackBundles[i + 1];
+			}
+		}
+
+		if (result)
+		{
+			m_currBundleCount--;
+		}
+
+		return result;
+	}
+	
+
 	// MeleeOnStart Callbacks
 	bool ftCallbackMgr::registerMeleeOnStartCallback(MeleeOnStartCB callbackIn)
 	{
@@ -140,7 +202,7 @@ namespace fighterHooks
 		OSReport_N("%sOnMeleeStart Callbacks\n", outputTag);
 
 		// Execute Callbacks
-		_performArglessCallbacks(&m_onMeleeStartCallbacks);
+		_performArglessCallbacks(CALLBACK_INDEX(cbBundle::MeleeOnStartCB));
 
 #if INCLUDE_OUTSIDE_OBSERVER
 		// Subscribe Event Watcher
@@ -162,7 +224,7 @@ namespace fighterHooks
 		OSReport_N("%sOnMeleeReadyGo Callbacks\n", outputTag);
 
 		// Execute Callbacks
-		_performArglessCallbacks(&m_onMeleeReadyGoCallbacks);
+		_performArglessCallbacks(CALLBACK_INDEX(cbBundle::MeleeOnReadyGoCB));
 	}
 
 	// MeleeOnGameSet Callbacks
@@ -179,7 +241,7 @@ namespace fighterHooks
 		OSReport_N("%sOnMeleeGameSet Callbacks\n", outputTag);
 
 		// Execute Callbacks
-		_performArglessCallbacks(&m_onMeleeGameSetCallbacks);
+		_performArglessCallbacks(CALLBACK_INDEX(cbBundle::MeleeOnGameSetCB));
 
 #if INCLUDE_OUTSIDE_OBSERVER
 		// Unsubscribe Event Watcher
@@ -207,7 +269,7 @@ namespace fighterHooks
 		OSReport_N(callbackHookMsgFmt, outputTag, "OnCreate Callbacks", entryID, g_ftManager->getPlayerNo(entryID));
 
 		// Execute Callbacks
-		_performFighterEventCallbacks(&m_onCreateCallbacks, entryID);
+		_performFighterEventCallbacks(CALLBACK_INDEX(cbBundle::FighterOnCreateCB), entryID);
 	}
 
 	// OnStart Callbacks
@@ -230,7 +292,7 @@ namespace fighterHooks
 		OSReport_N(callbackHookMsgFmt, outputTag, "OnStart Callbacks", entryID, g_ftManager->getPlayerNo(entryID));
 
 		// Execute Callbacks
-		_performFighterEventCallbacks(&m_onStartCallbacks, entryID);
+		_performFighterEventCallbacks(CALLBACK_INDEX(cbBundle::FighterOnStartCB), entryID);
 	}
 	
 	// OnRemove Callbacks
@@ -253,7 +315,7 @@ namespace fighterHooks
 		OSReport_N(callbackHookMsgFmt, outputTag, "OnRemove Callbacks", entryID, g_ftManager->getPlayerNo(entryID));
 
 		// Execute Callbacks
-		_performFighterEventCallbacks(&m_onRemoveCallbacks, entryID);
+		_performFighterEventCallbacks(CALLBACK_INDEX(cbBundle::FighterOnRemoveCB), entryID);
 	}
 
 	// Update Callbacks
@@ -272,9 +334,10 @@ namespace fighterHooks
 		{
 			mr fighter, r29
 		}
+		sizeof(fighter);
 
 		// Execute Callbacks
-		_performFighterEventCallbacks(&m_onUpdateCallbacks, fighter->m_entryId);
+		_performFighterEventCallbacks(CALLBACK_INDEX(cbBundle::FighterOnUpdateCB), fighter->m_entryId);
 	}
 
 
@@ -319,7 +382,7 @@ namespace fighterHooks
 		register gfTask* attackerTask;
 		register gfTask* attackerParentTask;
 		register gfTask* targetTask;
-		register int unsure;
+		register u32 attackKind;
 		register float damageDealt;
 
 		asm
@@ -327,14 +390,14 @@ namespace fighterHooks
 			mr attackerTask, r31;
 			mr attackerParentTask, r30;
 			mr targetTask, r29;
-			mr unsure, r25;
+			mr attackKind, r25;
 			fmr damageDealt, f31;
 		}
 
+		OSReport_N("%sOnAttack & OnHit Callbacks: ???: 0x%02X, Damage: %2.0f\%!\n", outputTag, attackKind, damageDealt);
+
 		gfTask::Category attackerCategory = attackerTask->m_taskCategory;
 		gfTask::Category targetCategory = targetTask->m_taskCategory;
-
-		OSReport_N("%sOnAttack & OnHit Callbacks: ??? 0x%02X, Damage: %2.0f\%!\n", outputTag, unsure, damageDealt);
 		OSReport_N(fmtStr1, outputTag, "Attacker", attackerTask->m_taskName, attackerTask->m_taskId, attackerCategory);
 		if (attackerParentTask != NULL && attackerParentTask != attackerTask)
 		{
@@ -349,44 +412,33 @@ namespace fighterHooks
 			OSReport_N("%s-   Target: NULL\n");
 		}
 
-		Vector<void*>* callbackVector;
+		attackSituation situation = as_NULL;
 		if (attackerCategory == gfTask::Category_Fighter)
 		{
-			callbackVector = &m_onAttackCallbacks;
+			situation = as_AttackerFighter;
 		}
-		else if (attackerParentTask != NULL)
+		else if (attackerParentTask != NULL && attackerParentTask->m_taskCategory == gfTask::Category_Fighter)
 		{
 			gfTask* temp = attackerTask;
 			attackerTask = attackerParentTask;
 			attackerParentTask = temp;
 			if (attackerCategory == gfTask::Category_Item)
 			{
-				callbackVector = &m_onAttackItemCallbacks;
+				situation = as_AttackerItem;
 			}
 			else if (attackerCategory == gfTask::Category_Weapon)
 			{
-				callbackVector = &m_onAttackArticleCallbacks;
-			}
-			else
-			{
-				return;
+				situation = as_AttackerWeapon;
 			}
 		}
-		else
+		if (situation != as_NULL)
 		{
-			return;
-		}
-		for (int i = 0; i < callbackVector->size(); i++)
-		{
-			FighterOnAttackGenericCB currCallback = (FighterOnAttackGenericCB)(*callbackVector)[i];
-			currCallback((Fighter*)attackerTask, (StageObject*)targetTask, damageDealt, (StageObject*)attackerParentTask);
-		}
-
-		if (targetCategory == gfTask::Category_Fighter)
-		{
-			for (int i = 0; i < m_onHitCallbacks.size(); i++)
+			int bundleCount = m_currBundleCount;
+			for (int i = 0; i < bundleCount; i++)
 			{
-				((FighterOnHitCB)m_onHitCallbacks[i])((Fighter*)targetTask, (StageObject*)attackerTask, damageDealt);
+				cbBundle* currentBundle = m_callbackBundles[i];
+				currentBundle->FighterOnAttackCB((Fighter*)attackerTask, (StageObject*)targetTask, damageDealt, (StageObject*)attackerParentTask, attackKind, situation);
+				currentBundle->FighterOnHitCB((Fighter*)targetTask, (StageObject*)attackerTask, damageDealt);
 			}
 		}
 	}
