@@ -21,7 +21,7 @@ namespace finalSmashMeter
             OSReport_N("%sFinal Smash Meter On for P%d!\n", outputTag, fighterPlayerNo);
         }
     }
-    void onAttackCallback(Fighter* attacker, StageObject* target, float damage)
+    void onAttackCallback(Fighter* attacker, StageObject* target, float damage, StageObject* projectile, u32 attackKind, u32 attackSituation)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
         if (mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_FINAL_SMASH_METER)
@@ -71,13 +71,19 @@ namespace finalSmashMeter
         mtlr r31;                     // Restore LR...
         blr;                          // ... and return!
     }
+
+#pragma c99 on
+    fighterHooks::cbBundle callbacks =
+    {
+        .FighterOnCreateCB = (fighterHooks::FighterOnCreateCB)onFighterCreateCallback,
+        .FighterOnAttackCB = (fighterHooks::FighterOnAttackCB)onAttackCallback,
+    };
+#pragma c99 off
+
     void registerHooks()
     {
         // Disable Smash Ball Drop Hook @ 0x80841638: 0x5F0 bytes into symbol "dropItemCheck/[Fighter]/fighter.o"
         SyringeCore::syInlineHookRel(0x136C24, disableSmashBallDropHook, Modules::SORA_MELEE);
-        fighterHooks::ftCallbackMgr::registerOnCreateCallback(onFighterCreateCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackCallback(onAttackCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onAttackCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onAttackCallback);
+        fighterHooks::ftCallbackMgr::registerCallbackBundle(&callbacks);
     }
 }

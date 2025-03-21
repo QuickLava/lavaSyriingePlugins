@@ -40,7 +40,7 @@ namespace focusAttacks
         return result;
     }
 
-    void onAttackCallback(Fighter* attacker, StageObject* target, float damage)
+    void onAttackCallback(Fighter* attacker, StageObject* target, float damage, StageObject* projectile, u32 attackKind, u32 attackSituation)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
         if (mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_FOCUS_ATTACKS) && target->m_taskCategory == gfTask::Category_Fighter)
@@ -131,11 +131,17 @@ namespace focusAttacks
             focusChargedFlags = (u8)focusChargedFlagsTemp;
         }
     }
+
+#pragma c99 on
+    fighterHooks::cbBundle callbacks =
+    {
+        .FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
+        .FighterOnAttackCB = (fighterHooks::FighterOnAttackCB)onAttackCallback,
+    };
+#pragma c99 off
+
     void registerHooks()
     {
-        fighterHooks::ftCallbackMgr::registerOnHitCallback(onHitCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackCallback(onAttackCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onAttackCallback);
-        fighterHooks::ftCallbackMgr::registerOnUpdateCallback(onUpdateCallback);
+        fighterHooks::ftCallbackMgr::registerCallbackBundle(&callbacks);
     }
 }

@@ -23,8 +23,16 @@ namespace transitionListener
         }
     }
 
+
+#pragma c99 on
+    fighterHooks::cbBundle callbacks =
+    {
+        .FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
+    };
+#pragma c99 off
+
     void registerHooks()
     {
-        fighterHooks::ftCallbackMgr::registerOnUpdateCallback(onUpdateCallback);
+        fighterHooks::ftCallbackMgr::registerCallbackBundle(&callbacks);
     }
 }

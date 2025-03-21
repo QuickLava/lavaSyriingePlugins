@@ -52,8 +52,15 @@ namespace magicSeries
         }
     }
 
+#pragma c99 on
+    fighterHooks::cbBundle callbacks =
+    {
+        .FighterOnAttackCB = (fighterHooks::FighterOnAttackCB) magicSeriesCallback,
+    };
+#pragma c99 off
+
     void registerHooks()
     {
-        fighterHooks::ftCallbackMgr::registerOnAttackCallback(magicSeriesCallback);
+        fighterHooks::ftCallbackMgr::registerCallbackBundle(&callbacks);
     }
 }

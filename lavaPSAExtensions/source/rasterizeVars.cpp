@@ -69,6 +69,7 @@ namespace rasterizeVars
         tli_1133,
         tli_COUNT
     };
+#pragma c99 on
     const argTypeBank typeBankLibrary[tli_COUNT] =
     {
         [tli_EMPTY] = {
@@ -150,6 +151,7 @@ namespace rasterizeVars
             at_FLT, at_FLT, at_BOL, at_BOL
         },
     };
+#pragma c99 off
 
     struct cmdWhitelistEntry
     {

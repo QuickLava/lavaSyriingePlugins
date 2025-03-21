@@ -115,6 +115,14 @@ namespace mechHub
         }
     }
 
+#pragma c99 on
+    fighterHooks::cbBundle callbacks =
+    {
+        .MeleeOnStartCB = (fighterHooks::MeleeOnStartCB)updateMechanicEnabledMasks,
+        .MeleeOnStartCB = (fighterHooks::MeleeOnGameSetCB)clearMechanicEnabledMasks,
+    };
+#pragma c99 off
+
     bool populate()
     {
         bool result = codeMenu::loadCodeMenuAddonLOCsToBuffer(addonShortName, indexBuffer, lid__COUNT);
@@ -131,8 +139,7 @@ namespace mechHub
     }
     void registerHooks()
     {
-        fighterHooks::ftCallbackMgr::registerMeleeOnGameSetCallback(clearMechanicEnabledMasks);
-        fighterHooks::ftCallbackMgr::registerMeleeOnStartCallback(updateMechanicEnabledMasks);
+        fighterHooks::ftCallbackMgr::registerCallbackBundle(&callbacks);
     }
 
     bool getMechanicEnabled(u32 playerNo, u32 mechanicID, u8* maskArray)

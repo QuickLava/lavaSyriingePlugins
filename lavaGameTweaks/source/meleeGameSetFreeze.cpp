@@ -28,8 +28,15 @@ namespace meleeFreeze
         }
     }
 
+#pragma c99 on
+    fighterHooks::cbBundle callbacks =
+    {
+        .MeleeOnGameSetCB = (fighterHooks::MeleeOnGameSetCB)meleeFreezeCB,
+    };
+#pragma c99 off
+
     void registerHooks()
     {
-        fighterHooks::ftCallbackMgr::registerMeleeOnGameSetCallback(meleeFreezeCB);
+        fighterHooks::ftCallbackMgr::registerCallbackBundle(&callbacks);
     }
 }

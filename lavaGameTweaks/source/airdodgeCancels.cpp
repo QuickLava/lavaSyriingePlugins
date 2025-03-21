@@ -26,38 +26,22 @@ namespace airdodgeCancels
             targetMeterBundle->setMeterConfig(meterConf, 1);
         }
     }
-    void onAttackCallback(Fighter* attacker, StageObject* target, float damage)
+    void onAttackCallback(Fighter* attacker, StageObject* target, float damage, StageObject* projectile, u32 attackKind, u32 attackSituation)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
         if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_AIRDODGE_CANCELS))
         {
-            attacker->m_moduleAccesser->getWorkManageModule()->setFlag(1, hitboxConnectedVar);
+            float distance = mechUtil::getDistanceBetween(attacker, target, 1);
+            if (attackSituation == fighterHooks::as_AttackerFighter || distance <= indirectConnectMaxCancelDistance)
+            {
+                OSReport_N("%sCancel Activated!\n", outputTag);
+                attacker->m_moduleAccesser->getWorkManageModule()->setFlag(1, hitboxConnectedVar);
+            }
 
             mechUtil::doMeterGain(attacker, damage, ef_ptc_common_hit_ice, 0.75f, mechUtil::mgac_ON_STOCK_GAIN);
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
             OSReport_N(meterChangeStr, outputTag, fighterPlayerNo, "Attack Landed",
                 damage, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
-        }
-    }
-    void onIndirectHitCallback(Fighter* attacker, StageObject* target, float damage, StageObject* projectile)
-    {
-        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
-        if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_AIRDODGE_CANCELS))
-        {
-            soModuleEnumeration* attackerModuleEnum = attacker->m_moduleAccesser->m_enumerationStart;
-            soModuleEnumeration* targetModuleEnum = target->m_moduleAccesser->m_enumerationStart;
-            if (targetModuleEnum != NULL)
-            {
-                OSReport_N(outputTag);
-                mechUtil::doMeterGain(attacker, damage, ef_ptc_common_hit_ice, 0.75f, mechUtil::mgac_ON_STOCK_GAIN);
-
-                float distance = mechUtil::getDistanceBetween(attacker, target, 1);
-                OSReport_N("%sProjectile Connected %.2f Units Away!\n", outputTag, distance);
-                if (distance <= indirectConnectMaxCancelDistance)
-                {
-                    attackerModuleEnum->m_workManageModule->setFlag(1, hitboxConnectedVar);
-                }
-            }
         }
     }
     void onUpdateCallback(Fighter* fighterIn)
@@ -128,13 +112,18 @@ namespace airdodgeCancels
         infiniteMeterModeFlags = 0;
     }
 
+#pragma c99 on
+    fighterHooks::cbBundle callbacks =
+    {
+        .MeleeOnStartCB    = (fighterHooks::MeleeOnStartCB)onMeleeStartCallback,
+        .FighterOnCreateCB = (fighterHooks::FighterOnCreateCB)onFighterCreateCallback,
+        .FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
+        .FighterOnAttackCB = (fighterHooks::FighterOnAttackCB)onAttackCallback,
+    };
+#pragma c99 off
+
     void registerHooks()
     {
-        fighterHooks::ftCallbackMgr::registerMeleeOnStartCallback(onMeleeStartCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackCallback(onAttackCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackItemCallback((fighterHooks::FighterOnAttackItemCB)onIndirectHitCallback);
-        fighterHooks::ftCallbackMgr::registerOnAttackArticleCallback((fighterHooks::FighterOnAttackArticleCB)onIndirectHitCallback);
-        fighterHooks::ftCallbackMgr::registerOnCreateCallback(onFighterCreateCallback);
-        fighterHooks::ftCallbackMgr::registerOnUpdateCallback(onUpdateCallback);
+        fighterHooks::ftCallbackMgr::registerCallbackBundle(&callbacks);
     }
 }

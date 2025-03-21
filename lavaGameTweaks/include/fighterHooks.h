@@ -36,12 +36,7 @@ namespace fighterHooks
 	typedef GenericFighterEventCB FighterOnUpdateCB;
 
 	typedef void (*FighterOnHitCB)(Fighter*, StageObject*, float);
-	typedef void (*FighterOnAttackGenericCB)(Fighter*, StageObject*, float, StageObject*);
-	typedef void (*FighterOnAttackCB)(Fighter*, StageObject*, float);
-	typedef void (*FighterOnAttackItemCB)(Fighter*, StageObject*, float, BaseItem*);
-	typedef void (*FighterOnAttackArticleCB)(Fighter*, StageObject*, float, Weapon*);
-
-	typedef void (*GenericOnAttackCB)(Fighter*, StageObject*, float, StageObject*, u32, u32);
+	typedef void (*FighterOnAttackCB)(Fighter*, StageObject*, float, StageObject*, u32, u32);
 
 	enum attackKind
 	{
@@ -79,7 +74,7 @@ namespace fighterHooks
 		GenericFighterEventCB FighterOnUpdateCB;
 
 		FighterOnHitCB FighterOnHitCB;
-		GenericOnAttackCB FighterOnAttackCB;
+		FighterOnAttackCB FighterOnAttackCB;
 	};
 #define CALLBACK_INDEX(callbackMember) offsetof(cbBundle, callbackMember) / sizeof(void*)
 
@@ -111,33 +106,9 @@ namespace fighterHooks
 		static u32 m_currBundleCount;
 		static cbBundle* m_callbackBundles[maxBundleCount];
 
-		static Vector<void*> m_onMeleeStartCallbacks;
-		static Vector<void*> m_onMeleeReadyGoCallbacks;
-		static Vector<void*> m_onMeleeGameSetCallbacks;
-		static Vector<void*> m_onCreateCallbacks;
-		static Vector<void*> m_onStartCallbacks;
-		static Vector<void*> m_onRemoveCallbacks;
-		static Vector<void*> m_onUpdateCallbacks;
-		static Vector<void*> m_onHitCallbacks;
-		static Vector<void*> m_onAttackCallbacks;
-		static Vector<void*> m_onAttackItemCallbacks;
-		static Vector<void*> m_onAttackArticleCallbacks;
+		static void _performArglessCallbacks(u32 funcIndex);
+		static void _performFighterEventCallbacks(u32 funcIndex, u32 entryID);
 
-		static bool _registerCallback(Vector<void*>* targetVector, void* callbackIn);
-		static bool _unregisterCallback(Vector<void*>* targetVector, void* callbackIn);
-		static void _performArglessCallbacks(Vector<void*>* targetVector);
-		static void _performFighterEventCallbacks(Vector<void*>* targetVector, u32 entryID);
-		template<typename cbType>
-		static inline bool registerCallback(Vector<void*>& targetVector, cbType callbackIn)
-		{
-			return _registerCallback(&targetVector, (void*)callbackIn);
-		}
-		template<typename cbType>
-		static inline bool unregisterCallback(Vector<void*>& targetVector, cbType callbackIn)
-		{
-			return _unregisterCallback(&targetVector, (void*)callbackIn);
-		}
-		
 		template<typename watcherType>
 		static void subscribeWatcherToFighter(soEventObserver<watcherType>& watcherIn, Fighter* fighterIn)
 		{
@@ -151,58 +122,27 @@ namespace fighterHooks
 			watcherIn.removeObserver();
 		}
 
-		static void _performArglessCallbacks(u32 funcIndex);
-		static void _performFighterEventCallbacks(u32 funcIndex, u32 entryID);
-
 	public:
 		static bool registerCallbackBundle(cbBundle* bundleIn);
 		static bool unregisterCallbackBundle(cbBundle* bundleIn);
 
 		// OnMeleeStart Callbacks
-		static bool registerMeleeOnStartCallback(MeleeOnStartCB callbackIn);
-		static bool unregisterMeleeOnStartCallback(MeleeOnStartCB callbackIn);
 		static void performMeleeOnStartCallbacks();
-
 		// OnMeleeReadyGo Callbacks
-		static bool registerMeleeOnReadyGoCallback(MeleeOnReadyGoCB callbackIn);
-		static bool unregisterMeleeOnReadyGoCallback(MeleeOnReadyGoCB callbackIn);
 		static void performMeleeOnReadyGoCallbacks();
-
 		// OnMeleeGameSet Callbacks
-		static bool registerMeleeOnGameSetCallback(MeleeOnGameSetCB callbackIn);
-		static bool unregisterMeleeOnGameSetCallback(MeleeOnGameSetCB callbackIn);
 		static void performMeleeOnGameSetCallbacks();
 
 		// OnCreate Callbacks
-		static bool registerOnCreateCallback(FighterOnCreateCB callbackIn);
-		static bool unregisterOnCreateCallback(FighterOnCreateCB callbackIn);
 		static void performOnCreateCallbacks();
-
 		// OnStart Callbacks
-		static bool registerOnStartCallback(FighterOnStartCB callbackIn);
-		static bool unregisterOnStartCallback(FighterOnStartCB callbackIn);
 		static void performOnStartCallbacks();
-
 		// OnRemove Callbacks
-		static bool registerOnRemoveCallback(FighterOnRemoveCB callbackIn);
-		static bool unregisterOnRemoveCallback(FighterOnRemoveCB callbackIn);
 		static void performOnRemoveCallbacks();
-
 		// Update Callbacks
-		static bool registerOnUpdateCallback(FighterOnUpdateCB callbackIn);
-		static bool unregisterOnUpdateCallback(FighterOnUpdateCB callbackIn);
 		static void performOnUpdateCallbacks();
 
-		// OnHit Callbacks
-		static bool registerOnHitCallback(FighterOnHitCB callbackIn);
-		static bool unregisterOnHitCallback(FighterOnHitCB callbackIn);
-		// OnAttack Callbacks
-		static bool registerOnAttackCallback(FighterOnAttackCB callbackIn);
-		static bool unregisterOnAttackCallback(FighterOnAttackCB callbackIn);
-		static bool registerOnAttackItemCallback(FighterOnAttackItemCB callbackIn);
-		static bool unregisterOnAttackItemCallback(FighterOnAttackItemCB callbackIn);
-		static bool registerOnAttackArticleCallback(FighterOnAttackArticleCB callbackIn);
-		static bool unregisterOnAttackArticleCallback(FighterOnAttackArticleCB callbackIn);
+		// OnHit & OnAttack Callbacks
 		static void performOnAttackCallbacks();
 	};
 	void registerFighterHooks();
