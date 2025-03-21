@@ -22,9 +22,6 @@ namespace fighterHooks
 
 	const u32 maxFighterCount = 0x8;
 
-	typedef int (*gfTaskGetCategory)(gfTask*);
-	const gfTaskGetCategory getCatPtr = (gfTaskGetCategory)0x8098C010;
-
 	typedef void (*GenericArglessCB)();
 	typedef GenericArglessCB MeleeOnStartCB;
 	typedef GenericArglessCB MeleeOnReadyGoCB;

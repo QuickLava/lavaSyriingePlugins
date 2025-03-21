@@ -39,8 +39,8 @@ namespace reflectOnHit
 
 		bool result = 1;
 
-		int attackerCategory = fighterHooks::getCatPtr((gfTask*)attackerPtr);
-		int targetCategory = fighterHooks::getCatPtr((gfTask*)targetPtr);
+		int attackerCategory = attackerPtr->m_taskCategory;
+		int targetCategory = targetPtr->m_taskCategory;
 		OSReport_N("%sChecking Collision Between:\n", outputTag);
 		OSReport_N(fmtStr, outputTag, attackerPtr->m_taskName, attackerCategory);
 		OSReport_N(fmtStr, outputTag, targetPtr->m_taskName, targetCategory);
@@ -80,7 +80,7 @@ namespace reflectOnHit
 
 		if (objectIn != NULL)
 		{
-			int targetCategory = fighterHooks::getCatPtr(objectIn);
+			int targetCategory = objectIn->m_taskCategory;
 			OSReport_N("%sForcing Reflect on %s (Category: 0x02X)\n", outputTag, objectIn->m_taskName, targetCategory);
 			if (targetCategory == 0xB)
 			{
@@ -102,7 +102,7 @@ namespace reflectOnHit
 		int result = isInflictMaskIn;
 
 		soPostureModule* postureModule = objectIn->m_moduleAccesser->m_enumerationStart->m_postureModule;
-		int objectCategory = fighterHooks::getCatPtr((gfTask*)objectIn);
+		int objectCategory = objectIn->m_taskCategory;
 		if ((objectCategory == 0xB || objectCategory == 0xC) && result & 0b1)
 		{
 			OSReport_N("%sDisabling Clank-Death on %s (Category: 0x02X)\n", outputTag, objectIn->m_taskName, objectCategory);
@@ -138,8 +138,8 @@ namespace reflectOnHit
 	{
 		StageObject* targetPtr = getStageObjFromCollLog(collisionLog);
 
-		int attackerCategory = fighterHooks::getCatPtr((gfTask*)attackerPtr);
-		int targetCategory = fighterHooks::getCatPtr((gfTask*)targetPtr);
+		int attackerCategory = attackerPtr->m_taskCategory;
+		int targetCategory = targetPtr->m_taskCategory;
 		if (attackerCategory == 0xA && (targetCategory == 0xB || targetCategory == 0xC))
 		{
 			OSReport_N("%sDoing Reflect Effects:\n", outputTag);

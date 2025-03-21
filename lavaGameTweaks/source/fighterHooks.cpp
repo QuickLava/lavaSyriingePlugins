@@ -244,11 +244,11 @@ namespace fighterHooks
 		OSReport_N(fmtStr1, outputTag, "Attacker", attackerTask->m_taskName, attackerTask->m_taskId, attackerCategory);
 		if (attackerParentTask != NULL && attackerParentTask != attackerTask)
 		{
-			OSReport_N(fmtStr1, outputTag, "Parent", attackerParentTask->m_taskName, attackerParentTask->m_taskId, getCatPtr(attackerParentTask));
+			OSReport_N(fmtStr1, outputTag, "Parent", attackerParentTask->m_taskName, attackerParentTask->m_taskId, attackerParentTask->m_taskCategory);
 		}
 		if (targetTask != NULL)
 		{
-			OSReport_N(fmtStr1, outputTag, "Target", targetTask->m_taskName, targetTask->m_taskId, getCatPtr(targetTask));
+			OSReport_N(fmtStr1, outputTag, "Target", targetTask->m_taskName, targetTask->m_taskId, targetTask->m_taskCategory);
 		}
 		else
 		{
