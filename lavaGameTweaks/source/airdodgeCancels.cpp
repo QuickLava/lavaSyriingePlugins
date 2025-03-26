@@ -113,12 +113,12 @@ namespace airdodgeCancels
     }
 
 #pragma c99 on
-    fighterHooks::cbBundle callbacks =
+    fighterHooks::callbackBundle callbacks =
     {
-        .MeleeOnStartCB    = (fighterHooks::MeleeOnStartCB)onMeleeStartCallback,
-        .FighterOnCreateCB = (fighterHooks::FighterOnCreateCB)onFighterCreateCallback,
-        .FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
-        .FighterOnAttackCB = (fighterHooks::FighterOnAttackCB)onAttackCallback,
+        .m_MeleeOnStartCB    = (fighterHooks::MeleeOnStartCB)onMeleeStartCallback,
+        .m_FighterOnCreateCB = (fighterHooks::FighterOnCreateCB)onFighterCreateCallback,
+        .m_FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
+        .m_FighterOnAttackCB = (fighterHooks::FighterOnAttackCB)onAttackCallback,
     };
 #pragma c99 off
 

@@ -73,10 +73,10 @@ namespace finalSmashMeter
     }
 
 #pragma c99 on
-    fighterHooks::cbBundle callbacks =
+    fighterHooks::callbackBundle callbacks =
     {
-        .FighterOnCreateCB = (fighterHooks::FighterOnCreateCB)onFighterCreateCallback,
-        .FighterOnAttackCB = (fighterHooks::FighterOnAttackCB)onAttackCallback,
+        .m_FighterOnCreateCB = (fighterHooks::FighterOnCreateCB)onFighterCreateCallback,
+        .m_FighterOnAttackCB = (fighterHooks::FighterOnAttackCB)onAttackCallback,
     };
 #pragma c99 off
 

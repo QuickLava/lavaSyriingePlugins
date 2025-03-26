@@ -53,9 +53,9 @@ namespace magicSeries
     }
 
 #pragma c99 on
-    fighterHooks::cbBundle callbacks =
+    fighterHooks::callbackBundle callbacks =
     {
-        .FighterOnAttackCB = (fighterHooks::FighterOnAttackCB) magicSeriesCallback,
+        .m_FighterOnAttackCB = (fighterHooks::FighterOnAttackCB) magicSeriesCallback,
     };
 #pragma c99 off
 

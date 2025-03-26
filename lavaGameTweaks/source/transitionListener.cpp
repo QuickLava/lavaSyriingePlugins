@@ -25,9 +25,9 @@ namespace transitionListener
 
 
 #pragma c99 on
-    fighterHooks::cbBundle callbacks =
+    fighterHooks::callbackBundle callbacks =
     {
-        .FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
+        .m_FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
     };
 #pragma c99 off
 

@@ -133,10 +133,10 @@ namespace focusAttacks
     }
 
 #pragma c99 on
-    fighterHooks::cbBundle callbacks =
+    fighterHooks::callbackBundle callbacks =
     {
-        .FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
-        .FighterOnAttackCB = (fighterHooks::FighterOnAttackCB)onAttackCallback,
+        .m_FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
+        .m_FighterOnAttackCB = (fighterHooks::FighterOnAttackCB)onAttackCallback,
     };
 #pragma c99 off
 

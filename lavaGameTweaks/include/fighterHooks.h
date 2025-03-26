@@ -59,21 +59,21 @@ namespace fighterHooks
 		as_AttackerItem,
 		as_AttackerWeapon,
 	};
-	struct cbBundle
+	struct callbackBundle
 	{
-		GenericArglessCB MeleeOnStartCB;
-		GenericArglessCB MeleeOnReadyGoCB;
-		GenericArglessCB MeleeOnGameSetCB;
+		MeleeOnStartCB m_MeleeOnStartCB;
+		MeleeOnReadyGoCB m_MeleeOnReadyGoCB;
+		MeleeOnGameSetCB m_MeleeOnGameSetCB;
 
-		GenericFighterEventCB FighterOnCreateCB;
-		GenericFighterEventCB FighterOnStartCB;
-		GenericFighterEventCB FighterOnRemoveCB;
-		GenericFighterEventCB FighterOnUpdateCB;
+		FighterOnCreateCB m_FighterOnCreateCB;
+		FighterOnStartCB m_FighterOnStartCB;
+		FighterOnRemoveCB m_FighterOnRemoveCB;
+		FighterOnUpdateCB m_FighterOnUpdateCB;
 
-		FighterOnHitCB FighterOnHitCB;
-		FighterOnAttackCB FighterOnAttackCB;
+		FighterOnHitCB m_FighterOnHitCB;
+		FighterOnAttackCB m_FighterOnAttackCB;
 	};
-#define CALLBACK_INDEX(callbackMember) offsetof(cbBundle, callbackMember) / sizeof(void*)
+#define CALLBACK_INDEX(callbackMember) offsetof(callbackBundle, callbackMember) / sizeof(void*)
 
 #define INCLUDE_OUTSIDE_OBSERVER false
 
@@ -101,7 +101,7 @@ namespace fighterHooks
 		static void unsubscribeEventWatcher();
 #endif
 		static u32 m_currBundleCount;
-		static cbBundle* m_callbackBundles[maxBundleCount];
+		static callbackBundle* m_callbackBundles[maxBundleCount];
 
 		static void _performArglessCallbacks(u32 funcIndex);
 		static void _performFighterEventCallbacks(u32 funcIndex, u32 entryID);
@@ -120,8 +120,8 @@ namespace fighterHooks
 		}
 
 	public:
-		static bool registerCallbackBundle(cbBundle* bundleIn);
-		static bool unregisterCallbackBundle(cbBundle* bundleIn);
+		static bool registerCallbackBundle(callbackBundle* bundleIn);
+		static bool unregisterCallbackBundle(callbackBundle* bundleIn);
 
 		// OnMeleeStart Callbacks
 		static void performMeleeOnStartCallbacks();

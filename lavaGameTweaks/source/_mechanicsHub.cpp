@@ -116,10 +116,10 @@ namespace mechHub
     }
 
 #pragma c99 on
-    fighterHooks::cbBundle callbacks =
+    fighterHooks::callbackBundle callbacks =
     {
-        .MeleeOnStartCB = (fighterHooks::MeleeOnStartCB)updateMechanicEnabledMasks,
-        .MeleeOnStartCB = (fighterHooks::MeleeOnGameSetCB)clearMechanicEnabledMasks,
+        .m_MeleeOnStartCB = (fighterHooks::MeleeOnStartCB)updateMechanicEnabledMasks,
+        .m_MeleeOnStartCB = (fighterHooks::MeleeOnGameSetCB)clearMechanicEnabledMasks,
     };
 #pragma c99 off
 
