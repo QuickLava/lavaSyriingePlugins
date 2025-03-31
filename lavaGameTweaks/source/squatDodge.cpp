@@ -109,6 +109,10 @@ namespace squatDodge
                     transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Lw3, 0x4);
                 }
             }
+            else if (currStatus == Fighter::Status_FuraFura)
+            {
+                statusModule->changeStatus(Fighter::Status_FuraFura_End, moduleAccesser);
+            }
             else if (currStatus == Fighter::Status_Wall_Jump)
             {
                 walljumpSpentTemp |= playerBit;
