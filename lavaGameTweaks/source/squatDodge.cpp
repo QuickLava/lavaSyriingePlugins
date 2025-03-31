@@ -5,10 +5,12 @@
 using namespace codeMenu;
 namespace squatDodge
 {
-    char outputTag[] = "[squatDodge] ";
+    char outputTag[] = "[rivalsMode] ";
 
     const float attachDistance = 5.0f;
     Vec3f searchVector = { 0.0f, -attachDistance, 0.0f };
+
+    const u32 airdodgeTimerVar = 0x20000001;
 
     u8 dodgeSpent;
     u8 dodgeBuffered;
@@ -30,7 +32,6 @@ namespace squatDodge
             u32 dodgeBufferedTemp = dodgeBuffered;
             u32 walljumpSpentTemp = walljumpSpent;
 
-
             soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
             if (currStatus == Fighter::Status_Jump_Squat)
             {
@@ -47,9 +48,17 @@ namespace squatDodge
                 }
                 dodgeBufferedTemp &= ~playerBit;
             }
-            else if (currStatus == Fighter::Status_Escape_Air)
+            else
+            {
+                dodgeBufferedTemp &= ~playerBit;
+            }
+
+            
+            if (currStatus == Fighter::Status_Escape_Air)
             {
                 float currAnimProgress = mechUtil::currAnimProgress(fighterIn);
+                int airdodgeTimer = workManageModule->getInt(airdodgeTimerVar);
+
                 if (currAnimProgress <= 0.25)
                 {
                     soGroundModule* groundModule = moduleAccesser->m_enumerationStart->m_groundModule;
@@ -74,19 +83,35 @@ namespace squatDodge
                         groundModule->apply();
                     }
                 }
-                else if (currAnimProgress > 0.5f)
+                if (airdodgeTimer <= 0x00)
                 {
                     dodgeSpentTemp |= playerBit;
+                    airdodgeTimer--;
+                }
+                workManageModule->setInt(airdodgeTimer, airdodgeTimerVar);
+                if (airdodgeTimer <= -0x06)
+                {
+                    workManageModule->setInt(0, airdodgeTimerVar);
                     statusModule->changeStatus(Fighter::Status_Fall_Aerial, moduleAccesser);
+                }
+            }
+            else if (currStatus == Fighter::Status_Attack)
+            {
+                u32 currMotion = motionModule->getKind();
+                if (mechUtil::currAnimProgress(fighterIn) >= 0.25 
+                    && currMotion == Fighter::Motion_Attack_11 || currMotion == Fighter::Motion_Attack_12)
+                {
+                    soTransitionModule* transitionModule = statusModule->m_transitionModule;
+                    transitionModule->enableTermGroup(0x4);
+                    transitionModule->unableTermAll(0x4);
+                    transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_S3, 0x4);
+                    transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Hi3, 0x4);
+                    transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Lw3, 0x4);
                 }
             }
             else if (currStatus == Fighter::Status_Wall_Jump)
             {
                 walljumpSpentTemp |= playerBit;
-            }
-            else
-            {
-                dodgeBufferedTemp &= ~playerBit;
             }
 
             u32 currSituation = moduleAccesser->m_enumerationStart->m_situationModule->getKind();
@@ -134,11 +159,21 @@ namespace squatDodge
             walljumpSpent = walljumpSpentTemp;
         }
     }
+    void onAttackCallback(Fighter* attacker, StageObject* target, float damageIn, StageObject* projectile, u32 attackKind, u32 attackSituation)
+    {
+        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
+        if (fighterPlayerNo < fighterHooks::maxFighterCount && attackSituation == fighterHooks::as_AttackerFighter)
+        {
+            walljumpSpent &= ~(1 << fighterPlayerNo);
+        }
+    }
+
 
 #pragma c99 on
     fighterHooks::callbackBundle callbacks =
     {
         .m_FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
+        .m_FighterOnAttackCB = (fighterHooks::FighterOnAttackCB)onAttackCallback,
     };
 #pragma c99 off
 
