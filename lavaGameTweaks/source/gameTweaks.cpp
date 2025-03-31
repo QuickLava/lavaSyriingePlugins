@@ -7,6 +7,7 @@
 #include "rocketBurst.h"
 #include "finalSmashMeter.h"
 #include "focusAttacks.h"
+#include "squatDodge.h"
 //#include "transitionListener.h"
 #include "_mechanicsHub.h"
 
@@ -24,6 +25,7 @@ namespace lavaGameTweaks
         rocketBurst::registerHooks();
         finalSmashMeter::registerHooks();
         focusAttacks::registerHooks();
+        squatDodge::registerHooks();
         //transitionListener::registerHooks();
 
         //meleeFreeze::registerHooks();
