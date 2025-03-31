@@ -19,12 +19,12 @@ namespace lavaGameTweaks
         fighterHooks::registerFighterHooks();
         mechHub::populate();
         mechHub::registerHooks();
-        airdodgeCancels::registerHooks();
-        slimeCancels::registerHooks();
-        magicSeries::registerHooks();
-        rocketBurst::registerHooks();
-        finalSmashMeter::registerHooks();
-        focusAttacks::registerHooks();
+        //airdodgeCancels::registerHooks();
+        //slimeCancels::registerHooks();
+        //magicSeries::registerHooks();
+        //rocketBurst::registerHooks();
+        //finalSmashMeter::registerHooks();
+        //focusAttacks::registerHooks();
         squatDodge::registerHooks();
         //transitionListener::registerHooks();
 
