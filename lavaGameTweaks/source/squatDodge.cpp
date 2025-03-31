@@ -11,6 +11,7 @@ namespace squatDodge
     Vec3f searchVector = { 0.0f, -attachDistance, 0.0f };
 
     const u32 airdodgeTimerVar = 0x20000001;
+    const float setShieldSize = 60.0f;
 
     u8 dodgeSpent;
     u8 dodgeBuffered;
@@ -172,6 +173,11 @@ namespace squatDodge
         }
     }
 
+    asm void shieldHijackHook()
+    {
+        lis r12, setShieldSize@ha;
+        lfs f1, setShieldSize@l(r12);
+    }
 
 #pragma c99 on
     fighterHooks::callbackBundle callbacks =
@@ -184,5 +190,8 @@ namespace squatDodge
     void registerHooks()
     {
         fighterHooks::ftCallbackMgr::registerCallbackBundle(&callbacks);
+
+        // 0x80874C88: 0x54 bytes into symbol "setShieldScale/[ftStatusUniqProcessGuardFunc]/ft_status_u" @ 0x80874C34
+        SyringeCore::syInlineHookRel(0x16A274, shieldHijackHook, Modules::SORA_MELEE);
     }
 }
