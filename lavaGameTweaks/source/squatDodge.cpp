@@ -147,6 +147,7 @@ namespace squatDodge
                     if (parryBufferedTemp & playerBit)
                     {
                         motionModule->setRate(0.33f);
+                        g_ecMgr->endEffect(mechUtil::reqCenteredGraphic(fighterIn, ef_ptc_pokemon_fire_04, 1.0f, 0));
                         moduleAccesser->m_enumerationStart->m_effectModule->req(ef_ptc_common_vertical_smoke_b, mechUtil::sbid_TransN,
                             &mechUtil::zeroVec, &mechUtil::zeroVec, 1.0f, &mechUtil::zeroVec, &mechUtil::zeroVec, 0, 0);
                         parryBufferedTemp &= ~playerBit;
@@ -164,10 +165,12 @@ namespace squatDodge
                         if (workManageModule->isFlag(parrySuccessBit))
                         {
                             workManageModule->setInt(0x5, 0x20000005);
+                            mechUtil::playSE(fighterIn, snd_se_Audience_Kansei_l);
                         }
                         else
                         {
                             motionModule->setRate(0.2f);
+                            mechUtil::playSE(fighterIn, snd_se_Audience_Zannen);
                         }
                         break;
                     }
