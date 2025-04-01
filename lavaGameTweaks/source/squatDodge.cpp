@@ -222,7 +222,7 @@ namespace squatDodge
                     {
                         statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump);
                     }
-                    else if (currStatus >= Fighter::Status_Test_Motion && mechUtil::currAnimProgress(fighterIn) > 0.75)
+                    else if (currStatus > Fighter::Status_Test_Motion && mechUtil::currAnimProgress(fighterIn) > 0.666)
                     {
                         statusModule->enableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump);
                     }
