@@ -10,12 +10,14 @@ namespace squatDodge
     const float attachDistance = 5.0f;
     Vec3f searchVector = { 0.0f, -attachDistance, 0.0f };
 
+    const u32 parryActiveBit = 0x2200001F;
     const u32 airdodgeTimerVar = 0x20000001;
     const float setShieldSize = 60.0f;
 
     u8 dodgeSpent;
     u8 dodgeBuffered;
     u8 walljumpSpent;
+    u8 parryBuffered;
 
     void onUpdateCallback(Fighter* fighterIn)
     {
@@ -32,6 +34,7 @@ namespace squatDodge
             u32 dodgeSpentTemp = dodgeSpent;
             u32 dodgeBufferedTemp = dodgeBuffered;
             u32 walljumpSpentTemp = walljumpSpent;
+            u32 parryBufferedTemp = parryBuffered;
 
             soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
             if (currStatus == Fighter::Status_Jump_Squat)
@@ -105,9 +108,9 @@ namespace squatDodge
                     soTransitionModule* transitionModule = statusModule->m_transitionModule;
                     transitionModule->enableTermGroup(0x4);
                     transitionModule->unableTermAll(0x4);
-                    transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_S3, 0x4);
-                    transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Hi3, 0x4);
-                    transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Lw3, 0x4);
+                    transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_S3, Fighter::Status_Transition_Term_Group_Chk_Ground_Attack);
+                    transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Hi3, Fighter::Status_Transition_Term_Group_Chk_Ground_Attack);
+                    transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Lw3, Fighter::Status_Transition_Term_Group_Chk_Ground_Attack);
                 }
             }
             else if (currStatus == Fighter::Status_FuraFura)
@@ -117,6 +120,36 @@ namespace squatDodge
             else if (currStatus == Fighter::Status_Wall_Jump)
             {
                 walljumpSpentTemp |= playerBit;
+            }
+            else if (currStatus == Fighter::Status_Guard_On || currStatus == Fighter::Status_Guard)
+            {
+                soControllerModule* controllerModule = moduleAccesser->m_enumerationStart->m_controllerModule;
+                if (controllerModule->getTrigger().m_special)
+                {
+                    soTransitionModule* transitionModule = statusModule->m_transitionModule;
+                    statusModule->changeStatusRequest(Fighter::Status_Guard_Off, moduleAccesser);
+                    parryBufferedTemp |= playerBit;
+                }
+            }
+            else if (currStatus == Fighter::Status_Guard_Off)
+            {
+                soDamageModule* damageModule = moduleAccesser->m_enumerationStart->m_damageModule;
+                if (parryBufferedTemp & playerBit)
+                {
+                    moduleAccesser->m_enumerationStart->m_effectModule->req(ef_ptc_common_vertical_smoke_b, mechUtil::sbid_TransN,
+                        &mechUtil::zeroVec, &mechUtil::zeroVec, 1.0f, &mechUtil::zeroVec, &mechUtil::zeroVec, 0, 0);
+                    fighterIn->setSlow(1, 2, 30, 0);
+                    parryBufferedTemp &= ~playerBit;
+                    damageModule->setNoReactionModeStatus(500.0f, -1.0f, 2);
+                    damageModule->setDamageMul(0.0f);
+                    workManageModule->onFlag(parryActiveBit);
+                }
+                if (workManageModule->isFlag(parryActiveBit) && mechUtil::currAnimProgress(fighterIn) >= 0.5f)
+                {
+                    damageModule->resetNoReactionModeStatus();
+                    damageModule->setDamageMul(1.0f);
+                    workManageModule->offFlag(parryActiveBit);
+                }
             }
 
             u32 currSituation = moduleAccesser->m_enumerationStart->m_situationModule->getKind();
@@ -162,14 +195,43 @@ namespace squatDodge
             dodgeSpent = dodgeSpentTemp;
             dodgeBuffered = dodgeBufferedTemp;
             walljumpSpent = walljumpSpentTemp;
+            parryBuffered = parryBufferedTemp;
         }
     }
-    void onAttackCallback(Fighter* attacker, StageObject* target, float damageIn, StageObject* projectile, u32 attackKind, u32 attackSituation)
+    void onAttackCallback(Fighter* attacker, StageObject* target, float damage, StageObject* projectile, u32 attackKind, u32 attackSituation)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
-        if (fighterPlayerNo < fighterHooks::maxFighterCount && attackSituation == fighterHooks::as_AttackerFighter)
+        if (fighterPlayerNo < fighterHooks::maxFighterCount)
         {
-            walljumpSpent &= ~(1 << fighterPlayerNo);
+            if (attackSituation == fighterHooks::as_AttackerFighter)
+            {
+                walljumpSpent &= ~(1 << fighterPlayerNo);
+            }
+
+            soModuleAccesser* at_moduleAccesser = attacker->m_moduleAccesser;
+            soModuleAccesser* tr_moduleAccesser = target->m_moduleAccesser;
+            
+            if (target->m_taskCategory == gfTask::Category_Fighter 
+                && tr_moduleAccesser->m_enumerationStart->m_workManageModule->isFlag(parryActiveBit))
+            {
+                g_ecMgr->endEffect(mechUtil::reqCenteredGraphic(target, ef_ptc_pokemon_fire_04, 1.0f, 0));
+
+                soStatusModule* at_statusModule = at_moduleAccesser->m_enumerationStart->m_statusModule;
+                SituationKind at_situation = at_moduleAccesser->m_enumerationStart->m_situationModule->getKind();
+                if (at_situation == Situation_Ground)
+                {
+                    at_statusModule->changeStatusRequest(Fighter::Status_FuraFura_End, at_moduleAccesser);
+                    for (u32 i = Fighter::Status_Transition_Term_Group_Chk_Ground_Special; i <= Fighter::Status_Transition_Term_Group_Chk_Ground; i++)
+                    {
+                        at_statusModule->unableTransitionTermGroup(i);
+                    }
+                    at_moduleAccesser->m_enumerationStart->m_motionModule->setRate((attackSituation == fighterHooks::as_AttackerFighter) ? 0.333f : 0.5f);
+                }
+                else if (at_situation == Situation_Air)
+                {
+                    at_statusModule->changeStatusRequest(Fighter::Status_Fall_Special, at_moduleAccesser);
+                }
+            }
         }
     }
 
