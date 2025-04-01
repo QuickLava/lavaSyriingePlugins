@@ -281,6 +281,15 @@ namespace squatDodge
         lis r12, setShieldSize@ha;
         lfs f1, setShieldSize@l(r12);
     }
+    asm void walljumpHijackHook()
+    {
+        nofralloc;
+        cmplwi r30, 0x5A95;
+        bne end;
+        lfs f30, 0x18(r13);
+    end:
+        blr;
+    }
 
 #pragma c99 on
     fighterHooks::callbackBundle callbacks =
@@ -296,5 +305,8 @@ namespace squatDodge
 
         // 0x80874C88: 0x54 bytes into symbol "setShieldScale/[ftStatusUniqProcessGuardFunc]/ft_status_u" @ 0x80874C34
         SyringeCore::syInlineHookRel(0x16A274, shieldHijackHook, Modules::SORA_MELEE);
+
+        // 0x807827C0: 0x324 bytes into symbol "checkEstablishSub/[soGeneralTermDisideModuleImpl]/so_gene" @ 0x8078249C
+        SyringeCore::syInlineHookRel(0x77DAC, walljumpHijackHook, Modules::SORA_MELEE);
     }
 }
