@@ -36,28 +36,19 @@ namespace squatDodge
             u32 walljumpSpentTemp = walljumpSpent;
             u32 parryBufferedTemp = parryBuffered;
 
-            soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
             if (currStatus == Fighter::Status_Jump_Squat)
             {
                 if (moduleAccesser->m_enumerationStart->m_controllerModule->getTrigger().m_guard)
                 {
                     dodgeBufferedTemp |= playerBit;
                 }
-            }
-            else if (currStatus == Fighter::Status_Jump && statusModule->getPrevStatusKind(0) == Fighter::Status_Jump_Squat)
-            {
-                if ((dodgeBufferedTemp & playerBit))
+                if (mechUtil::currAnimProgress(fighterIn) == 1.0f && dodgeBufferedTemp & playerBit)
                 {
-                    statusModule->changeStatus(Fighter::Status_Escape_Air, moduleAccesser);
+                    statusModule->changeStatusRequest(Fighter::Status_Escape_Air, moduleAccesser);
+                    dodgeBufferedTemp &= ~playerBit;
                 }
-                dodgeBufferedTemp &= ~playerBit;
-            }
-            else
-            {
-                dodgeBufferedTemp &= ~playerBit;
             }
 
-            
             if (currStatus == Fighter::Status_Escape_Air)
             {
                 float currAnimProgress = mechUtil::currAnimProgress(fighterIn);
@@ -101,6 +92,7 @@ namespace squatDodge
             }
             else if (currStatus == Fighter::Status_Attack)
             {
+                soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
                 u32 currMotion = motionModule->getKind();
                 if (mechUtil::currAnimProgress(fighterIn) >= 0.25 
                     && currMotion == Fighter::Motion_Attack_11 || currMotion == Fighter::Motion_Attack_12)
