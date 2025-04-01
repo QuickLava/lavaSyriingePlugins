@@ -278,6 +278,7 @@ namespace squatDodge
 
     asm void shieldHijackHook()
     {
+        nofralloc;
         lis r12, setShieldSize@ha;
         lfs f1, setShieldSize@l(r12);
     }
@@ -290,6 +291,40 @@ namespace squatDodge
     end:
         blr;
     }
+
+    u32 pointerBackup;
+    void hitfallingHijackHook1()
+    {
+        register u32 funcPtr;
+        asm
+        {
+            mr funcPtr, r3;
+        }
+        pointerBackup = funcPtr;
+    }
+    void hitfallingHijackHook2()
+    {
+        register soModuleAccesser* moduleAccesser;
+        asm
+        {
+            mr moduleAccesser, r30;
+        }
+        OSReport_N("");
+
+        if (pointerBackup != 0x80B897BC)
+        {
+            soControllerModule* controllerModule = moduleAccesser->m_enumerationStart->m_controllerModule;
+            if (controllerModule->getFlickY() < 5)
+            {
+                float stickY = controllerModule->getStickY();
+                if (stickY < .60f)
+                {
+                    moduleAccesser->m_enumerationStart->m_workManageModule->onFlag(0x22000002);
+                }
+            }
+        }
+    }
+
 
 #pragma c99 on
     fighterHooks::callbackBundle callbacks =
@@ -308,5 +343,11 @@ namespace squatDodge
 
         // 0x807827C0: 0x324 bytes into symbol "checkEstablishSub/[soGeneralTermDisideModuleImpl]/so_gene" @ 0x8078249C
         SyringeCore::syInlineHookRel(0x77DAC, walljumpHijackHook, Modules::SORA_MELEE);
+
+        // 0x8077E8D0 (G:0x8078C85C): 73EBC
+        SyringeCore::syInlineHookRel(0x73EBC, hitfallingHijackHook1, Modules::SORA_MELEE);
+
+        // 0x8077E8EC (G:0x8078C878): 
+        SyringeCore::syInlineHookRel(0x73ED8, hitfallingHijackHook2, Modules::SORA_MELEE);
     }
 }
