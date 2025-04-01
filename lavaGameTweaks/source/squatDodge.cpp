@@ -10,7 +10,8 @@ namespace squatDodge
     const float attachDistance = 5.0f;
     Vec3f searchVector = { 0.0f, -attachDistance, 0.0f };
 
-    const u32 parryActiveBit = 0x2200001F;
+    const u32 parryActiveBit = 0x2200001E;
+    const u32 parrySuccessBit = 0x2200001F;
     const u32 airdodgeTimerVar = 0x20000001;
     const float setShieldSize = 60.0f;
 
@@ -125,22 +126,33 @@ namespace squatDodge
             }
             else if (currStatus == Fighter::Status_Guard_Off)
             {
+                soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
                 soDamageModule* damageModule = moduleAccesser->m_enumerationStart->m_damageModule;
                 if (parryBufferedTemp & playerBit)
                 {
+                    motionModule->setRate(0.33f);
                     moduleAccesser->m_enumerationStart->m_effectModule->req(ef_ptc_common_vertical_smoke_b, mechUtil::sbid_TransN,
                         &mechUtil::zeroVec, &mechUtil::zeroVec, 1.0f, &mechUtil::zeroVec, &mechUtil::zeroVec, 0, 0);
-                    fighterIn->setSlow(1, 2, 30, 0);
                     parryBufferedTemp &= ~playerBit;
                     damageModule->setNoReactionModeStatus(500.0f, -1.0f, 2);
                     damageModule->setDamageMul(0.0f);
                     workManageModule->onFlag(parryActiveBit);
+                    workManageModule->setInt(0x00, 0x20000003);
+                    workManageModule->setInt(0xFF, 0x20000005);
                 }
-                if (workManageModule->isFlag(parryActiveBit) && mechUtil::currAnimProgress(fighterIn) >= 0.5f)
+                if (workManageModule->isFlag(parryActiveBit) && mechUtil::currAnimProgress(fighterIn) >= 0.33f)
                 {
                     damageModule->resetNoReactionModeStatus();
                     damageModule->setDamageMul(1.0f);
                     workManageModule->offFlag(parryActiveBit);
+                    if (workManageModule->isFlag(parrySuccessBit))
+                    {
+                        workManageModule->setInt(0x5, 0x20000005);
+                    }
+                    else
+                    {
+                        motionModule->setRate(0.2f);
+                    }
                 }
             }
 
@@ -203,9 +215,13 @@ namespace squatDodge
             soModuleAccesser* at_moduleAccesser = attacker->m_moduleAccesser;
             soModuleAccesser* tr_moduleAccesser = target->m_moduleAccesser;
             
+            soWorkManageModule* tr_workManageModule = tr_moduleAccesser->m_enumerationStart->m_workManageModule;
             if (target->m_taskCategory == gfTask::Category_Fighter 
-                && tr_moduleAccesser->m_enumerationStart->m_workManageModule->isFlag(parryActiveBit))
+                && tr_workManageModule->isFlag(parryActiveBit)
+                && tr_moduleAccesser->m_enumerationStart->m_statusModule->getStatusKind() == Fighter::Status_Guard_Off)
             {
+                tr_workManageModule->onFlag(parrySuccessBit);
+
                 g_ecMgr->endEffect(mechUtil::reqCenteredGraphic(target, ef_ptc_pokemon_fire_04, 1.0f, 0));
 
                 soStatusModule* at_statusModule = at_moduleAccesser->m_enumerationStart->m_statusModule;
@@ -217,11 +233,11 @@ namespace squatDodge
                     {
                         at_statusModule->unableTransitionTermGroup(i);
                     }
-                    at_moduleAccesser->m_enumerationStart->m_motionModule->setRate((attackSituation == fighterHooks::as_AttackerFighter) ? 0.333f : 0.5f);
+                    at_moduleAccesser->m_enumerationStart->m_motionModule->setRate(0.5f);
                 }
                 else if (at_situation == Situation_Air)
                 {
-                    at_statusModule->changeStatusRequest(Fighter::Status_Fall_Special, at_moduleAccesser);
+                    at_statusModule->changeStatusRequest(Fighter::Status_Shield_Break_Fall, at_moduleAccesser);
                 }
             }
         }
