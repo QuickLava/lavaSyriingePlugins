@@ -99,14 +99,23 @@ namespace squatDodge
                     soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
                     u32 currMotion = motionModule->getKind();
                     if (mechUtil::currAnimProgress(fighterIn) >= 0.25
-                        && currMotion == Fighter::Motion_Attack_11 || currMotion == Fighter::Motion_Attack_12)
+                        && moduleAccesser->m_enumerationStart->m_controllerModule->getTrigger().m_attack
+                        && (currMotion == Fighter::Motion_Attack_11 || currMotion == Fighter::Motion_Attack_12))
                     {
-                        soTransitionModule* transitionModule = statusModule->m_transitionModule;
-                        transitionModule->enableTermGroup(0x4);
-                        transitionModule->unableTermAll(0x4);
-                        transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_S3, Fighter::Status_Transition_Term_Group_Chk_Ground_Attack);
-                        transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Hi3, Fighter::Status_Transition_Term_Group_Chk_Ground_Attack);
-                        transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Lw3, Fighter::Status_Transition_Term_Group_Chk_Ground_Attack);
+                        float stickX = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_X_Lr, 0);
+                        float stickY = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_Y, 0);
+                        if (stickX > ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Common_Param_Float_Attack_S3_Stick_X, 0))
+                        {
+                            statusModule->changeStatusRequest(Fighter::Status_Attack_S3, moduleAccesser);
+                        }
+                        else if (stickY > ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Common_Param_Float_Attack_Hi3_Stick_Y, 0))
+                        {
+                            statusModule->changeStatusRequest(Fighter::Status_Attack_Hi3, moduleAccesser);
+                        }
+                        else if (stickY < ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Common_Param_Float_Attack_Lw3_Stick_Y, 0))
+                        {
+                            statusModule->changeStatusRequest(Fighter::Status_Attack_Lw3, moduleAccesser);
+                        }
                     }
                     break;
                 }
