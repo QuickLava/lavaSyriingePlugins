@@ -15,10 +15,16 @@ namespace squatDodge
     const u32 airdodgeTimerVar = 0x20000001;
     const float setShieldSize = 60.0f;
 
-    u8 dodgeSpent;
-    u8 dodgeBuffered;
-    u8 walljumpSpent;
-    u8 parryBuffered;
+    enum playerFlags
+    {
+        pf_DodgeSpent = 0x00,
+        pf_DodgeBuffered,
+        pf_ParryBuffered,
+        pf_WallJumpSpent,
+        pf_WalljumpOutOfSpecialEnabled,
+        pf__COUNT
+    };
+    u8 perPlayerFlags[pf__COUNT];
 
     void onUpdateCallback(Fighter* fighterIn)
     {
@@ -32,10 +38,11 @@ namespace squatDodge
             u32 currStatus = statusModule->getStatusKind();
 
             u32 playerBit = 1 << fighterPlayerNo;
-            u32 dodgeSpentTemp = dodgeSpent;
-            u32 dodgeBufferedTemp = dodgeBuffered;
-            u32 walljumpSpentTemp = walljumpSpent;
-            u32 parryBufferedTemp = parryBuffered;
+            u32 dodgeSpentTemp =    perPlayerFlags[pf_DodgeSpent];
+            u32 dodgeBufferedTemp = perPlayerFlags[pf_DodgeBuffered];
+            u32 walljumpSpentTemp = perPlayerFlags[pf_WallJumpSpent];
+            u32 parryBufferedTemp = perPlayerFlags[pf_ParryBuffered];
+            u32 specialWalljumpTemp = perPlayerFlags[pf_WalljumpOutOfSpecialEnabled];
 
             switch (currStatus)
             {
@@ -127,6 +134,7 @@ namespace squatDodge
                 case Fighter::Status_Wall_Jump:
                 {
                     walljumpSpentTemp |= playerBit;
+                    specialWalljumpTemp &= ~playerBit;
                     break;
                 }
                 case Fighter::Status_Guard_On: case Fighter::Status_Guard:
@@ -177,7 +185,7 @@ namespace squatDodge
                 }
                 case Fighter::Status_Fall_Special:
                 {
-                    if ((walljumpSpent & playerBit) == 0)
+                    if ((walljumpSpentTemp & playerBit) == 0)
                     {
                         statusModule->enableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump);
                     }
@@ -214,6 +222,7 @@ namespace squatDodge
             {
                 dodgeSpentTemp &= ~playerBit;
                 walljumpSpentTemp &= ~playerBit;
+                specialWalljumpTemp &= ~playerBit;
             }
             else if (currSituation == Situation_Air)
             {
@@ -232,17 +241,48 @@ namespace squatDodge
                     {
                         statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump);
                     }
-                    else if (currStatus > Fighter::Status_Test_Motion && mechUtil::currAnimProgress(fighterIn) > 0.666)
+                    else
                     {
-                        statusModule->enableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump);
+                        if (currStatus > Fighter::Status_Test_Motion)
+                        {
+                            if (specialWalljumpTemp & playerBit)
+                            {
+                                OSReport_N("%sSpecialWalljumpOn\n", outputTag);
+                                statusModule->enableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump);
+                            }
+                            else
+                            {
+                                statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump);
+
+                                soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
+                                if (!motionModule->isLooped() && motionModule->getFrame() >= 15.0f)
+                                {
+                                    soKineticModule* kineticModule = moduleAccesser->m_enumerationStart->m_kineticModule;
+                                    soInstanceAttribute energyFlags = { 0xFFFF };
+                                    float ySpeed = kineticModule->getSumSpeed(&energyFlags).m_y;
+                                    float ySpeedFromGravity = kineticModule->getEnergy(Fighter::Kinetic_Energy_Gravity)->getSpeed().m_y;
+                                    float animProgress = mechUtil::currAnimProgress(fighterIn);
+                                    if (animProgress >= 0.80f 
+                                        || (animProgress >= 0.50f && ySpeedFromGravity < -0.5f && !fighterIn->isEnableCancel()))
+                                    {
+                                        specialWalljumpTemp |= playerBit;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            specialWalljumpTemp &= ~playerBit;
+                        }
                     }
                 }
             }
 
-            dodgeSpent = dodgeSpentTemp;
-            dodgeBuffered = dodgeBufferedTemp;
-            walljumpSpent = walljumpSpentTemp;
-            parryBuffered = parryBufferedTemp;
+            perPlayerFlags[pf_DodgeSpent] = dodgeSpentTemp;
+            perPlayerFlags[pf_DodgeBuffered] = dodgeBufferedTemp;
+            perPlayerFlags[pf_WallJumpSpent] = walljumpSpentTemp;
+            perPlayerFlags[pf_ParryBuffered] = parryBufferedTemp;
+            perPlayerFlags[pf_WalljumpOutOfSpecialEnabled] = specialWalljumpTemp;
         }
     }
     void onAttackCallback(Fighter* attacker, StageObject* target, float damage, StageObject* projectile, u32 attackKind, u32 attackSituation)
@@ -252,7 +292,7 @@ namespace squatDodge
         {
             if (attackSituation == fighterHooks::as_AttackerFighter)
             {
-                walljumpSpent &= ~(1 << fighterPlayerNo);
+                perPlayerFlags[pf_WallJumpSpent] &= ~(1 << fighterPlayerNo);
             }
 
             soModuleAccesser* at_moduleAccesser = attacker->m_moduleAccesser;
