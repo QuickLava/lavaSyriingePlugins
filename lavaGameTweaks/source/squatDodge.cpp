@@ -26,6 +26,40 @@ namespace squatDodge
     };
     u8 perPlayerFlags[pf__COUNT];
 
+    void tryExtendedWalljump(Fighter* fighterIn)
+    {
+        soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
+        soPostureModule* postureModule = moduleAccesser->m_enumerationStart->m_postureModule;
+        float stickX = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_X, 0);
+        if (fabs(stickX) >= 0.5f)
+        {
+            Vec3f wallCheckVec = { 5.0f, 0.0f, 0.0f };
+            if (stickX < 0.0f)
+            {
+                wallCheckVec.m_x *= -1.0f;
+            }
+            int lineOut;
+            Vec3f currPos = postureModule->getPos();
+            Vec3f hitPosOut;
+            Vec3f normalVecOut;
+            if (stRayCheck(&currPos, &wallCheckVec, &lineOut, &hitPosOut, &normalVecOut, 1, 0, 1))
+            {
+                float distanceFromWall = currPos.m_x - hitPosOut.m_x;
+                OSReport_N("%sDistanceFromWall: %.3f\n", outputTag, distanceFromWall);
+
+                soControllerModule* controllerModule = moduleAccesser->m_enumerationStart->m_controllerModule;
+                if (controllerModule->getTrigger().m_jump)
+                {
+                    if (fabs(distanceFromWall) > 5.0f && ((postureModule->getLr() * stickX) > 0.0f))
+                    {
+                        postureModule->reverseLr();
+                    }
+                    moduleAccesser->m_enumerationStart->m_statusModule->changeStatusRequest(Fighter::Status_Wall_Jump, moduleAccesser);
+                }
+            }
+        }
+    }
+
     void onUpdateCallback(Fighter* fighterIn)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
@@ -248,12 +282,12 @@ namespace squatDodge
                             if (specialWalljumpTemp & playerBit)
                             {
                                 OSReport_N("%sSpecialWalljumpOn\n", outputTag);
+                                tryExtendedWalljump(fighterIn);
                                 statusModule->enableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump);
                             }
                             else
                             {
                                 statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump);
-
                                 soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
                                 if (!motionModule->isLooped() && motionModule->getFrame() >= 15.0f)
                                 {
@@ -273,6 +307,7 @@ namespace squatDodge
                         else
                         {
                             specialWalljumpTemp &= ~playerBit;
+                            tryExtendedWalljump(fighterIn);
                         }
                     }
                 }
