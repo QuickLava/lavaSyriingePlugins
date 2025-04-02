@@ -41,14 +41,14 @@ namespace squatDodge
             {
                 case Fighter::Status_Jump_Squat:
                 {
-                    if (moduleAccesser->m_enumerationStart->m_controllerModule->getTrigger().m_guard)
+                    ipPadButton buttonTrigger = moduleAccesser->m_enumerationStart->m_controllerModule->getTrigger();
+                    if (buttonTrigger.m_guard && !buttonTrigger.m_attack)
                     {
                         dodgeBufferedTemp |= playerBit;
                     }
                     if (mechUtil::currAnimProgress(fighterIn) == 1.0f && dodgeBufferedTemp & playerBit)
                     {
                         statusModule->changeStatusRequest(Fighter::Status_Escape_Air, moduleAccesser);
-                        dodgeBufferedTemp &= ~playerBit;
                     }
                     break;
                 }
@@ -200,6 +200,11 @@ namespace squatDodge
                     }
                     break;
                 }
+            }
+
+            if (statusModule->getPrevStatusKind(0) == Fighter::Status_Jump_Squat)
+            {
+                dodgeBufferedTemp &= ~playerBit;
             }
 
             u32 currSituation = moduleAccesser->m_enumerationStart->m_situationModule->getKind();
