@@ -30,8 +30,8 @@ endif
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
 
-TARGET		:=	lavaGameTweaks
-RELID		:=  8194
+TARGET		:=	lavaRivalsMode
+RELID		:=  8320
 BUILD		:=	build
 SOURCES		:=	source $(wildcard source/*) ../lib/BrawlHeaders/PowerPC_EABI_Support/Runtime/Src/ # have to hardcode lib dir here???????
 INCLUDES	:=	include
