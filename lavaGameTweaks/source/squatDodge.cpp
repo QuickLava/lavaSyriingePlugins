@@ -187,8 +187,10 @@ namespace squatDodge
                 {
                     if (moduleAccesser->m_enumerationStart->m_motionModule->getFrame() < 3.0f)
                     {
-                        float stickAbs = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_X_Abs, 0);
-                        if (stickAbs < 0.2f)
+                        float stickXAbs = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_X_Abs, 0);
+                        float stickYAbs = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_Y_Abs, 0);
+
+                        if (stickXAbs < 0.2f && stickYAbs < 0.2f)
                         {
                             soKineticModule* kineticModule = moduleAccesser->m_enumerationStart->m_kineticModule;
                             soInstanceAttribute energyMask = { 0xFFFF };
