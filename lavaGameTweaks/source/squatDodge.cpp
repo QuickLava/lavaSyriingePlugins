@@ -227,7 +227,7 @@ namespace squatDodge
                         }
                         else
                         {
-                            motionModule->setRate(0.2f);
+                            motionModule->setRate(0.25f);
                             mechUtil::playSE(fighterIn, snd_se_Audience_Zannen);
                         }
                         break;
