@@ -163,16 +163,15 @@ namespace squatDodge
                 }
                 case Fighter::Status_Attack_Hi3: case Fighter::Status_Attack_Lw3:
                 {
-                    if (moduleAccesser->m_enumerationStart->m_motionModule->getFrame() < 2.0f)
+                    float stickX = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_X_Lr, 0);
+                    if ((tiltCancelReverseTemp & playerBit) && stickX <= -0.1f)
                     {
-                        float stickX = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_X_Lr, 0);
-                        if ((tiltCancelReverseTemp & playerBit) && stickX <= -0.1f)
-                        {
-                            OSReport_N("%sReverse Requested\n", outputTag);
-                            moduleAccesser->m_enumerationStart->m_postureModule->reverseLr();
-                            moduleAccesser->m_enumerationStart->m_postureModule->updateRotYLr();
-                            tiltCancelReverseTemp &= ~playerBit;
-                        }
+                        tiltCancelReverseTemp &= ~playerBit;
+                        OSReport_N("%sReverse Requested\n", outputTag);
+                        soPostureModule* postureModule = moduleAccesser->m_enumerationStart->m_postureModule;
+                        postureModule->reverseLr();
+                        postureModule->updateRotYLr();
+                        statusModule->changeStatusRequest(currStatus, moduleAccesser);
                     }
                     break;
                 }
