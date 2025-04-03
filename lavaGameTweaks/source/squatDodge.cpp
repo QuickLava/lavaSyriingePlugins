@@ -51,10 +51,7 @@ namespace squatDodge
                 soControllerModule* controllerModule = moduleAccesser->m_enumerationStart->m_controllerModule;
                 if (controllerModule->getTrigger().m_jump)
                 {
-                    if (fabs(distanceFromWall) > 5.0f && ((postureModule->getLr() * stickX) > 0.0f))
-                    {
-                        postureModule->reverseLr();
-                    }
+                    postureModule->setLr(distanceFromWall / fabs(distanceFromWall));
                     moduleAccesser->m_enumerationStart->m_statusModule->changeStatusRequest(Fighter::Status_Wall_Jump, moduleAccesser);
                 }
             }
