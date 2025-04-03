@@ -115,11 +115,6 @@ namespace squatDodge
                         {
                             float distanceFromGround = currPos.m_y - hitPosOut.m_y;
                             OSReport_N("%sDistanceFromGround: %.3f\n", outputTag, distanceFromGround);
-                            soPostureModule* postureModule = moduleAccesser->m_enumerationStart->m_postureModule;
-                            groundModule->setCorrect(soGroundShapeImpl::Correct_None, 0);
-                            groundModule->setShapeSafePos((Vec2f*)&hitPosOut, 0);
-                            postureModule->setPos(&hitPosOut);
-                            groundModule->setCorrect(soGroundShapeImpl::Correct_Air, 0);
                             groundModule->attachGround(0);
                             groundModule->apply();
                         }
