@@ -240,6 +240,14 @@ namespace squatDodge
                     }
                     break;
                 }
+                case Fighter::Status_Damage_Fall:
+                {
+                    ipPadButton buttonTrigger = moduleAccesser->m_enumerationStart->m_controllerModule->getTrigger();
+                    if (buttonTrigger.m_guard)
+                    {
+                        statusModule->changeStatusRequest(Fighter::Status_Escape_Air, moduleAccesser);
+                    }
+                }
                 case Fighter::Status_Dash:
                 {
                     if (moduleAccesser->m_enumerationStart->m_motionModule->getFrame() < 3.0f)
