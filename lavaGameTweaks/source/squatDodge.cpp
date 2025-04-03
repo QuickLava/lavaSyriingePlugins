@@ -299,8 +299,12 @@ namespace squatDodge
                     {
                         statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Escape);
                     }
-                    if (walljumpSpentTemp & playerBit)
+                    u32 framesSinceLedgeGrab = 
+                        ftValueAccesser::getConstantInt(moduleAccesser, ftValueAccesser:: Common_Param_Int_Cliff_No_Catch_Frame, 0)
+                        - workManageModule->getInt(Fighter::Instance_Work_Int_Cliff_No_Catch_Frame);
+                    if ((walljumpSpentTemp & playerBit) || framesSinceLedgeGrab < 8)
                     {
+                        OSReport_N("%sWalljump Disabled\n", outputTag);
                         statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump);
                     }
                     else
