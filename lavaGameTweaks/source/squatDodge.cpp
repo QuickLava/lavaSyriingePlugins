@@ -22,6 +22,7 @@ namespace squatDodge
         pf_ParryBuffered,
         pf_WallJumpSpent,
         pf_WalljumpOutOfSpecialEnabled,
+        pf_TiltCancelReverseEnabled,
         pf__COUNT
     };
     u8 perPlayerFlags[pf__COUNT];
@@ -71,12 +72,13 @@ namespace squatDodge
 
             u32 currStatus = statusModule->getStatusKind();
 
-            u32 playerBit = 1 << fighterPlayerNo;
+            const u32 playerBit = 1 << fighterPlayerNo;
             u32 dodgeSpentTemp =    perPlayerFlags[pf_DodgeSpent];
             u32 dodgeBufferedTemp = perPlayerFlags[pf_DodgeBuffered];
             u32 walljumpSpentTemp = perPlayerFlags[pf_WallJumpSpent];
             u32 parryBufferedTemp = perPlayerFlags[pf_ParryBuffered];
             u32 specialWalljumpTemp = perPlayerFlags[pf_WalljumpOutOfSpecialEnabled];
+            u32 tiltCancelReverseTemp = perPlayerFlags[pf_TiltCancelReverseEnabled];
 
             switch (currStatus)
             {
@@ -139,7 +141,11 @@ namespace squatDodge
                 {
                     soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
                     u32 currMotion = motionModule->getKind();
-                    if (mechUtil::currAnimProgress(fighterIn) >= 0.25
+                    if (moduleAccesser->m_enumerationStart->m_collisionAttackModule->isInflictStatus() & 0b110)
+                    {
+                        tiltCancelReverseTemp |= playerBit;
+                    }
+                    if (mechUtil::currAnimProgress(fighterIn) >= 0.20
                         && moduleAccesser->m_enumerationStart->m_controllerModule->getTrigger().m_attack
                         && (currMotion == Fighter::Motion_Attack_11 || currMotion == Fighter::Motion_Attack_12))
                     {
@@ -156,6 +162,21 @@ namespace squatDodge
                         else if (stickY < ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Common_Param_Float_Attack_Lw3_Stick_Y, 0))
                         {
                             statusModule->changeStatusRequest(Fighter::Status_Attack_Lw3, moduleAccesser);
+                        }
+                    }
+                    break;
+                }
+                case Fighter::Status_Attack_Hi3: case Fighter::Status_Attack_Lw3:
+                {
+                    if (moduleAccesser->m_enumerationStart->m_motionModule->getFrame() < 2.0f)
+                    {
+                        float stickX = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_X_Lr, 0);
+                        if ((tiltCancelReverseTemp & playerBit) && stickX <= -0.1f)
+                        {
+                            OSReport_N("%sReverse Requested\n", outputTag);
+                            moduleAccesser->m_enumerationStart->m_postureModule->reverseLr();
+                            moduleAccesser->m_enumerationStart->m_postureModule->updateRotYLr();
+                            tiltCancelReverseTemp &= ~playerBit;
                         }
                     }
                     break;
@@ -244,6 +265,11 @@ namespace squatDodge
                     }
                     break;
                 }
+                default:
+                {
+                    tiltCancelReverseTemp &= ~playerBit;
+                    break;
+                }
             }
 
             if (statusModule->getPrevStatusKind(0) == Fighter::Status_Jump_Squat)
@@ -318,6 +344,7 @@ namespace squatDodge
             perPlayerFlags[pf_WallJumpSpent] = walljumpSpentTemp;
             perPlayerFlags[pf_ParryBuffered] = parryBufferedTemp;
             perPlayerFlags[pf_WalljumpOutOfSpecialEnabled] = specialWalljumpTemp;
+            perPlayerFlags[pf_TiltCancelReverseEnabled] = tiltCancelReverseTemp;
         }
     }
     void onAttackCallback(Fighter* attacker, StageObject* target, float damage, StageObject* projectile, u32 attackKind, u32 attackSituation)
