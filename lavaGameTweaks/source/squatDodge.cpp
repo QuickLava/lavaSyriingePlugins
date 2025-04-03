@@ -1,5 +1,5 @@
-#include <ft/fighter.h>
 #include <st/st_utility.h>
+#include <ft/ft_external_value_accesser.h>
 #include "squatDodge.h"
 
 using namespace codeMenu;
@@ -40,7 +40,7 @@ namespace squatDodge
                 wallCheckVec.m_x *= -1.0f;
             }
             int lineOut;
-            Vec3f currPos = postureModule->getPos();
+            Vec3f currPos = ftExternalValueAccesser::getHipPos(fighterIn);
             Vec3f hitPosOut;
             Vec3f normalVecOut;
             if (stRayCheck(&currPos, &wallCheckVec, &lineOut, &hitPosOut, &normalVecOut, 1, 0, 1))
