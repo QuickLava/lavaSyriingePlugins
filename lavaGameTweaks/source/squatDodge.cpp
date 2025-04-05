@@ -244,6 +244,7 @@ namespace squatDodge
                     {
                         statusModule->changeStatusRequest(Fighter::Status_Escape_Air, moduleAccesser);
                     }
+                    break;
                 }
                 case Fighter::Status_Dash:
                 {
