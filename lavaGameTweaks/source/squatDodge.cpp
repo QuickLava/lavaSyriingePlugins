@@ -163,13 +163,13 @@ namespace squatDodge
                     float stickX = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_X_Lr, 0);
                     if ((tiltCancelReverseTemp & playerBit) && stickX <= -0.1f)
                     {
-                        tiltCancelReverseTemp &= ~playerBit;
                         OSReport_N("%sReverse Requested\n", outputTag);
                         soPostureModule* postureModule = moduleAccesser->m_enumerationStart->m_postureModule;
                         postureModule->reverseLr();
                         postureModule->updateRotYLr();
                         statusModule->changeStatusRequest(currStatus, moduleAccesser);
                     }
+                    tiltCancelReverseTemp &= ~playerBit;
                     break;
                 }
                 case Fighter::Status_FuraFura:
