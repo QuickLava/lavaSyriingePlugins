@@ -13,6 +13,7 @@ namespace squatDodge
     const u32 parryActiveBit = 0x2200001E;
     const u32 parrySuccessBit = 0x2200001F;
     const u32 airdodgeTimerVar = 0x20000001;
+    const float babyDashMinSpeed = 1.666f;
     const float setShieldSize = 60.0f;
     const float parryActiveAnimSpeed = 0.4f;
     const float parryInactiveAnimSpeed = 0.2f;
@@ -271,11 +272,15 @@ namespace squatDodge
                         if (stickXAbs < 0.2f && stickYAbs < 0.2f)
                         {
                             soKineticModule* kineticModule = moduleAccesser->m_enumerationStart->m_kineticModule;
-                            soInstanceAttribute energyMask = { 0xFFFF };
-                            Vec3f currSpeed = kineticModule->getSumSpeed3f(&energyMask);
-                            currSpeed.m_x *= moduleAccesser->m_enumerationStart->m_postureModule->getLr();
                             statusModule->changeStatus(Fighter::Status_Wait, moduleAccesser);
-                            kineticModule->addSpeed(&currSpeed, moduleAccesser);
+                            kineticModule->clearSpeedAll();
+                            float targetXSpeed = ftValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Dash_Speed, 0);
+                            if (targetXSpeed < babyDashMinSpeed)
+                            {
+                                targetXSpeed = babyDashMinSpeed;
+                            }
+                            Vec3f newSpeed = { targetXSpeed, 0.0f, 0.0f };
+                            kineticModule->addSpeed(&newSpeed, moduleAccesser);
                         }
                     }
                     break;
