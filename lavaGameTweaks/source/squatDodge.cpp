@@ -14,6 +14,10 @@ namespace squatDodge
     const u32 parrySuccessBit = 0x2200001F;
     const u32 airdodgeTimerVar = 0x20000001;
     const float setShieldSize = 60.0f;
+    const float parryActiveAnimSpeed = 0.4f;
+    const float parryInactiveAnimSpeed = 0.2f;
+    const float parryActivityProportion = 0.5f;
+    const float parryActivityProportionRecpr = (1.0f / parryActivityProportion);
 
     enum playerFlags
     {
@@ -198,9 +202,11 @@ namespace squatDodge
                 {
                     soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
                     soDamageModule* damageModule = moduleAccesser->m_enumerationStart->m_damageModule;
+
+                    float animProgress = mechUtil::currAnimProgress(fighterIn);
                     if (parryBufferedTemp & playerBit)
                     {
-                        motionModule->setRate(0.33f);
+                        motionModule->setRate(parryActiveAnimSpeed);
                         g_ecMgr->endEffect(mechUtil::reqCenteredGraphic(fighterIn, ef_ptc_pokemon_fire_04, 1.0f, 0));
                         moduleAccesser->m_enumerationStart->m_effectModule->req(ef_ptc_common_vertical_smoke_b, mechUtil::sbid_TransN,
                             &mechUtil::zeroVec, &mechUtil::zeroVec, 1.0f, &mechUtil::zeroVec, &mechUtil::zeroVec, 0, 0);
@@ -211,23 +217,32 @@ namespace squatDodge
                         workManageModule->setInt(0x00, 0x20000003);
                         workManageModule->setInt(0xFF, 0x20000005);
                     }
-                    if (workManageModule->isFlag(parryActiveBit) && mechUtil::currAnimProgress(fighterIn) >= 0.33f)
+                    if (workManageModule->isFlag(parryActiveBit))
                     {
-                        damageModule->resetNoReactionModeStatus();
-                        damageModule->setDamageMul(1.0f);
-                        workManageModule->offFlag(parryActiveBit);
-                        if (workManageModule->isFlag(parrySuccessBit))
+                        GXColor parryFlashRGBA = { 0x08, 0x08, 0x00, 0x00 };
+                        if (animProgress < parryActivityProportion)
                         {
-                            workManageModule->setInt(0x5, 0x20000005);
-                            mechUtil::playSE(fighterIn, snd_se_Audience_Kansei_l);
+                            parryFlashRGBA.a = 256.0f * (1.0f - (parryActivityProportionRecpr * animProgress));
                         }
                         else
                         {
-                            motionModule->setRate(0.25f);
-                            mechUtil::playSE(fighterIn, snd_se_Audience_Zannen);
+                            damageModule->resetNoReactionModeStatus();
+                            damageModule->setDamageMul(1.0f);
+                            workManageModule->offFlag(parryActiveBit);
+                            if (workManageModule->isFlag(parrySuccessBit))
+                            {
+                                workManageModule->setInt(0x5, 0x20000005);
+                                mechUtil::playSE(fighterIn, snd_se_Audience_Kansei_l);
+                            }
+                            else
+                            {
+                                motionModule->setRate(parryInactiveAnimSpeed);
+                                mechUtil::playSE(fighterIn, snd_se_Audience_Zannen);
+                            }
                         }
-                        break;
+                        moduleAccesser->m_enumerationStart->m_colorBlendModule->setFlash(parryFlashRGBA, 1);
                     }
+                    break;
                 }
                 case Fighter::Status_Fall_Special:
                 {
@@ -382,6 +397,8 @@ namespace squatDodge
                     {
                         at_statusModule->unableTransitionTermGroup(i);
                     }
+                    GXColor parryFlashRGBA = { 0x08, 0x08, 0x00, 0xA0 };
+                    at_moduleAccesser->m_enumerationStart->m_colorBlendModule->setFlash(parryFlashRGBA, 1);
                     at_moduleAccesser->m_enumerationStart->m_motionModule->setRate(0.5f);
                 }
                 else if (at_situation == Situation_Air)
