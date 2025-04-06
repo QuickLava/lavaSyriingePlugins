@@ -341,13 +341,11 @@ namespace squatDodge
                                 soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
                                 if (!motionModule->isLooped() && motionModule->getFrame() >= 15.0f)
                                 {
-                                    soKineticModule* kineticModule = moduleAccesser->m_enumerationStart->m_kineticModule;
-                                    soInstanceAttribute energyFlags = { 0xFFFF };
-                                    float ySpeed = kineticModule->getSumSpeed(&energyFlags).m_y;
-                                    float ySpeedFromGravity = kineticModule->getEnergy(Fighter::Kinetic_Energy_Gravity)->getSpeed().m_y;
                                     float animProgress = mechUtil::currAnimProgress(fighterIn);
+                                    float ySpeed =
+                                        ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Kinetic_Sum_Speed_Y, 0);
                                     if (animProgress >= 0.80f 
-                                        || (animProgress >= 0.50f && ySpeedFromGravity < -0.5f && !fighterIn->isEnableCancel()))
+                                        || (animProgress >= 0.50f && ySpeed < -0.5f && !fighterIn->isEnableCancel()))
                                     {
                                         specialWalljumpTemp |= playerBit;
                                     }
