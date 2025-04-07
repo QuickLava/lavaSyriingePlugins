@@ -128,10 +128,18 @@ namespace squatDodge
                         airdodgeTimer--;
                     }
                     workManageModule->setInt(airdodgeTimer, airdodgeTimerVar);
-                    if (airdodgeTimer <= -0x06)
+                    if (airdodgeTimer > -0x0A)
+                    {
+                        Vec3f gravityMultiplier = { 0.0f, 0.0f, 0.0f };
+                        moduleAccesser->m_enumerationStart->m_kineticModule->getEnergy(Fighter::Kinetic_Energy_Gravity)->mulAccel(&gravityMultiplier);
+                    }
+                    else
                     {
                         workManageModule->setInt(0, airdodgeTimerVar);
+                        soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
+                        soMotionChangeParam changeParam = { motionModule->getKind(), motionModule->getFrame(), 1.0f };
                         statusModule->changeStatus(Fighter::Status_Fall_Aerial, moduleAccesser);
+                        motionModule->changeMotionRequest(&changeParam);
                     }
                     break;
                 }
