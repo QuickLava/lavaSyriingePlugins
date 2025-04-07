@@ -369,6 +369,31 @@ namespace squatDodge
             perPlayerFlags[pf_TiltCancelReverseEnabled] = tiltCancelReverseTemp;
         }
     }
+    void onStatusChangeCallback(Fighter* fighterIn)
+    {
+        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
+        if (fighterPlayerNo < fighterHooks::maxFighterCount)
+        {
+            soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
+            soStatusModule* statusModule = fighterIn->m_moduleAccesser->m_enumerationStart->m_statusModule;
+            u32 currSituation = moduleAccesser->m_enumerationStart->m_situationModule->getKind();
+            if (currSituation == Situation_Air)
+            {
+                const u32 playerBit = 1 << fighterPlayerNo;
+                u32 walljumpSpentTemp = perPlayerFlags[pf_WallJumpSpent];
+                u32 framesTillLedgeGrabAllowed = 
+                    moduleAccesser->m_enumerationStart->m_workManageModule->getInt(Fighter::Instance_Work_Int_Cliff_No_Catch_Frame);
+                u32 framesSinceLedgeGrab =
+                    ftValueAccesser::getConstantInt(moduleAccesser, ftValueAccesser::Common_Param_Int_Cliff_No_Catch_Frame, 0)
+                    - framesTillLedgeGrabAllowed;
+                if ((walljumpSpentTemp & playerBit) || framesSinceLedgeGrab < 8)
+                {
+                    OSReport_N("%sWalljump Disabled on StatusChange\n", outputTag);
+                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump);
+                }
+            }
+        }
+    }
     void onAttackCallback(Fighter* attacker, StageObject* target, float damage, StageObject* projectile, u32 attackKind, u32 attackSituation)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(attacker);
@@ -467,6 +492,7 @@ namespace squatDodge
     {
         .m_FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
         .m_FighterOnAttackCB = (fighterHooks::FighterOnAttackCB)onAttackCallback,
+        .m_FighterOnStatusChangeCB = (fighterHooks::FighterOnStatusChangeCB)onStatusChangeCallback,
     };
 #pragma c99 off
 
