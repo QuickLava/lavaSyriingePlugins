@@ -12,6 +12,7 @@ namespace squatDodge
 
     const u32 parryActiveBit = 0x2200001E;
     const u32 parrySuccessBit = 0x2200001F;
+    const u32 parrySuccessInvincFrames = 90;
     const u32 airdodgeTimerVar = 0x20000001;
     const float babyDashMinSpeed = 1.666f;
     const float setShieldSize = 60.0f;
@@ -220,6 +221,8 @@ namespace squatDodge
                             if (workManageModule->isFlag(parrySuccessBit))
                             {
                                 workManageModule->setInt(0x5, 0x20000005);
+                                soCollisionHitModule* hitModule = moduleAccesser->m_enumerationStart->m_collisionHitModule;
+                                hitModule->setInvincibleFrameGlobal(parrySuccessInvincFrames, 1, 0);
                                 mechUtil::playSE(fighterIn, snd_se_Audience_Kansei_l);
                             }
                             else
