@@ -394,6 +394,14 @@ namespace squatDodge
                     }
                     break;
                 }
+                case Fighter::Status_FuraFura_End:
+                {
+                    for (u32 i = Fighter::Status_Transition_Term_Group_Chk_Ground_Special; i <= Fighter::Status_Transition_Term_Group_Chk_Ground; i++)
+                    {
+                        statusModule->unableTransitionTermGroup(i);
+                    }
+                    break;
+                }
             }
             
             u32 currSituation = moduleAccesser->m_enumerationStart->m_situationModule->getKind();
@@ -443,10 +451,6 @@ namespace squatDodge
                     if (attackKind >= fighterHooks::ak_ATTACK_DASH)
                     {
                         at_statusModule->changeStatusRequest(Fighter::Status_FuraFura_End, at_moduleAccesser);
-                        for (u32 i = Fighter::Status_Transition_Term_Group_Chk_Ground_Special; i <= Fighter::Status_Transition_Term_Group_Chk_Ground; i++)
-                        {
-                            at_statusModule->unableTransitionTermGroup(i);
-                        }
                         GXColor parryFlashRGBA = { 0x08, 0x08, 0x00, 0xA0 };
                         at_moduleAccesser->m_enumerationStart->m_colorBlendModule->setFlash(parryFlashRGBA, 1);
                         at_moduleAccesser->m_enumerationStart->m_motionModule->setRate(0.5f);
