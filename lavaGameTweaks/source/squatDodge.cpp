@@ -205,19 +205,6 @@ namespace squatDodge
                     soDamageModule* damageModule = moduleAccesser->m_enumerationStart->m_damageModule;
 
                     float animProgress = mechUtil::currAnimProgress(fighterIn);
-                    if (parryBufferedTemp & playerBit)
-                    {
-                        motionModule->setRate(parryActiveAnimSpeed);
-                        g_ecMgr->endEffect(mechUtil::reqCenteredGraphic(fighterIn, ef_ptc_pokemon_fire_04, 1.0f, 0));
-                        moduleAccesser->m_enumerationStart->m_effectModule->req(ef_ptc_common_vertical_smoke_b, mechUtil::sbid_TransN,
-                            &mechUtil::zeroVec, &mechUtil::zeroVec, 1.0f, &mechUtil::zeroVec, &mechUtil::zeroVec, 0, 0);
-                        parryBufferedTemp &= ~playerBit;
-                        damageModule->setNoReactionModeStatus(500.0f, -1.0f, 2);
-                        damageModule->setDamageMul(0.0f);
-                        workManageModule->onFlag(parryActiveBit);
-                        workManageModule->setInt(0x00, 0x20000003);
-                        workManageModule->setInt(0xFF, 0x20000005);
-                    }
                     if (workManageModule->isFlag(parryActiveBit))
                     {
                         GXColor parryFlashRGBA = { 0x08, 0x08, 0x00, 0x00 };
@@ -376,11 +363,43 @@ namespace squatDodge
         {
             soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
             soStatusModule* statusModule = fighterIn->m_moduleAccesser->m_enumerationStart->m_statusModule;
+
+            const u32 playerBit = 1 << fighterPlayerNo;
+            u32 walljumpSpentTemp = perPlayerFlags[pf_WallJumpSpent];
+            u32 parryBufferedTemp = perPlayerFlags[pf_ParryBuffered];
+
+            switch (statusModule->getStatusKind())
+            {
+                case Fighter::Status_Guard_Off:
+                {
+                    soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
+                    soDamageModule* damageModule = moduleAccesser->m_enumerationStart->m_damageModule;
+                    soWorkManageModule* workManageModule = moduleAccesser->m_enumerationStart->m_workManageModule;
+
+                    if (parryBufferedTemp & playerBit)
+                    {
+                        parryBufferedTemp &= ~playerBit;
+
+                        motionModule->setRate(parryActiveAnimSpeed);
+                        g_ecMgr->endEffect(mechUtil::reqCenteredGraphic(fighterIn, ef_ptc_pokemon_fire_04, 1.0f, 0));
+                        moduleAccesser->m_enumerationStart->m_effectModule->req(ef_ptc_common_vertical_smoke_b, mechUtil::sbid_TransN,
+                            &mechUtil::zeroVec, &mechUtil::zeroVec, 1.0f, &mechUtil::zeroVec, &mechUtil::zeroVec, 0, 0);
+                        damageModule->setNoReactionModeStatus(500.0f, -1.0f, 2);
+                        damageModule->setDamageMul(0.0f);
+                        workManageModule->onFlag(parryActiveBit);
+                        workManageModule->setInt(0x00, 0x20000003);
+                        workManageModule->setInt(0xFF, 0x20000005);
+                        statusModule->unableTransitionTerm(Fighter::Status_Transition_Term_Cont_Jump_Squat, 0);
+                        statusModule->unableTransitionTerm(Fighter::Status_Transition_Term_Cont_Jump_Squat_Button, 0);
+                    }
+                    break;
+                }
+            }
+            
             u32 currSituation = moduleAccesser->m_enumerationStart->m_situationModule->getKind();
             if (currSituation == Situation_Air)
             {
-                const u32 playerBit = 1 << fighterPlayerNo;
-                u32 walljumpSpentTemp = perPlayerFlags[pf_WallJumpSpent];
+                
                 u32 framesTillLedgeGrabAllowed = 
                     moduleAccesser->m_enumerationStart->m_workManageModule->getInt(Fighter::Instance_Work_Int_Cliff_No_Catch_Frame);
                 u32 framesSinceLedgeGrab =
@@ -392,6 +411,9 @@ namespace squatDodge
                     statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump);
                 }
             }
+
+            perPlayerFlags[pf_WallJumpSpent] = walljumpSpentTemp;
+            perPlayerFlags[pf_ParryBuffered] = parryBufferedTemp;
         }
     }
     void onAttackCallback(Fighter* attacker, StageObject* target, float damage, StageObject* projectile, u32 attackKind, u32 attackSituation)
@@ -413,8 +435,6 @@ namespace squatDodge
                 && tr_moduleAccesser->m_enumerationStart->m_statusModule->getStatusKind() == Fighter::Status_Guard_Off)
             {
                 tr_workManageModule->onFlag(parrySuccessBit);
-
-                g_ecMgr->endEffect(mechUtil::reqCenteredGraphic(target, ef_ptc_pokemon_fire_04, 1.0f, 0));
 
                 soStatusModule* at_statusModule = at_moduleAccesser->m_enumerationStart->m_statusModule;
                 SituationKind at_situation = at_moduleAccesser->m_enumerationStart->m_situationModule->getKind();
