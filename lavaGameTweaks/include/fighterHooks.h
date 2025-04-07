@@ -31,6 +31,7 @@ namespace fighterHooks
 	typedef GenericFighterEventCB FighterOnStartCB;
 	typedef GenericFighterEventCB FighterOnRemoveCB;
 	typedef GenericFighterEventCB FighterOnUpdateCB;
+	typedef GenericFighterEventCB FighterOnStatusChangeCB;
 
 	typedef void (*FighterOnHitCB)(Fighter*, StageObject*, float);
 	typedef void (*FighterOnAttackCB)(Fighter*, StageObject*, float, StageObject*, u32, u32);
@@ -69,10 +70,12 @@ namespace fighterHooks
 		FighterOnStartCB m_FighterOnStartCB;
 		FighterOnRemoveCB m_FighterOnRemoveCB;
 		FighterOnUpdateCB m_FighterOnUpdateCB;
+		FighterOnStatusChangeCB m_FighterOnStatusChangeCB;
 
 		FighterOnHitCB m_FighterOnHitCB;
 		FighterOnAttackCB m_FighterOnAttackCB;
 	};
+	const u32 test = sizeof(callbackBundle);
 #define CALLBACK_INDEX(callbackMember) offsetof(callbackBundle, callbackMember) / sizeof(void*)
 
 #define INCLUDE_OUTSIDE_OBSERVER false
@@ -136,8 +139,10 @@ namespace fighterHooks
 		static void performOnStartCallbacks();
 		// OnRemove Callbacks
 		static void performOnRemoveCallbacks();
-		// Update Callbacks
+		// OnUpdate Callbacks
 		static void performOnUpdateCallbacks();
+		// OnStatusChange Callbacks
+		static void performOnStatusChangeCallbacks();
 
 		// OnHit & OnAttack Callbacks
 		static void performOnAttackCallbacks();
