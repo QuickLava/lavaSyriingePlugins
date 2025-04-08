@@ -211,22 +211,26 @@ namespace squatDodge
                 }
                 case Fighter::Status_Guard_Off:
                 {
-                    soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
-                    soDamageModule* damageModule = moduleAccesser->m_enumerationStart->m_damageModule;
-
                     float animProgress = mechUtil::currAnimProgress(fighterIn);
                     if (workManageModule->isFlag(parryActiveBit))
                     {
                         GXColor parryFlashRGBA = { 0x08, 0x08, 0x00, 0x00 };
-                        if (animProgress < parryActivityProportion)
+                        soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
+                        soDamageModule* damageModule = moduleAccesser->m_enumerationStart->m_damageModule;
+                        soCollisionShieldModuleImpl* collisionReflectModule = (soCollisionShieldModuleImpl*)moduleAccesser->m_enumerationStart->m_collisionReflectorModule;
+
+                        if (collisionReflectModule->m_collisionOccurred != 0x00)
                         {
-                            parryFlashRGBA.a = 256.0f * (1.0f - (parryActivityProportionRecpr * animProgress));
+                            workManageModule->onFlag(parrySuccessBit);
                         }
-                        else
+
+                        if (animProgress >= parryActivityProportion
+                            || workManageModule->isFlag(parrySuccessBit))
                         {
-                            damageModule->resetNoReactionModeStatus();
                             damageModule->setDamageMul(1.0f);
+                            damageModule->resetNoReactionModeStatus();
                             workManageModule->offFlag(parryActiveBit);
+                            moduleAccesser->m_enumerationStart->m_collisionReflectorModule->setStatusAll(0, 1);
                             if (workManageModule->isFlag(parrySuccessBit))
                             {
                                 workManageModule->setInt(0x5, 0x20000005);
@@ -239,6 +243,10 @@ namespace squatDodge
                                 motionModule->setRate(parryInactiveAnimSpeed);
                                 mechUtil::playSE(fighterIn, snd_se_Audience_Zannen);
                             }
+                        }
+                        else
+                        {
+                            parryFlashRGBA.a = 256.0f * (1.0f - (parryActivityProportionRecpr * animProgress));
                         }
                         moduleAccesser->m_enumerationStart->m_colorBlendModule->setFlash(parryFlashRGBA, 1);
                     }
@@ -403,6 +411,7 @@ namespace squatDodge
                         workManageModule->setInt(0xFF, 0x20000005);
                         statusModule->unableTransitionTerm(Fighter::Status_Transition_Term_Cont_Jump_Squat, 0);
                         statusModule->unableTransitionTerm(Fighter::Status_Transition_Term_Cont_Jump_Squat_Button, 0);
+                        moduleAccesser->m_enumerationStart->m_collisionReflectorModule->setStatusAll(1, 1);
                     }
                     break;
                 }
