@@ -385,11 +385,18 @@ namespace squatDodge
             soStatusModule* statusModule = fighterIn->m_moduleAccesser->m_enumerationStart->m_statusModule;
 
             const u32 playerBit = 1 << fighterPlayerNo;
+            u32 dodgeSpentTemp = perPlayerFlags[pf_DodgeSpent];
             u32 walljumpSpentTemp = perPlayerFlags[pf_WallJumpSpent];
             u32 parryBufferedTemp = perPlayerFlags[pf_ParryBuffered];
 
             switch (statusModule->getStatusKind())
             {
+                case Fighter::Status_Rebirth:
+                {
+                    dodgeSpentTemp &= ~playerBit;
+                    walljumpSpentTemp &= ~playerBit;
+                    break;
+                }
                 case Fighter::Status_Guard_Off:
                 {
                     soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
@@ -441,6 +448,7 @@ namespace squatDodge
                 }
             }
 
+            perPlayerFlags[pf_DodgeSpent] = dodgeSpentTemp;
             perPlayerFlags[pf_WallJumpSpent] = walljumpSpentTemp;
             perPlayerFlags[pf_ParryBuffered] = parryBufferedTemp;
         }
