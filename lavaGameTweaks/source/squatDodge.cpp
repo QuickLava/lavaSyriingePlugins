@@ -114,7 +114,8 @@ namespace squatDodge
                         int lineIDOut;
                         Vec3f hitPosOut;
                         Vec3f normalVecOut;
-                        if (stRayCheck(&currPos, &searchVector, &lineIDOut, &hitPosOut, &normalVecOut, 1, 0, 1))
+                        if (stRayCheck(&currPos, &searchVector, &lineIDOut, &hitPosOut, &normalVecOut, 1, 0, 1)
+                            && ftValueAccesser::getValueFloat(moduleAccesser, ftValueAccesser::Variable_Float_Kinetic_Sum_Speed_Y, 0) <= 0.0f)
                         {
                             float distanceFromGround = currPos.m_y - hitPosOut.m_y;
                             OSReport_N("%sDistanceFromGround: %.3f\n", outputTag, distanceFromGround);
