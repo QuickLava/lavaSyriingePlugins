@@ -166,47 +166,23 @@ namespace rasterizeVars
     };
     const cmdWhitelistEntry allowedCommands[] =
     {
-        // Graphics Commands
-        { 0x11, 0x15, tli_033},                              // [11150300] Terminate Graphic Effect
-        { 0x11, 0x01, tli_0011111113 },                      // [11010A00] Graphic Effect (Attached)
-        { 0x11, 0x02, tli_0011111113 },                      // [11020A00] Graphic Effect (Attached 2)
-        { 0x11, 0x19, tli_0011111113 },                      // [11190A00] Graphic Effect (Attached 19)
-        { 0x11, 0x00, tli_0011111111111113 },                // [11001000] Graphic Effect
-        { 0x11, 0x1A, tli_0011111111111113 },                // [111A1000] Graphic Effect (Stepping)
-        { 0x11, 0x1B, tli_0011111111111113 },                // [111B1000] Graphic Effect (Landing)
-        { 0x11, 0x1C, tli_0011111111111113 },                // [111C1000] Graphic Effect (Tumbling)
-        { 0x11, 0x03, tli_0001110111300111, tli_1111001 },   // [11031400] Sword Glow
-        { 0x11, 0x04, tli_0001110111300111, tli_1111001 },   // [11041700] Sword/Hammer Glow
-
-        // Hitbox Commands
-        { 0x06, 0x01, tli_01 },                              // [06010200] Change Hitbox Damage
-        { 0x06, 0x02, tli_01 },                              // [06020200] Change Hitbox Size
-        { 0x06, 0x17, tli_000 },                             // [06170300] Defensive Collision
-        { 0x06, 0x1E, tli_030 },                             // [061E0300] Defensive Collision: Flip Toggle
-        { 0x06, 0x1B, tli_00111 },                           // [061B0500] Move Hitbox
-        { 0x06, 0x0F, tli_00555 },                           // [060F0500] Throw Collision
-        { 0x06, 0x0A, tli_00111100 },                        // [060A0800] Catch Collision
-        { 0x06, 0x00, tli_000001111111000 },                 // [06000D00] Offensive Collision
-        { 0x06, 0x2B, tli_000001111111000 },                 // [062B0D00] Thrown Collision
-        { 0x06, 0x15, tli_000001111111000 },                 // [06150F00] Special Offensive Collision
-        { 0x06, 0x2C, tli_000001111111000 },                 // [062C0F00] Special Collateral Collision
-        { 0x06, 0x24, tli_0001111111111310 },                // [06241000] Generate Defensive Collision Bubble
-        { 0x06, 0x0E, tli_0000000011100033, tli_0 },         // [060E1100] Throw Attack Collision
-        { 0x06, 0x10, tli_0001111000300303, tli_0 },         // [06101100] Inert Collision
-
         // Bone Commands
+        { 0x03, 0x01, tli_0111 },                            // [03010400] Set Bone Rotation (XYZ)
         { 0x03, 0x02, tli_01 },                              // [03020200] Set Bone Rotation (X)
         { 0x03, 0x03, tli_01 },                              // [03030200] Set Bone Rotation (Y)
         { 0x03, 0x04, tli_01 },                              // [03040200] Set Bone Rotation (Z)
+        { 0x03, 0x06, tli_0111 },                            // [03060400] Set Bone Scale (XYZ)
         { 0x03, 0x07, tli_01 },                              // [03070200] Set Bone Scale (X)
         { 0x03, 0x08, tli_01 },                              // [03080200] Set Bone Scale (Y)
         { 0x03, 0x09, tli_01 },                              // [03090200] Set Bone Scale (Z)
+        { 0x03, 0x0B, tli_0111 },                            // [030B0400] Set Bone Translation (XYZ)
         { 0x03, 0x0C, tli_01 },                              // [030C0200] Set Bone Translation (X)
         { 0x03, 0x0D, tli_01 },                              // [030D0200] Set Bone Translation (Y)
         { 0x03, 0x0E, tli_01 },                              // [030E0200] Set Bone Translation (Z)
-        { 0x03, 0x01, tli_0111 },                            // [03010400] Set Bone Rotation (XYZ)
-        { 0x03, 0x06, tli_0111 },                            // [03060400] Set Bone Scale (XYZ)
-        { 0x03, 0x0B, tli_0111 },                            // [030B0400] Set Bone Translation (XYZ)
+
+        // Anim Override Commands
+        { 0x04, 0x0E, tli_01 },                              // [040E0200] Set Bone Motion Override Animation Frame
+        { 0x04, 0x0F, tli_01 },                              // [040F0200] Set Bone Motion Override Frame Speed Modifier
 
         // Char Pos/Rot Commands
         { 0x05, 0x05, tli_1 },                               // [05050100] Change Model Size
@@ -215,11 +191,21 @@ namespace rasterizeVars
         { 0x05, 0x0A, tli_111 },                             // [050A0300] Set Character Position 2
         { 0x05, 0x0B, tli_111 },                             // [050B0300] Set Character Position (Relative)
 
-        // Flash Overlay Commands
-        { 0x21, 0x01, tli_0000 },                            // [21010400] Flash Overlay Effect
-        { 0x21, 0x02, tli_00000 },                           // [21020500] Change Flash Overlay Color
-        { 0x21, 0x07, tli_00000 },                           // [21070500] Change Flash Light Color
-        { 0x21, 0x05, tli_000011 },                          // [21050600] Flash Light Effect
+        // Hitbox Commands
+        { 0x06, 0x00, tli_000001111111000 },                 // [06000D00] Offensive Collision
+        { 0x06, 0x01, tli_01 },                              // [06010200] Change Hitbox Damage
+        { 0x06, 0x02, tli_01 },                              // [06020200] Change Hitbox Size
+        { 0x06, 0x0A, tli_00111100 },                        // [060A0800] Catch Collision
+        { 0x06, 0x0E, tli_0000000011100033, tli_0 },         // [060E1100] Throw Attack Collision
+        { 0x06, 0x0F, tli_00555 },                           // [060F0500] Throw Collision
+        { 0x06, 0x10, tli_0001111000300303, tli_0 },         // [06101100] Inert Collision
+        { 0x06, 0x15, tli_000001111111000 },                 // [06150F00] Special Offensive Collision
+        { 0x06, 0x17, tli_000 },                             // [06170300] Defensive Collision
+        { 0x06, 0x1B, tli_00111 },                           // [061B0500] Move Hitbox
+        { 0x06, 0x1E, tli_030 },                             // [061E0300] Defensive Collision: Flip Toggle
+        { 0x06, 0x24, tli_0001111111111310 },                // [06241000] Generate Defensive Collision Bubble
+        { 0x06, 0x2B, tli_000001111111000 },                 // [062B0D00] Thrown Collision
+        { 0x06, 0x2C, tli_000001111111000 },                 // [062C0F00] Special Collateral Collision
 
         // Kinetic Module Commands
         { 0x0E, 0x02, tli_0 },                               // [0E020100] Prevent Horizontal Gravity
@@ -230,9 +216,23 @@ namespace rasterizeVars
         { 0x0E, 0x07, tli_0 },                               // [0E070100] Reallow Certain Movements
         { 0x0E, 0x08, tli_1133 },                            // [0E080400] Set Momentum, Set/Add Momentum
 
-        // Anim Override Commands
-        { 0x04, 0x0E, tli_01 },                              // [040E0200] Set Bone Motion Override Animation Frame
-        { 0x04, 0x0F, tli_01 },                              // [040F0200] Set Bone Motion Override Frame Speed Modifier
+        // Graphics Commands
+        { 0x11, 0x00, tli_0011111111111113 },                // [11001000] Graphic Effect
+        { 0x11, 0x01, tli_0011111113 },                      // [11010A00] Graphic Effect (Attached)
+        { 0x11, 0x02, tli_0011111113 },                      // [11020A00] Graphic Effect (Attached 2)
+        { 0x11, 0x03, tli_0001110111300111, tli_1111001 },   // [11031400] Sword Glow
+        { 0x11, 0x04, tli_0001110111300111, tli_1111001 },   // [11041700] Sword/Hammer Glow
+        { 0x11, 0x15, tli_033},                              // [11150300] Terminate Graphic Effect
+        { 0x11, 0x19, tli_0011111113 },                      // [11190A00] Graphic Effect (Attached 19)
+        { 0x11, 0x1A, tli_0011111111111113 },                // [111A1000] Graphic Effect (Stepping)
+        { 0x11, 0x1B, tli_0011111111111113 },                // [111B1000] Graphic Effect (Landing)
+        { 0x11, 0x1C, tli_0011111111111113 },                // [111C1000] Graphic Effect (Tumbling)
+
+        // Flash Overlay Commands
+        { 0x21, 0x01, tli_0000 },                            // [21010400] Flash Overlay Effect
+        { 0x21, 0x02, tli_00000 },                           // [21020500] Change Flash Overlay Color
+        { 0x21, 0x05, tli_000011 },                          // [21050600] Flash Light Effect
+        { 0x21, 0x07, tli_00000 },                           // [21070500] Change Flash Light Color
     };
     const u32 allowedCommandCount = sizeof(allowedCommands) / sizeof(cmdWhitelistEntry);
 
