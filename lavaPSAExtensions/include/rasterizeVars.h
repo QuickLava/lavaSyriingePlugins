@@ -61,6 +61,7 @@ namespace rasterizeVars
         enum supportedCommandGroups
         {
             scg_SYSTEM,
+            scg_STATUS,
             scg_MODEL,
             scg_MOTION,
             scg_POSTURE,
@@ -72,6 +73,7 @@ namespace rasterizeVars
         };
 
         static const cmdWhitelistEntry m_allowedCommands_System[];
+        static const cmdWhitelistEntry m_allowedCommands_Status[];
         static const cmdWhitelistEntry m_allowedCommands_Model[];
         static const cmdWhitelistEntry m_allowedCommands_Motion[];
         static const cmdWhitelistEntry m_allowedCommands_Posture[];

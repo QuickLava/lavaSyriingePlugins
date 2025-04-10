@@ -162,6 +162,18 @@ namespace rasterizeVars
         { 0x07, tli_0 },                               // [00070100] Subroutine
         { 0x09, tli_0 },                               // [00090100] Goto
     };
+    // Group 0x02: soStatusModule
+    const cmdWhitelistEntry cmdWhitelist::m_allowedCommands_Status[] =
+    {
+        { 0x06, tli_111 },                             // [02060100] Enable Transition Term
+        { 0x07, tli_111 },                             // [02070200] Enable Transition Term in Transition Group
+        { 0x08, tli_111 },                             // [02080100] Disable Transition Term
+        { 0x09, tli_111 },                             // [02090200] Disable Transition Term in Transition Group
+        { 0x0A, tli_1 },                               // [020A0100] Enable Transition Group
+        { 0x0B, tli_1 },                               // [020B0100] Disable Transition Group
+        { 0x0D, tli_1 },                               // [020D0100] Set Next Status Kind
+        { 0x0E, tli_1 },                               // [020E0100] Set Default Target Transition Group (sets .groupID, which determines what -1 maps to!)
+    };
     // Group 0x03: soModelModule
     const cmdWhitelistEntry cmdWhitelist::m_allowedCommands_Model[] =
     {
@@ -250,6 +262,7 @@ namespace rasterizeVars
     const cmdWhitelistCmdGroup cmdWhitelist::m_commandGroups[] =
     {
         [cmdWhitelist::scg_SYSTEM] = {cmid_SYSTEM, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_System)},
+        [cmdWhitelist::scg_STATUS] = {cmid_STATUS, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Status)},
         [cmdWhitelist::scg_MODEL] = {cmid_MODEL, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Model)},
         [cmdWhitelist::scg_MOTION] = {cmid_MOTION, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Motion)},
         [cmdWhitelist::scg_POSTURE] = {cmid_POSTURE, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Posture)},
