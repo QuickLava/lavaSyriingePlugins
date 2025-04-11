@@ -12,8 +12,20 @@ namespace lavaMenuTweaks {
     u8** altRequestAreaAddrLoc = (u8**)0x8084CE38;
 
     const u32 maxChars = 0x80;
-    const u32 numAltsEnabledBufferWordCount = maxChars / 0x20;
-   u32 numAltsEnabledBuffer[numAltsEnabledBufferWordCount];
+    const u32 altFrameFlagBlockCount = maxChars / 0x20;
+    enum requestedAlt
+    {
+        altNone = 0,
+        altZ = 1,
+        altR = 2,
+        altNum = 3,
+    };
+
+    struct altFrameFlagBlock
+    {
+        u32 frameFlags[3];
+    };
+    altFrameFlagBlock altFrameFlagBuffer[altFrameFlagBlockCount];
 
     struct PAT0Header
     {
@@ -39,8 +51,6 @@ namespace lavaMenuTweaks {
 
         u32 loop;
     };
-    const u32 test = sizeof(PAT0Header);
-    static_assert(test == 0x38, "Class is wrong size!");
     
     struct PAT0MaterialEntry
     {
@@ -69,103 +79,100 @@ namespace lavaMenuTweaks {
         u16 paletteIndex;
     };
 
-    //93373620
+    u32 getStockChKind(MuSelchkind selCharID)
+    {
+        return muMenu::exchangeGmCharacterKind2Something(muMenu::exchangeMuSelchkind2MuStockchkind(selCharID));
+    }
+    u32 getPAT0FrameFromSelcharID(MuSelchkind selCharID)
+    {
+        return (getStockChKind(selCharID) * 10) + 1;
+    }
+    bool frameForAltExists(MuSelchkind selCharID, u32 altKind)
+    {
+        bool result = 0;
+
+        u32 convertedCharID = getStockChKind(selCharID);
+        u32 targetBlockIndex = convertedCharID >> 0x5;
+        if (targetBlockIndex < altFrameFlagBlockCount && altKind > 0)
+        {
+            u32 targetBit = 1 << (convertedCharID & 0x1F);
+            result = altFrameFlagBuffer[targetBlockIndex].frameFlags[altKind - 1] & targetBit;
+        }
+
+        return result;
+    }
+
     bool buildNumAltEnabledBuffer(muSelCharTask* selCharTask)
     {
         bool result = 0;
 
         register nw4r::g3d::AnmObjTexPatRes* charNumPat0 = selCharTask->m_selCharPlayerAreas[0]->m_muCharName->m_modelAnim->m_anmObjTexPatRes;
-        OSReport_N("%sPat0 Obj and File Address: %08X, %08X\n", outputTag, (u32)charNumPat0, (u32)charNumPat0->m_anmTexPatFile);
+        OSReport_N("%sPat0 Obj and File Address: %08X, %08X\n", outputTag, (u32)charNumPat0, (u32)charNumPat0->m_anmTexPatFile.ptr());
 
-        PAT0Header* pat0HeaderPtr = (PAT0Header*)charNumPat0->m_anmTexPatFile;
+        PAT0Header* pat0HeaderPtr = (PAT0Header*)charNumPat0->m_anmTexPatFile.ptr();
         char* pat0BodyPtr = (char*)pat0HeaderPtr + pat0HeaderPtr->dataOffset;
 
         PAT0MaterialEntry* matStructPtr = (PAT0MaterialEntry*)(pat0BodyPtr + *(s32*)(pat0BodyPtr + 0x24));
         PAT0KeyframeTableHeader* matTablePtr = (PAT0KeyframeTableHeader*)((char*)matStructPtr + matStructPtr->tableOffset);
         u32 frameCount = matTablePtr->textureCount;
-        PAT0Keyframe* currFrame = (PAT0Keyframe*)matTablePtr;
+        PAT0Keyframe* frameArr = ((PAT0Keyframe*)matTablePtr) + 1;
 
-        u32 currBufferIndex = 0x00;
-        u32 currBufferWord = 0x00000000;
-        OSReport_N("%sNUMALT_BUFFER @ %08X:\n", outputTag, numAltsEnabledBuffer);
-        for (int i = 0; i < frameCount; i++)
+        u32 zAltFlags;
+        u32 rAltFlags;
+        u32 numAltFlags;
+        u32 currBlockIndex = 0x00;
+        u32 currFrameIndex = 0x00;
+        OSReport_N("%sALT_FRAME_FLAG_BUF @ %08X:\n", outputTag, altFrameFlagBuffer);
+        for (u32 currBlockIndex = 0x00, targetBlockIndex = 0x00; currBlockIndex < altFrameFlagBlockCount; currBlockIndex++)
         {
-            currFrame++;
-            u32 frameInt = (u32)currFrame->frame;
-            u32 targetCharacter = frameInt / 10;
-            u32 altIndex = (frameInt - (targetCharacter * 10));
+            zAltFlags = 0x00;
+            rAltFlags = 0x00;
+            numAltFlags = 0x00;
+            while (currFrameIndex < frameCount)
+            {
+                u32 frameInt = (u32)(frameArr[currFrameIndex].frame);
+                u32 targetCharacter = frameInt / 10;
+                u32 altIndex = (frameInt - (targetCharacter * 10));
+                targetBlockIndex = targetCharacter >> 0x05;
+                if (currBlockIndex != targetBlockIndex) break;
 
-            u32 bufferIndex = targetCharacter >> 0x05;
-            if (bufferIndex >= numAltsEnabledBufferWordCount) break;
-            if (bufferIndex != currBufferIndex)
-            {
-                numAltsEnabledBuffer[currBufferIndex] = currBufferWord;
-                OSReport_N("%s- %08X\n", outputTag, currBufferWord);
-                currBufferWord = 0x00;
-                currBufferIndex = bufferIndex;
+                u32 targetCharFlag = 1 << (targetCharacter & 0x1F);
+                switch (altIndex)
+                {
+                    case 2: { zAltFlags |= targetCharFlag; break; }
+                    case 3: { rAltFlags |= targetCharFlag; break; }
+                    case 4: { numAltFlags |= targetCharFlag; break; }
+                }
+                currFrameIndex++;
             }
-            if (altIndex == 0x4)
-            {
-                currBufferWord |= 1 << (targetCharacter & 0x1F);
-                //OSReport_N("%sFrame %4X: CharID = %2X, AltID = %2X\n", outputTag, frameInt, targetCharacter, altIndex);
-            }
-        }
-        for (currBufferIndex; currBufferIndex < numAltsEnabledBufferWordCount; currBufferIndex++)
-        {
-            numAltsEnabledBuffer[currBufferIndex] = currBufferWord;
-            OSReport_N("%s- %08X (Fill)\n", outputTag, currBufferWord);
-            currBufferWord = 0x00;
+            OSReport_N("%s- Z: %08X, R: %08X, Num: %08X\n", outputTag, zAltFlags, rAltFlags, numAltFlags);
+            altFrameFlagBlock* currBlock = altFrameFlagBuffer + currBlockIndex;
+            currBlock->frameFlags[0] = zAltFlags;
+            currBlock->frameFlags[1] = rAltFlags;
+            currBlock->frameFlags[2] = numAltFlags;
         }
 
         return result;
     }
-    void onSelcharInit()
-    {
-        register muSelCharTask* selCharTask;
-        asm
-        {
-            mr selCharTask, r30;
-        }
-
-        buildNumAltEnabledBuffer(selCharTask);
-    }
-
-    enum requestedAlt
-    {
-        altNone = 0,
-        altZ = 1,
-        altR = 2,
-        altNum = 3,
-    };
     void setCharNameFrameFromCurrAlt(muSelCharPlayerArea* playerArea)
     {
-        if (playerArea->m_charKind != MuSelch_SelectNone)
+        MuSelchkind charKind = playerArea->m_charKind;
+        if (charKind != Selch_SelectNone)
         {
             u8* altRequestArea = *altRequestAreaAddrLoc;
-
             u32 portNo = playerArea->m_areaIdx;
-            MuObject* charName = playerArea->m_muCharName;
-            
             u32 requested = altRequestArea[portNo];
 
-            u32 charNameFrame = muMenu::exchangeMuSelchkind2MuStockchkind(playerArea->m_charKind);
-            charNameFrame = (muMenu::exchangeGmCharacterKind2Something(charNameFrame) * 10) + 1;
-            charName->setFrameTex(charNameFrame + requested);
-
+            u32 charNameFrame = getPAT0FrameFromSelcharID(Selch_Random);
+            if (requested == 0x00 || frameForAltExists(charKind, requested))
+            {
+                charNameFrame = getPAT0FrameFromSelcharID(charKind);
+            }
+            playerArea->m_muCharName->setFrameTex(charNameFrame + requested);
             OSReport_N("%sPlayerArea Port No %d: CharName Frame: %d\n", outputTag, portNo, charNameFrame + requested);
         }
     }
-    void onSelCharUpdate()
-    {
-        register gmSelCharData* selCharData;
-
-        asm
-        {
-            mr selCharData, r3;
-        }
-
-        //OSReport_N("%sSelCharUpdate Data @ 0x%08X\n", outputTag, selCharData);
-    }
+    
     void onSetCharKind()
     {
         register muSelCharPlayerArea* playerArea;
@@ -181,6 +188,26 @@ namespace lavaMenuTweaks {
             altRequestArea[playerArea->m_areaIdx] = altNone;
         }
         setCharNameFrameFromCurrAlt(playerArea);
+    }
+    void onSelcharInit()
+    {
+        register muSelCharTask* selCharTask;
+        asm
+        {
+            mr selCharTask, r30;
+        }
+
+        buildNumAltEnabledBuffer(selCharTask);
+    }
+    void onSelCharUpdate()
+    {
+        register gmSelCharData* selCharData;
+        asm
+        {
+            mr selCharData, r3;
+        }
+
+        //OSReport_N("%sSelCharUpdate Data @ 0x%08X\n", outputTag, selCharData);
     }
     void onPlayerAreaInit()
     {
@@ -200,7 +227,7 @@ namespace lavaMenuTweaks {
             lwz playerArea, 0x40(r30);
         }
 
-        if (playerArea->m_charKind != MuSelch_SelectNone && playerArea->m_charKind != MuSelch_Random)
+        if (playerArea->m_charKind != Selch_SelectNone && playerArea->m_charKind != Selch_Random)
         {
             u8* altRequestArea = *altRequestAreaAddrLoc;
 
@@ -222,13 +249,7 @@ namespace lavaMenuTweaks {
                 // If we've performed NumAlts input.
                 if (downRZBits == altNum)
                 {
-                    u32 charID = muMenu::exchangeMuSelchkind2MuStockchkind(targetPlayerArea->m_charKind);
-                    charID = muMenu::exchangeGmCharacterKind2Something(charID);
-                    u32 bufferWord = numAltsEnabledBuffer[charID >> 0x05];
-                    if (bufferWord & (1 << (charID & 0x1F)))
-                    {
-                        requested = (requested == altNum) ? altNone : altNum;
-                    }
+                    requested = (requested == altNum) ? altNone : altNum;
                 }
                 else 
                 {
@@ -242,8 +263,8 @@ namespace lavaMenuTweaks {
                     requested = altNone;
                 }
             }
-            altRequestArea[portNo] = requested;
 
+            altRequestArea[portNo] = requested;
             setCharNameFrameFromCurrAlt(targetPlayerArea);
         }
     }
@@ -255,8 +276,8 @@ namespace lavaMenuTweaks {
         // 0x80688E74
         //SyringeCore::syInlineHookRel(0x65B0, reinterpret_cast<void*>(onSelCharUpdate), Modules::SORA_MENU_SEL_CHAR);
 
-        // 0x80683634: 0x780 bytes into symbol "initProc/[muSelCharTask]/mu_selchar.o" @ 0x80682EB4
-        SyringeCore::syInlineHookRel(0xD70, reinterpret_cast<void*>(onSelcharInit), Modules::SORA_MENU_SEL_CHAR);
+        // 0x8068363C: 0x788 bytes into symbol "initProc/[muSelCharTask]/mu_selchar.o" @ 0x80682EB4
+        SyringeCore::syInlineHookRel(0xD78, reinterpret_cast<void*>(onSelcharInit), Modules::SORA_MENU_SEL_CHAR);
 
         // 0x80683634: 0xB24 bytes into symbol "initProc/[muSelCharTask]/mu_selchar.o" @ 0x80682EB4
         //SyringeCore::syInlineHookRel(0x1114, reinterpret_cast<void*>(onSelcharInit), Modules::SORA_MENU_SEL_CHAR);

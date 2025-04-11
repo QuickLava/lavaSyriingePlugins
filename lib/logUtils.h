@@ -1,8 +1,9 @@
 #ifndef LAVA_LOG_UTILS_H_V1
 #define LAVA_LOG_UTILS_H_V1
 
-#include <os/OSError.h>
 #include <types.h>
+#include <os/OSError.h>
+#include <BrawlHeaders/OpenRVL/include/revolution/macros.h>
 
 #define __LOG_UTILS_ALLOW_LOGGING true
 #if __LOG_UTILS_ALLOW_LOGGING
