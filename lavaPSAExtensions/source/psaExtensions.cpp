@@ -13,7 +13,7 @@ namespace lavaPSAExtensions {
 
     const char outputTag[] = "[lavaPSAExtensions] ";
 
-    void Init()
+    void Init(CoreApi* api)
     {
         // Note: 0x8070AA14 is SORA_MELEE base address
         aerialInterrupts::registerHooks();

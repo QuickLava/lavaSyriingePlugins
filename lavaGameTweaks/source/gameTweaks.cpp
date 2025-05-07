@@ -13,7 +13,7 @@
 // Note: 0x8070AA14 is SORA_MELEE base address
 namespace lavaGameTweaks
 {
-    void Init()
+    void Init(CoreApi* api)
     {
         fighterHooks::registerFighterHooks();
         mechHub::populate();

@@ -102,7 +102,7 @@ namespace lavaNeutralSpawns {
         }
     }
 
-    void Init()
+    void Init(CoreApi* api)
     {
         // Note: 0x8070AA14 is SORA_MELEE base address
         // 0x8092EF5C: 0x24 bytes into symbol "createStagePositions/[Stage]/stage.o"

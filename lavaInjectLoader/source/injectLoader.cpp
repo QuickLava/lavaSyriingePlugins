@@ -171,7 +171,7 @@ namespace lavaInjectLoader {
         }
     }
 
-    void Init()
+    void Init(CoreApi* api)
     {
         SyringeCore::syInlineHook(0x800177A8, reinterpret_cast<void*>(prepareGCT));
         SyringeCore::syInlineHookRel(0x145190, reinterpret_cast<void*>(doFighterInjectLoads), Modules::SORA_MELEE); //0x8084FBA4
