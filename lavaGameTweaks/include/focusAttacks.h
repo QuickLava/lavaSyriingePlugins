@@ -8,7 +8,7 @@
 
 namespace focusAttacks
 {
-    void registerHooks();
+    void registerHooks(CoreApi* api);
 }
 
 #endif

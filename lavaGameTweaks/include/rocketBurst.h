@@ -5,7 +5,7 @@
 
 namespace rocketBurst
 {
-    void registerHooks();
+    void registerHooks(CoreApi* api);
 }
 
 #endif

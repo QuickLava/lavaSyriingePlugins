@@ -64,8 +64,8 @@ namespace aerialInterrupts
             }
         }
     }
-    void registerHooks()
+    void registerHooks(CoreApi* api)
     {
-        SyringeCore::syInlineHookRel(0x12E680, reinterpret_cast<void*>(aerialInteruptPrevention), Modules::SORA_MELEE); // 0x80839094
+        api->syInlineHookRel(0x12E680, reinterpret_cast<void*>(aerialInteruptPrevention), Modules::SORA_MELEE); // 0x80839094
     }
 }

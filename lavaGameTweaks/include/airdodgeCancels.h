@@ -8,7 +8,7 @@
 
 namespace airdodgeCancels
 {
-    void registerHooks();
+    void registerHooks(CoreApi* api);
 }
 
 #endif

@@ -80,10 +80,10 @@ namespace finalSmashMeter
     };
 #pragma c99 off
 
-    void registerHooks()
+    void registerHooks(CoreApi* api)
     {
         // Disable Smash Ball Drop Hook @ 0x80841638: 0x5F0 bytes into symbol "dropItemCheck/[Fighter]/fighter.o"
-        SyringeCore::syInlineHookRel(0x136C24, disableSmashBallDropHook, Modules::SORA_MELEE);
+        api->syInlineHookRel(0x136C24, disableSmashBallDropHook, Modules::SORA_MELEE);
         fighterHooks::ftCallbackMgr::registerCallbackBundle(&callbacks);
     }
 }

@@ -8,7 +8,7 @@
 
 namespace finalSmashMeter
 {
-    void registerHooks();
+    void registerHooks(CoreApi* api);
 }
 
 #endif

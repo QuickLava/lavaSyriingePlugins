@@ -16,9 +16,9 @@ namespace lavaPSAExtensions {
     void Init(CoreApi* api)
     {
         // Note: 0x8070AA14 is SORA_MELEE base address
-        aerialInterrupts::registerHooks();
-        rasterizeVars::registerHooks();
-        customVars::registerHooks();
+        aerialInterrupts::registerHooks(api);
+        rasterizeVars::registerHooks(api);
+        customVars::registerHooks(api);
     }
 
     void Destroy()

@@ -142,7 +142,7 @@ namespace fighterHooks
 		// OnHit & OnAttack Callbacks
 		static void performOnAttackCallbacks();
 	};
-	void registerFighterHooks();
+	void registerFighterHooks(CoreApi* api);
 }
 
 #endif

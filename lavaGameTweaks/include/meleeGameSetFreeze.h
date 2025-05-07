@@ -6,7 +6,7 @@
 
 namespace meleeFreeze
 {
-    void registerHooks();
+    void registerHooks(CoreApi* api);
 }
 
 #endif

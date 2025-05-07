@@ -49,7 +49,7 @@ namespace mechHub
     extern u32 indexBuffer[];
 
     bool populate();
-    void registerHooks();
+    void registerHooks(CoreApi* api);
     bool getActiveMechanicEnabled(u32 playerNo, activeMechanicIDs mechanicID);
     bool getPassiveMechanicEnabled(u32 playerNo, passiveMechanicIDs mechanicID);
 }

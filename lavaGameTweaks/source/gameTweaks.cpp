@@ -15,19 +15,19 @@ namespace lavaGameTweaks
 {
     void Init(CoreApi* api)
     {
-        fighterHooks::registerFighterHooks();
+        fighterHooks::registerFighterHooks(api);
         mechHub::populate();
-        mechHub::registerHooks();
-        airdodgeCancels::registerHooks();
-        slimeCancels::registerHooks();
-        magicSeries::registerHooks();
-        rocketBurst::registerHooks();
-        finalSmashMeter::registerHooks();
-        focusAttacks::registerHooks();
-        //transitionListener::registerHooks();
+        mechHub::registerHooks(api);
+        airdodgeCancels::registerHooks(api);
+        slimeCancels::registerHooks(api);
+        magicSeries::registerHooks(api);
+        rocketBurst::registerHooks(api);
+        finalSmashMeter::registerHooks(api);
+        focusAttacks::registerHooks(api);
+        //transitionListener::registerHooks(api);
 
-        //meleeFreeze::registerHooks();
-        //reflectOnHit::registerHooks();
+        //meleeFreeze::registerHooks(api);
+        //reflectOnHit::registerHooks(api);
     }
 
     void Destroy()

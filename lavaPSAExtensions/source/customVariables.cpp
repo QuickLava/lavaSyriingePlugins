@@ -79,9 +79,9 @@ namespace customVars
         mtlr r31;                     // Restore LR...
         blr;                          // ... and return!
     }
-    void registerHooks()
+    void registerHooks(CoreApi* api)
     {
         // Int Variable Intercept Hook @ 0x807972B8: 0x1B4 bytes into symbol "getValueInt/[soValueAccesser]/so_value_accesser.o"
-        SyringeCore::syInlineHookRel(0x8C8A4, reinterpret_cast<void*>(intVarInterceptHook), Modules::SORA_MELEE);
+        api->syInlineHookRel(0x8C8A4, reinterpret_cast<void*>(intVarInterceptHook), Modules::SORA_MELEE);
     }
 }

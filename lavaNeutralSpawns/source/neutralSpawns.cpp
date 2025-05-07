@@ -106,7 +106,7 @@ namespace lavaNeutralSpawns {
     {
         // Note: 0x8070AA14 is SORA_MELEE base address
         // 0x8092EF5C: 0x24 bytes into symbol "createStagePositions/[Stage]/stage.o"
-        SyringeCore::syInlineHookRel(0x224548, reinterpret_cast<void*>(doNeutralSpawns), Modules::SORA_MELEE);
+        api->syInlineHookRel(0x224548, reinterpret_cast<void*>(doNeutralSpawns), Modules::SORA_MELEE);
     }
 
     void Destroy()

@@ -35,7 +35,7 @@ namespace meleeFreeze
     };
 #pragma c99 off
 
-    void registerHooks()
+    void registerHooks(CoreApi* api)
     {
         fighterHooks::ftCallbackMgr::registerCallbackBundle(&callbacks);
     }
