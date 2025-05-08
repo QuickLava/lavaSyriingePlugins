@@ -5,7 +5,7 @@
 
 namespace customVars
 {
-    void registerHooks(CoreApi* api);
+    void registerHooks();
 }
 
 #endif

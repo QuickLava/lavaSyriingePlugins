@@ -1,4 +1,4 @@
-#include <sy_core.h>
+#include <syWrapper.h>
 #include <modules.h>
 #include <ac/ac_anim_cmd_impl.h>
 #include <so/anim/so_anim_cmd.h>
@@ -407,10 +407,10 @@ namespace rasterizeVars
         }
     }
 
-    void registerHooks(CoreApi* api)
+    void registerHooks()
     {
-        api->moduleLoadEventSubscribe(applyStackSpaceAdjustment);
+        SyringeCompat::ModuleLoadEvent::Subscribe(applyStackSpaceAdjustment);
         // Hook 0x8077AFF8: 0x1C bytes into symbol "interpretNotSystemCmd/[soAnimCmdInterpreter]" @ 0x8077AFDC
-        api->syInlineHookRel(0x705E4, reinterpret_cast<void*>(rasterizeVariablesHook), Modules::SORA_MELEE); // 0x8077AFF8
+        SyringeCompat::syInlineHookRel(0x705E4, reinterpret_cast<void*>(rasterizeVariablesHook), Modules::SORA_MELEE); // 0x8077AFF8
     }
 }

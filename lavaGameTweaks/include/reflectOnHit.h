@@ -6,7 +6,7 @@
 
 namespace reflectOnHit
 {
-    void registerHooks(CoreApi* api);
+    void registerHooks();
 }
 
 #endif

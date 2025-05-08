@@ -84,7 +84,7 @@ namespace rasterizeVars
         static const cmdWhitelistCmdGroup m_commandGroups[scg__COUNT];
     };
 
-    void registerHooks(CoreApi* api);
+    void registerHooks();
 }
 
 #endif

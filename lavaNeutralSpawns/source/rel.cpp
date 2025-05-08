@@ -1,6 +1,6 @@
 #include <gf/gf_file_io_request.h>
 #include <gf/gf_memory_pool.h>
-#include <sy_core.h>
+#include <syWrapper.h>
 
 #include "neutralSpawns.h"
 
@@ -32,7 +32,8 @@ namespace Syringe
             (*ctor)();
         }
 
-        lavaNeutralSpawns::Init(api);
+        SYCOMPAT_REGISTER_API(api);
+        lavaNeutralSpawns::Init();
 
         return &META;
     }

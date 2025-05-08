@@ -7,7 +7,7 @@
 
 namespace magicSeries
 {
-    void registerHooks(CoreApi* api);
+    void registerHooks();
 }
 
 #endif

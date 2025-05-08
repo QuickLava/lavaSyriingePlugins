@@ -1,5 +1,4 @@
-#include <cstdlib>
-#include <sy_core.h>
+#include <syWrapper.h>
 #include <modules.h>
 #include <ft/fighter.h>
 #include <gf/gf_archive.h>
@@ -79,9 +78,9 @@ namespace customVars
         mtlr r31;                     // Restore LR...
         blr;                          // ... and return!
     }
-    void registerHooks(CoreApi* api)
+    void registerHooks()
     {
         // Int Variable Intercept Hook @ 0x807972B8: 0x1B4 bytes into symbol "getValueInt/[soValueAccesser]/so_value_accesser.o"
-        api->syInlineHookRel(0x8C8A4, reinterpret_cast<void*>(intVarInterceptHook), Modules::SORA_MELEE);
+        SyringeCompat::syInlineHookRel(0x8C8A4, reinterpret_cast<void*>(intVarInterceptHook), Modules::SORA_MELEE);
     }
 }

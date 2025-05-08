@@ -13,21 +13,21 @@
 // Note: 0x8070AA14 is SORA_MELEE base address
 namespace lavaGameTweaks
 {
-    void Init(CoreApi* api)
+    void Init()
     {
-        fighterHooks::registerFighterHooks(api);
+        fighterHooks::registerFighterHooks();
         mechHub::populate();
-        mechHub::registerHooks(api);
-        airdodgeCancels::registerHooks(api);
-        slimeCancels::registerHooks(api);
-        magicSeries::registerHooks(api);
-        rocketBurst::registerHooks(api);
-        finalSmashMeter::registerHooks(api);
-        focusAttacks::registerHooks(api);
-        //transitionListener::registerHooks(api);
+        mechHub::registerHooks();
+        airdodgeCancels::registerHooks();
+        slimeCancels::registerHooks();
+        magicSeries::registerHooks();
+        rocketBurst::registerHooks();
+        finalSmashMeter::registerHooks();
+        focusAttacks::registerHooks();
+        //transitionListener::registerHooks();
 
-        //meleeFreeze::registerHooks(api);
-        //reflectOnHit::registerHooks(api);
+        //meleeFreeze::registerHooks();
+        //reflectOnHit::registerHooks();
     }
 
     void Destroy()

@@ -154,7 +154,7 @@ namespace slimeCancels
     };
 #pragma c99 off
 
-    void registerHooks(CoreApi* api)
+    void registerHooks()
     {
         fighterHooks::ftCallbackMgr::registerCallbackBundle(&callbacks);
     }

@@ -83,5 +83,5 @@ namespace fighterMeters
 
     meterBundle playerMeters[fighterHooks::maxFighterCount];
 
-    void registerHooks(CoreApi* api);
+    void registerHooks();
 }

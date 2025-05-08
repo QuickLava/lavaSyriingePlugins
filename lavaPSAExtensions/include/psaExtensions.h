@@ -3,7 +3,7 @@
 
 class CoreApi;
 namespace lavaPSAExtensions {
-    void Init(CoreApi* api);
+    void Init();
     void Destroy();
 }
 

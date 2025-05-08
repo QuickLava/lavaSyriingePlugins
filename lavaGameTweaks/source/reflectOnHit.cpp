@@ -162,14 +162,14 @@ namespace reflectOnHit
 		blr; 				  // ... and return!
 	}
 
-	void registerHooks(CoreApi* api)
+	void registerHooks()
 	{
 		//fighterHooks::ftCallbackMgr::registerOnUpdateCallback(reflectBoxCB);
 		// Disable Fighter vs Item/Article Clanks @ 0x8074651C: 0x0C bytes into symbol "checkRebound/[soCollisionAttackModuleImpl]/so_collision_a"
-		api->syInlineHookRel(0x3BB08, reinterpret_cast<void*>(disableArticleAndItemClankHook), Modules::SORA_MELEE);
+		SyringeCompat::syInlineHookRel(0x3BB08, reinterpret_cast<void*>(disableArticleAndItemClankHook), Modules::SORA_MELEE);
 		// Effects on Fighter vs Item/Article Clanks @ 0x807A92AC: 0x28 bytes into symbol "notifyEventCollisionAttack/[soEffectModuleImpl]/so_effect"
-		//api->syInlineHookRel(0x9E898, reinterpret_cast<void*>(reflectEffectsOnArticleAndItemClankHook), Modules::SORA_MELEE);
+		//SyringeCompat::syInlineHookRel(0x9E898, reinterpret_cast<void*>(reflectEffectsOnArticleAndItemClankHook), Modules::SORA_MELEE);
 		// Prevent Item/Article Death @ 0x807463C4: 0x1B4 bytes into symbol "check/[soCollisionAttackModuleImpl]/so_collision_attack_m"
-		api->syInlineHookRel(0x3B9B0, reinterpret_cast<void*>(disableClankKillingProjectilesHook), Modules::SORA_MELEE);
+		SyringeCompat::syInlineHookRel(0x3B9B0, reinterpret_cast<void*>(disableClankKillingProjectilesHook), Modules::SORA_MELEE);
 	}
 }

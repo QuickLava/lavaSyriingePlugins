@@ -137,7 +137,7 @@ namespace mechHub
         }
         return result;
     }
-    void registerHooks(CoreApi* api)
+    void registerHooks()
     {
         fighterHooks::ftCallbackMgr::registerCallbackBundle(&callbacks);
     }
