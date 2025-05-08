@@ -64,7 +64,7 @@ namespace reflectOnHit
 		cmplwi r3, 0x01;	  // Compare the return value to 1...
 		beq skipLRHack;		  // ... and if it's 1 we'll continue our function like normal!
 							  // Otherwise, we're gonna return from the function early!
-		lmw r4, 0x0C(r1);	  // Restore all but r3, so we can pass back our return value!
+		lmw r4, 0x10(r1);	  // Restore all but r3, so we can pass back our return value!
 		lwz r1, 0x00(r1);     // Deallocate Trampoline stack frame!
 		lwz r1, 0x00(r1);     // Deallocate Pre-Trampoline stack frame!
 		lwz r0, 0x04(r1);     // Grab Pre-Trampoline LR...
