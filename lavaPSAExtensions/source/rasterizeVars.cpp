@@ -409,7 +409,7 @@ namespace rasterizeVars
 
     void registerHooks(CoreApi* api)
     {
-        SyringeCore::ModuleLoadEvent::Subscribe(applyStackSpaceAdjustment);
+        api->moduleLoadEventSubscribe(applyStackSpaceAdjustment);
         // Hook 0x8077AFF8: 0x1C bytes into symbol "interpretNotSystemCmd/[soAnimCmdInterpreter]" @ 0x8077AFDC
         api->syInlineHookRel(0x705E4, reinterpret_cast<void*>(rasterizeVariablesHook), Modules::SORA_MELEE); // 0x8077AFF8
     }
