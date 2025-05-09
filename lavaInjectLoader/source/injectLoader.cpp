@@ -7,11 +7,13 @@
 #include <memory.h>
 #include <modules.h>
 #include <string.h>
+#include <logUtils.h>
 
 namespace lavaInjectLoader {
 
     const char outputTag[] = "[lavaInjectLoader] ";
     const char fighterInjectPath[] = "pf/injects/fighter/";
+    const char allocFreeFmtStr[] = "%s[%s] Current Scene: %s";
     static unsigned long* const expansionReturnAddrPtr = 0x800017F0;
     static unsigned long* const expansionCodeAddrPtr = expansionReturnAddrPtr + 0x1;
     static unsigned long* const expansionSourcePathPtr = expansionCodeAddrPtr + 0x1;
@@ -36,11 +38,11 @@ namespace lavaInjectLoader {
     void freeCodeBuffer()
     {
         // Optional logging logic.
-        /*gfSceneManager* sceneManager = gfSceneManager::getInstance();
+        gfSceneManager* sceneManager = gfSceneManager::getInstance();
         if (sceneManager != NULL && sceneManager->m_currentScene != NULL)
         {
-            OSReport("%s[FREE] Current Scene: %s", outputTag, sceneManager->m_currentScene->m_sceneName);
-        }*/
+            OSReport_N(allocFreeFmtStr, outputTag, "FREE", sceneManager->m_currentScene->m_sceneName);
+        }
 
         // If a buffer is currently allocated...
         if (codeBuf != NULL)
@@ -54,18 +56,14 @@ namespace lavaInjectLoader {
     bool allocCodeBuffer(HeapType destinationHeap, unsigned long allocSize)
     {
         // Optional logging logic.
-        /*gfSceneManager* sceneManager = gfSceneManager::getInstance();
+        gfSceneManager* sceneManager = gfSceneManager::getInstance();
         if (sceneManager != NULL && sceneManager->m_currentScene != NULL)
         {
-            OSReport("%s[FREE] Current Scene: %s", outputTag, sceneManager->m_currentScene->m_sceneName);
-        }*/
-
-        // If a buffer is currently allocated...
-        if (codeBuf != NULL)
-        {
-            // ... deallocate it before continuing.
-            freeCodeBuffer();
+            OSReport_N(allocFreeFmtStr, outputTag, "ALLOC", sceneManager->m_currentScene->m_sceneName);
         }
+
+        // Make sure any existing buffer is free'd before we attempt to allocate the new one.
+        freeCodeBuffer();
         // Then, allocate a new buffer with the given specifications and store its address in codeBufferPtr...
         codeBuf = (char*)gfHeapManager::alloc(destinationHeap, allocSize);
         // ...and return whether or not we succeded.
@@ -92,7 +90,7 @@ namespace lavaInjectLoader {
             *expansionSourcePathPtr = 0x00000000;
             // ... and log that we've finished!
             // Note: this is ahead of the below so we don't do this stuff on the same call where we queue the last .gct lol.
-            OSReport("%sFinished!\n", outputTag);
+            OSReport_N("%sFinished!\n", outputTag);
         }
         // If we're idle, and some work's been queued up...
         if (execStatus == status_idle && (*expansionSourcePathPtr != 0x00))
@@ -100,7 +98,7 @@ namespace lavaInjectLoader {
             // ... then get the full path to the source directory...
             sprintf(pathBuf, "%s%s", MOD_PATCH_DIR, *expansionSourcePathPtr);
             // ... and report that we're attempting to apply it.
-            OSReport("%sBeginning Injections from \"%s\"...\n", outputTag, pathBuf);
+            OSReport_N("%sBeginning Injections from \"%s\"...\n", outputTag, pathBuf);
             // Record the length of just the path so we know where to append filenames to.
             folderPathLen = strlen(pathBuf);
             // Set up the pattern string for our file search...
@@ -120,7 +118,7 @@ namespace lavaInjectLoader {
                 strcpy(pathBuf + folderPathLen, info.shortname);
             }
             // Report the path of the GCT we're loading...
-            OSReport("%sLoading Inject GCT \"%s\"... to 0x%X8\n", outputTag, pathBuf, codeBuf);
+            OSReport_N("%sLoading Inject GCT \"%s\"... to 0x%X8\n", outputTag, pathBuf, codeBuf);
             // ... then attempt to open a stream to it!
             FAHandle* streamHandlePtr = FAFopen(pathBuf, (const char*)0x8059C590);
             // If that was successfull...
@@ -144,7 +142,7 @@ namespace lavaInjectLoader {
                 else
                 {
                     // ... report it, and abort loading the batch.
-                    OSReport("%sGCT overflowed buffer! Aborting!\n", outputTag);
+                    OSReport_N("%sGCT overflowed buffer! Aborting!\n", outputTag);
                     execStatus = status_finishing;
                 }
                 ICInvalidateRange((void*)codeBuf, fileLength + 0x10);
