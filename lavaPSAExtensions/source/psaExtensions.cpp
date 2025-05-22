@@ -1,5 +1,5 @@
 #include <os/OSError.h>
-#include <sy_core.h>
+#include <syWrapper.h>
 #include <OS/OSCache.h>
 #include <memory.h>
 #include <modules.h>
@@ -13,12 +13,12 @@ namespace lavaPSAExtensions {
 
     const char outputTag[] = "[lavaPSAExtensions] ";
 
-    void Init(CoreApi* api)
+    void Init()
     {
         // Note: 0x8070AA14 is SORA_MELEE base address
-        aerialInterrupts::registerHooks(api);
-        rasterizeVars::registerHooks(api);
-        customVars::registerHooks(api);
+        aerialInterrupts::registerHooks();
+        rasterizeVars::registerHooks();
+        customVars::registerHooks();
     }
 
     void Destroy()

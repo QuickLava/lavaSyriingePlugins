@@ -1,5 +1,5 @@
 #include <cstdlib>
-#include <sy_core.h>
+#include <syWrapper.h>
 #include <modules.h>
 #include <ft/fighter.h>
 #include <so/so_module_accesser.h>
@@ -64,8 +64,8 @@ namespace aerialInterrupts
             }
         }
     }
-    void registerHooks(CoreApi* api)
+    void registerHooks()
     {
-        api->syInlineHookRel(0x12E680, reinterpret_cast<void*>(aerialInteruptPrevention), Modules::SORA_MELEE); // 0x80839094
+        SyringeCompat::syInlineHookRel(0x12E680, reinterpret_cast<void*>(aerialInteruptPrevention), Modules::SORA_MELEE); // 0x80839094
     }
 }

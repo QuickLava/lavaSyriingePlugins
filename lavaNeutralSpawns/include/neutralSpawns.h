@@ -3,7 +3,7 @@
 
 class CoreApi;
 namespace lavaNeutralSpawns {
-    void Init(CoreApi* api);
+    void Init();
     void Destroy();
 }
 

@@ -61,7 +61,7 @@ namespace finalSmashMeter
         bl disableSmashBallDrop;      // ... and call!
         cmplwi r3, 0x01;              // Check if we returned 0x1...
         bne+ allowDrop;               // ... and if not, we're allowed to drop the Smash ball, so skip the following.
-        lmw r3, 0x0C(r1);             // Otherwise though, skip the drop! Restore our backups from the Trampoline stackframe...
+        lmw r3, R3_STACK_BAK_OFF(r1); // Otherwise though, skip the drop! Restore our backups from the Trampoline stackframe...
         lwz r1, 0x00(r1);             // ... then deallocate the stack frame.
         lis r12, 0x8084;              // \ 
         ori r12, r12, 0x16FC;         // | 
@@ -80,10 +80,10 @@ namespace finalSmashMeter
     };
 #pragma c99 off
 
-    void registerHooks(CoreApi* api)
+    void registerHooks()
     {
         // Disable Smash Ball Drop Hook @ 0x80841638: 0x5F0 bytes into symbol "dropItemCheck/[Fighter]/fighter.o"
-        api->syInlineHookRel(0x136C24, disableSmashBallDropHook, Modules::SORA_MELEE);
+        SyringeCompat::syInlineHookRel(0x136C24, disableSmashBallDropHook, Modules::SORA_MELEE);
         fighterHooks::ftCallbackMgr::registerCallbackBundle(&callbacks);
     }
 }

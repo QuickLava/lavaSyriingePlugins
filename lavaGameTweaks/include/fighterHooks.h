@@ -1,7 +1,6 @@
 #ifndef LAVA_FIGHTER_HOOKS_H_V1
 #define LAVA_FIGHTER_HOOKS_H_V1
 
-#include <sy_core.h>
 #include <string.h>
 #include <vector.h>
 #include <modules.h>
@@ -14,6 +13,7 @@
 #include <so/collision/so_collision_attack_module_impl.h>
 
 #include "logUtils.h"
+#include <syWrapper.h>
 
 namespace fighterHooks
 {
@@ -142,7 +142,7 @@ namespace fighterHooks
 		// OnHit & OnAttack Callbacks
 		static void performOnAttackCallbacks();
 	};
-	void registerFighterHooks(CoreApi* api);
+	void registerFighterHooks();
 }
 
 #endif

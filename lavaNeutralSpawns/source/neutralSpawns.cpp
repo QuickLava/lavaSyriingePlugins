@@ -1,5 +1,5 @@
 #include <os/OSError.h>
-#include <sy_core.h>
+#include <syWrapper.h>
 #include <OS/OSCache.h>
 #include <modules.h>
 #include <st/stage.h>
@@ -102,11 +102,11 @@ namespace lavaNeutralSpawns {
         }
     }
 
-    void Init(CoreApi* api)
+    void Init()
     {
         // Note: 0x8070AA14 is SORA_MELEE base address
         // 0x8092EF5C: 0x24 bytes into symbol "createStagePositions/[Stage]/stage.o"
-        api->syInlineHookRel(0x224548, reinterpret_cast<void*>(doNeutralSpawns), Modules::SORA_MELEE);
+        SyringeCompat::syInlineHookRel(0x224548, reinterpret_cast<void*>(doNeutralSpawns), Modules::SORA_MELEE);
     }
 
     void Destroy()

@@ -8,7 +8,7 @@
 
 namespace slimeCancels
 {
-    void registerHooks(CoreApi* api);
+    void registerHooks();
 }
 
 #endif

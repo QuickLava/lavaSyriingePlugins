@@ -1,7 +1,7 @@
 #ifndef LAVA_MECHANICS_UTIL_H_V1
 #define LAVA_MECHANICS_UTIL_H_V1
 
-#include <sy_core.h>
+#include <syWrapper.h>
 #include "fighterHooks.h"
 #include "fighterMeters.h"
 #include "_mechanicsUtil.h"

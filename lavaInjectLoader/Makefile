@@ -33,7 +33,7 @@ endif
 TARGET		:=	lavaInjectLoader
 RELID		:=  8192
 BUILD		:=	build
-SOURCES		:=	source $(wildcard source/*) ../lib/BrawlHeaders/PowerPC_EABI_Support/Runtime/Src/ # have to hardcode lib dir here???????
+SOURCES		:=	source $(wildcard source/*) ../lib/ ../lib/BrawlHeaders/PowerPC_EABI_Support/Runtime/Src/ # have to hardcode lib dir here???????
 INCLUDES	:=	include
 
 #---------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ export HFILES := $(addsuffix .h,$(subst .,_,$(BINFILES)))
 
 # For REL linking
 export LDFILES		:= $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.ld)))
-export MAPFILE		:= $(LIB)/BrawlHeaders/RSBE01.lst $(TOPDIR)/EXTRA.lst
+export MAPFILE		:= $(LIB)/BrawlHeaders/RSBE01.lst $(LIB)/sy_core/sy_core.lst $(TOPDIR)/EXTRA.lst
 export LCF			:= $(TOPDIR)/rel.lcf
 
 #---------------------------------------------------------------------------------

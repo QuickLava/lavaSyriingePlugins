@@ -1,5 +1,4 @@
-#include <cstdlib>
-#include <sy_core.h>
+#include <syWrapper.h>
 #include <modules.h>
 #include <ft/fighter.h>
 #include <gf/gf_archive.h>
@@ -65,23 +64,23 @@ namespace customVars
     asm void intVarInterceptHook()
     {
         nofralloc
-        mflr r31;                     // Backup LR in a non-volatile register!
-                                      // Call main function body!
-        mr r5, r3;                    // Move original result into r5!
-        mr r3, r29;                   // Get moduleAccesser from r29...
-        mr r4, r30;                   // ... and variableID from r30!
+        mflr r31;                      // Backup LR in a non-volatile register!
+                                       // Call main function body!
+        mr r5, r3;                     // Move original result into r5!
+        mr r3, r29;                    // Get moduleAccesser from r29...
+        mr r4, r30;                    // ... and variableID from r30!
         bl intVarIntercept;            // Call!
-        stw r3, 0x0C(r1);             // Write processed result over r3 backup on the stack!
-                                      // Additionally, we need to restore the function's overwritten LR value from r0.
-        lwz r11, 0x00(r1);            // Grab the address of the main function's stack frame...
-        lwz r12, 0x24(r11);           // ... use it to grab the LR value for the main function...
-        stw r12, 0x4(r11);            // ... and store it over the LR backed up by the trampoline!
-        mtlr r31;                     // Restore LR...
-        blr;                          // ... and return!
+        stw r3, R3_STACK_BAK_OFF(r1);  // Write processed result over r3 backup on the stack!
+                                       // Additionally, we need to restore the function's overwritten LR value from r0.
+        lwz r11, 0x00(r1);             // Grab the address of the main function's stack frame...
+        lwz r12, 0x24(r11);            // ... use it to grab the LR value for the main function...
+        stw r12, 0x4(r11);             // ... and store it over the LR backed up by the trampoline!
+        mtlr r31;                      // Restore LR...
+        blr;                           // ... and return!
     }
-    void registerHooks(CoreApi* api)
+    void registerHooks()
     {
         // Int Variable Intercept Hook @ 0x807972B8: 0x1B4 bytes into symbol "getValueInt/[soValueAccesser]/so_value_accesser.o"
-        api->syInlineHookRel(0x8C8A4, reinterpret_cast<void*>(intVarInterceptHook), Modules::SORA_MELEE);
+        SyringeCompat::syInlineHookRel(0x8C8A4, reinterpret_cast<void*>(intVarInterceptHook), Modules::SORA_MELEE);
     }
 }

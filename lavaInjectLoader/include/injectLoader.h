@@ -3,7 +3,7 @@
 
 class CoreApi;
 namespace lavaInjectLoader {
-    void Init(CoreApi* api);
+    void Init();
     void Destroy();
 }
 

@@ -3,7 +3,7 @@
 
 class CoreApi;
 namespace lavaGameTweaks {
-    void Init(CoreApi* api);
+    void Init();
     void Destroy();
 }
 

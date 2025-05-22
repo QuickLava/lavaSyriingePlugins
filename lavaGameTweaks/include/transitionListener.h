@@ -6,7 +6,7 @@
 
 namespace transitionListener
 {
-    void registerHooks(CoreApi* api);
+    void registerHooks();
 }
 
 #endif

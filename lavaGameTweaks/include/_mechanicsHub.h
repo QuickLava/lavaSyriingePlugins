@@ -1,7 +1,7 @@
 #ifndef LAVA_MECHANICS_HUB_H_V1
 #define LAVA_MECHANICS_HUB_H_V1
 
-#include <sy_core.h>
+#include <syWrapper.h>
 #include "fighterHooks.h"
 #include "fighterMeters.h"
 #include "_mechanicsUtil.h"
@@ -49,7 +49,7 @@ namespace mechHub
     extern u32 indexBuffer[];
 
     bool populate();
-    void registerHooks(CoreApi* api);
+    void registerHooks();
     bool getActiveMechanicEnabled(u32 playerNo, activeMechanicIDs mechanicID);
     bool getPassiveMechanicEnabled(u32 playerNo, passiveMechanicIDs mechanicID);
 }

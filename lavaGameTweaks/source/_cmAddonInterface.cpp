@@ -1,5 +1,5 @@
 #include <string.h>
-#include <sy_core.h>
+#include <syWrapper.h>
 #include <revolution/FA.h>
 #include "_cmAddonInterface.h"
 
