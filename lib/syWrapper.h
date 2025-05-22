@@ -24,9 +24,13 @@ namespace SyringeCore
         void Subscribe(ModuleLoadCB cb);
     }
 }
+enum SyringeCompatConstants
+{
+    R3_STACK_BAK_OFF = 0x8,
+    R4_STACK_BAK_OFF = R3_STACK_BAK_OFF + 0x4,
+};
 namespace SyringeCompat
 {
-    const u32 TRAMPOLINE_STACK_REG_BAK_OFFSET = 0x8;
 #define SYCOMPAT_REGISTER_API
     inline void syInlineHook(const u32 address, const void* replacement)
     {
@@ -61,10 +65,14 @@ namespace SyringeCompat
     }
 }
 #else
+enum SyringeCompatConstants
+{
+    R3_STACK_BAK_OFF = 0xC,
+    R4_STACK_BAK_OFF = R3_STACK_BAK_OFF + 0x4,
+};
 namespace SyringeCompat
 {
     extern CoreApi* g_API;
-    const u32 TRAMPOLINE_STACK_REG_BAK_OFFSET = 0xC;
 #define SYCOMPAT_REGISTER_API(api_ptr) SyringeCompat::g_API = api_ptr
     /**
      * @brief Injects a hook at the target address. [via syWrapper.h]
