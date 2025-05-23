@@ -5,7 +5,7 @@
 #include "_mechanicsHub.h"
 #include "fighterHooks.h"
 
-namespace squatDodge
+namespace rivalsMode
 {
     void registerHooks();
 }

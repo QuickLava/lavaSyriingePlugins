@@ -3,7 +3,7 @@
 #include "squatDodge.h"
 
 using namespace codeMenu;
-namespace squatDodge
+namespace rivalsMode
 {
     char outputTag[] = "[rivalsMode] ";
 
