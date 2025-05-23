@@ -12,7 +12,7 @@
 //#include "transitionListener.h"
 #include "_mechanicsHub.h"
 
-// Note: 0x8070AA14 is SORA_MELEE base address
+// Note: 0x8070AA14 is SORA_MELEE base address, Ghidra is 0x807189A0, 0xDF8C Difference
 namespace lavaGameTweaks
 {
     void Init()

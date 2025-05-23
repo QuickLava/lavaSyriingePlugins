@@ -25,6 +25,7 @@ namespace fighterHooks
 	typedef void (*GenericArglessCB)();
 	typedef GenericArglessCB MeleeOnStartCB;
 	typedef GenericArglessCB MeleeOnReadyGoCB;
+	typedef GenericArglessCB MeleeOnUpdateCB;
 	typedef GenericArglessCB MeleeOnGameSetCB;
 	typedef void (*GenericFighterEventCB)(Fighter*);
 	typedef GenericFighterEventCB FighterOnCreateCB;
@@ -64,6 +65,7 @@ namespace fighterHooks
 	{
 		MeleeOnStartCB m_MeleeOnStartCB;
 		MeleeOnReadyGoCB m_MeleeOnReadyGoCB;
+		MeleeOnUpdateCB m_MeleeOnUpdateCB;
 		MeleeOnGameSetCB m_MeleeOnGameSetCB;
 
 		FighterOnCreateCB m_FighterOnCreateCB;
@@ -130,6 +132,8 @@ namespace fighterHooks
 		static void performMeleeOnStartCallbacks();
 		// OnMeleeReadyGo Callbacks
 		static void performMeleeOnReadyGoCallbacks();
+		// OnMeleeUpdate Callbacks
+		static void performMeleeOnUpdateCallbacks();
 		// OnMeleeGameSet Callbacks
 		static void performMeleeOnGameSetCallbacks();
 

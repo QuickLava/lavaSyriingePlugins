@@ -147,6 +147,12 @@ namespace fighterHooks
 		// Execute Callbacks
 		_performArglessCallbacks(CALLBACK_INDEX(callbackBundle::m_MeleeOnReadyGoCB));
 	}
+	// OnUpdate Callbacks
+	void ftCallbackMgr::performMeleeOnUpdateCallbacks()
+	{
+		// Execute Callbacks
+		_performArglessCallbacks(CALLBACK_INDEX(callbackBundle::m_MeleeOnUpdateCB));
+	}
 	// MeleeOnGameSet Callbacks
 	void ftCallbackMgr::performMeleeOnGameSetCallbacks()
 	{
@@ -320,6 +326,9 @@ namespace fighterHooks
 
 		// Match Countdown GO! Hook @ 0x80813D70: 0x44 bytes into symbol "readyGo/[ftManager]/ft_manager.o"
 		SyringeCompat::syInlineHookRel(0x10935C, reinterpret_cast<void*>(ftCallbackMgr::performMeleeOnReadyGoCallbacks), Modules::SORA_MELEE);
+
+		// Match Update Hook @ 0x80954C14: 0x10 bytes into symbol "updateFrameCounter/[stOperatorRuleMelee]/st_operator_rule"
+		SyringeCompat::syInlineHookRel(0x24A200, reinterpret_cast<void*>(ftCallbackMgr::performMeleeOnUpdateCallbacks), Modules::SORA_MELEE);
 
 		// Match GameSet Hook @ 0x80813E1C: 0xA4 bytes into symbol "gameSet/[ftManager]/ft_manager.o"
 		SyringeCompat::syInlineHookRel(0x109408, reinterpret_cast<void*>(ftCallbackMgr::performMeleeOnGameSetCallbacks), Modules::SORA_MELEE);
