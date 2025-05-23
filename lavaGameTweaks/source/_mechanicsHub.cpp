@@ -122,7 +122,7 @@ namespace mechHub
 #pragma c99 on
     fighterHooks::callbackBundle callbacks =
     {
-        .m_MeleeOnStartCB = (fighterHooks::MeleeOnStartCB)updateMechanicEnabledMasks,
+        .m_MeleeOnUpdateCB = (fighterHooks::MeleeOnUpdateCB)updateMechanicEnabledMasks,
         .m_MeleeOnGameSetCB = (fighterHooks::MeleeOnGameSetCB)clearMechanicEnabledMasks,
     };
 #pragma c99 off
