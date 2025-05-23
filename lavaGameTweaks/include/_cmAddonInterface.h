@@ -15,13 +15,14 @@ namespace codeMenu
         lt_COMMENT,
         lt_PRINT
     };
+#pragma options align= packed
     struct cmSelectionLine
     {
         u16 m_size;
-        u16 m_type;
+        u8 m_type;
         u8 m_flags;
         u8 m_color;
-        u8 m_textOffset;
+        u16 m_textOffset;
         u8 m_lineNum;
         u32 m_value;
         u16 m_upOff;
@@ -29,13 +30,14 @@ namespace codeMenu
         u32 m_default;
         u32 m_max;
     };
+    const u32 test = offsetof(cmSelectionLine, cmSelectionLine::m_value);
     struct cmIntegerLine
     {
         u16 m_size;
-        u16 m_type;
+        u8 m_type;
         u8 m_flags;
         u8 m_color;
-        u8 m_textOffset;
+        u16 m_textOffset;
         u8 m_lineNum;
         u32 m_value;
         u16 m_upOff;
@@ -48,10 +50,10 @@ namespace codeMenu
     struct cmFloatingLine
     {
         u16 m_size;
-        u16 m_type;
+        u8 m_type;
         u8 m_flags;
         u8 m_color;
-        u8 m_textOffset;
+        u16 m_textOffset;
         u8 m_lineNum;
         float m_value;
         u16 m_upOff;
@@ -61,6 +63,7 @@ namespace codeMenu
         float m_min;
         float m_speed;
     };
+#pragma options align = reset
 
     bool loadCodeMenuAddonLOCsToBuffer(const char* addonShortName, u32* buffer, u32 entryCount);
 }
