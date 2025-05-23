@@ -14,7 +14,10 @@ namespace mechHub
     u8* const passiveMechanicEnabledMasks = mechanicEnabledMasks + amid__COUNT;
 
     u8 const passiveMechanicP1ToggleLineIDs[pmid__COUNT] = 
-    { lid_MAGIC_SERIES_TOGGLE_P1, lid_FINAL_SMASH_METER_TOGGLE_P1, lid_FOCUS_ATTACKS_TOGGLE_P1, lid_SQUAT_DODGE_TOGGLE_P1 };
+    { 
+        lid_MAGIC_SERIES_TOGGLE_P1, lid_FINAL_SMASH_METER_TOGGLE_P1, lid_FOCUS_ATTACKS_TOGGLE_P1, lid_SQUAT_DODGE_TOGGLE_P1,
+        lid_HORI_WAVEDASH_TOGGLE_P1,
+    };
 
     bool getFlagForPlayer(register u8 flagByte, register u32 playerNo)
     {
@@ -120,13 +123,13 @@ namespace mechHub
     fighterHooks::callbackBundle callbacks =
     {
         .m_MeleeOnStartCB = (fighterHooks::MeleeOnStartCB)updateMechanicEnabledMasks,
-        .m_MeleeOnStartCB = (fighterHooks::MeleeOnGameSetCB)clearMechanicEnabledMasks,
+        .m_MeleeOnGameSetCB = (fighterHooks::MeleeOnGameSetCB)clearMechanicEnabledMasks,
     };
 #pragma c99 off
 
     bool populate()
     {
-        bool result = 0; //codeMenu::loadCodeMenuAddonLOCsToBuffer(addonShortName, indexBuffer, lid__COUNT);
+        bool result = codeMenu::loadCodeMenuAddonLOCsToBuffer(addonShortName, indexBuffer, lid__COUNT);
         if (result)
         {
             OSReport_N("%sSuccessfully Loaded Addon Index File to Buffer 0x%08X!\n", outputTag, indexBuffer);

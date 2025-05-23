@@ -32,6 +32,10 @@ namespace mechHub
         lid_SQUAT_DODGE_TOGGLE_P2,
         lid_SQUAT_DODGE_TOGGLE_P3,
         lid_SQUAT_DODGE_TOGGLE_P4,
+        lid_HORI_WAVEDASH_TOGGLE_P1,
+        lid_HORI_WAVEDASH_TOGGLE_P2,
+        lid_HORI_WAVEDASH_TOGGLE_P3,
+        lid_HORI_WAVEDASH_TOGGLE_P4,
         lid__COUNT
     };
     enum activeMechanicIDs
@@ -48,6 +52,7 @@ namespace mechHub
         pmid_FINAL_SMASH_METER,
         pmid_FOCUS_ATTACKS,
         pmid_SQUAT_DODGE,
+        pmid_HORI_WAVEDASH,
         pmid__COUNT,
     };
 

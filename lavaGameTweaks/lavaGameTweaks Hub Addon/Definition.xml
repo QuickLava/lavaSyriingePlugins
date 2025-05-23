@@ -32,6 +32,9 @@
 		<codeMenuToggle name="Wavedash out of Jumpsquat Enabled" shortName="LINE_017">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Full-Horizontal Wavedashes Enabled" shortName="LINE_021">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_002">
 		<codeMenuComment text="Player 2 Mechanic Settings: "/>
@@ -50,6 +53,9 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Wavedash out of Jumpsquat Enabled" shortName="LINE_018">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Full-Horizontal Wavedashes Enabled" shortName="LINE_022">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>
@@ -72,6 +78,9 @@
 		<codeMenuToggle name="Wavedash out of Jumpsquat Enabled" shortName="LINE_019">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Full-Horizontal Wavedashes Enabled" shortName="LINE_023">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_004">
 		<codeMenuComment text="Player 4 Mechanic Settings: "/>
@@ -90,6 +99,9 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Wavedash out of Jumpsquat Enabled" shortName="LINE_020">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Full-Horizontal Wavedashes Enabled" shortName="LINE_024">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>
