@@ -4,30 +4,27 @@ namespace transitionListener
 {
     char outputTag[] = "[transitionListener] ";
     
-    u32 prevFrameStatusBak[fighterHooks::maxFighterCount] = {};
-    void onUpdateCallback(Fighter* fighterIn)
+    void onStatusChangeCallback(Fighter* fighterIn)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
         if (fighterPlayerNo < fighterHooks::maxFighterCount)
         {
             soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
             u32 currStatus = moduleEnum->m_statusModule->getStatusKind();
-            u32 prevFrameStatus = prevFrameStatusBak[fighterPlayerNo];
-            if (currStatus != prevFrameStatus)
+            u32 prevStatus = moduleEnum->m_statusModule->getPrevStatusKind(0);
+            if (currStatus != prevStatus)
             {
                 soTransitionInfo* lastTransition = ((soStatusModuleImpl*)moduleEnum->m_statusModule)->m_transitionModule->getLastTransitionInfo();
                 OSReport_N("%sP%d: Status[0x%04X -> 0x%04X], Transition[0x%04X_0x%04X]\n", outputTag, fighterPlayerNo,
-                    prevFrameStatus, currStatus, lastTransition->m_unitId, lastTransition->m_groupId);
+                    prevStatus, currStatus, lastTransition->m_unitId, lastTransition->m_groupId);
             }
-            prevFrameStatusBak[fighterPlayerNo] = currStatus;
         }
     }
-
 
 #pragma c99 on
     fighterHooks::callbackBundle callbacks =
     {
-        .m_FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
+        .m_FighterOnStatusChangeCB = (fighterHooks::FighterOnStatusChangeCB)onStatusChangeCallback,
     };
 #pragma c99 off
 

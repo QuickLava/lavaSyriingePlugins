@@ -203,7 +203,7 @@ namespace fighterHooks
 		// Execute Callbacks
 		_performFighterEventCallbacks(CALLBACK_INDEX(callbackBundle::m_FighterOnRemoveCB), entryID);
 	}
-	// Update Callbacks
+	// OnUpdate Callbacks
 	void ftCallbackMgr::performOnUpdateCallbacks()
 	{
 		register Fighter* fighter;
@@ -215,6 +215,22 @@ namespace fighterHooks
 
 		// Execute Callbacks
 		_performFighterEventCallbacks(CALLBACK_INDEX(callbackBundle::m_FighterOnUpdateCB), fighter->m_entryId);
+	}
+	// OnStatusChange Callbacks
+	void ftCallbackMgr::performOnStatusChangeCallbacks()
+	{
+		register StageObject* stageObj;
+		asm
+		{
+			lwz stageObj, 0x08(r31)
+		}
+		sizeof(stageObj);
+
+		if (stageObj->m_taskCategory == gfTask::Category_Fighter)
+		{
+			// Execute Callbacks
+			_performFighterEventCallbacks(CALLBACK_INDEX(callbackBundle::m_FighterOnStatusChangeCB), ((Fighter*)stageObj)->m_entryId);
+		}
 	}
 
 	// OnHit & OnAttack Callbacks
@@ -322,5 +338,8 @@ namespace fighterHooks
 
 		// General Fighter Update Hook @ 0x80839160: 0xAA4 bytes into symbol "processUpdate/[Fighter]/fighter.o"
 		SyringeCompat::syInlineHookRel(0x12E74C, reinterpret_cast<void*>(ftCallbackMgr::performOnUpdateCallbacks), Modules::SORA_MELEE);
+
+		// General Fighter Status Change Hook @ 0x8077FE64: 0x4A0 bytes into symbol "changeStatus/[soStatusModuleImpl]/so_status_module_impl.o"
+		SyringeCompat::syInlineHookRel(0x75450, reinterpret_cast<void*>(ftCallbackMgr::performOnStatusChangeCallbacks), Modules::SORA_MELEE);
 	}
 }

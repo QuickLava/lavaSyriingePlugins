@@ -29,6 +29,9 @@
 		<codeMenuToggle name="Focus Attacks Enabled" shortName="LINE_013">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Wavedash out of Jumpsquat Enabled" shortName="LINE_017">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_002">
 		<codeMenuComment text="Player 2 Mechanic Settings: "/>
@@ -44,6 +47,9 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Focus Attacks Enabled" shortName="LINE_014">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Wavedash out of Jumpsquat Enabled" shortName="LINE_018">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>
@@ -63,6 +69,9 @@
 		<codeMenuToggle name="Focus Attacks Enabled" shortName="LINE_015">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Wavedash out of Jumpsquat Enabled" shortName="LINE_019">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_004">
 		<codeMenuComment text="Player 4 Mechanic Settings: "/>
@@ -78,6 +87,9 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Focus Attacks Enabled" shortName="LINE_016">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Wavedash out of Jumpsquat Enabled" shortName="LINE_020">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>

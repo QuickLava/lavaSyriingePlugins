@@ -13,7 +13,8 @@ namespace mechHub
     u8* const activeMechanicEnabledMasks = mechanicEnabledMasks;
     u8* const passiveMechanicEnabledMasks = mechanicEnabledMasks + amid__COUNT;
 
-    u8 const passiveMechanicP1ToggleLineIDs[pmid__COUNT] = { lid_MAGIC_SERIES_TOGGLE_P1, lid_FINAL_SMASH_METER_TOGGLE_P1, lid_FOCUS_ATTACKS_TOGGLE_P1 };
+    u8 const passiveMechanicP1ToggleLineIDs[pmid__COUNT] = 
+    { lid_MAGIC_SERIES_TOGGLE_P1, lid_FINAL_SMASH_METER_TOGGLE_P1, lid_FOCUS_ATTACKS_TOGGLE_P1, lid_SQUAT_DODGE_TOGGLE_P1 };
 
     bool getFlagForPlayer(register u8 flagByte, register u32 playerNo)
     {
@@ -125,7 +126,7 @@ namespace mechHub
 
     bool populate()
     {
-        bool result = codeMenu::loadCodeMenuAddonLOCsToBuffer(addonShortName, indexBuffer, lid__COUNT);
+        bool result = 0; //codeMenu::loadCodeMenuAddonLOCsToBuffer(addonShortName, indexBuffer, lid__COUNT);
         if (result)
         {
             OSReport_N("%sSuccessfully Loaded Addon Index File to Buffer 0x%08X!\n", outputTag, indexBuffer);
