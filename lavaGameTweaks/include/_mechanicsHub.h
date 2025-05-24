@@ -62,6 +62,8 @@ namespace mechHub
     void registerHooks();
     bool getActiveMechanicEnabled(u32 playerNo, activeMechanicIDs mechanicID);
     bool getPassiveMechanicEnabled(u32 playerNo, passiveMechanicIDs mechanicID);
+    bool getActiveMechanicEnabledDiff(u32 playerNo, activeMechanicIDs mechanicID);
+    bool getPassiveMechanicEnabledDiff(u32 playerNo, passiveMechanicIDs mechanicID);
 }
 
 #endif

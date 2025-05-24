@@ -7,11 +7,14 @@ namespace mechHub
     char outputTag[] = "[mechHub] ";
     const char addonShortName[] = "MECH_HUB";
 
-    const u32 totalMechanicsCount = amid__COUNT + pmid__COUNT;
-    u8 mechanicEnabledMasks[totalMechanicsCount + 1] = {};
-    u8* const mechanicsDisabledMask = mechanicEnabledMasks + totalMechanicsCount;
+    const u32 maxMechanicCount = amid__COUNT + pmid__COUNT;
+    u8 mechanicEnabledMasks[maxMechanicCount + 1] = {};
+    u8* const mechanicsDisabledMask = mechanicEnabledMasks + maxMechanicCount;
     u8* const activeMechanicEnabledMasks = mechanicEnabledMasks;
     u8* const passiveMechanicEnabledMasks = mechanicEnabledMasks + amid__COUNT;
+    u8 mechanicEnabledDiffMasks[maxMechanicCount] = {};
+    u8* const activeMechanicEnabledDiffMasks = mechanicEnabledDiffMasks;
+    u8* const passiveMechanicEnabledDiffMasks = mechanicEnabledDiffMasks + amid__COUNT;
 
     u8 const passiveMechanicP1ToggleLineIDs[pmid__COUNT] = 
     { 
@@ -66,7 +69,7 @@ namespace mechHub
     void clearMechanicEnabledMasks()
     {
         u8* currMask = mechanicEnabledMasks - 1;
-        for (u32 i = 0; i < totalMechanicsCount; i++)
+        for (u32 i = 0; i < maxMechanicCount; i++)
         {
             *(++currMask) = 0;
         }
@@ -76,11 +79,14 @@ namespace mechHub
         if (*mechanicsDisabledMask != 0) return;
 
         u8* currMask = mechanicEnabledMasks - 1;
+        u8* currDiffMask = mechanicEnabledDiffMasks - 1;
         for (u32 i = 0; i < amid__COUNT; i++)
         {
             currMask++;
-            u8 maskValue = *currMask;
-            u8 currMaskBit = 0b1;
+            currDiffMask++;
+            u32 maskValue = *currMask;
+            u32 maskValueBak = maskValue;
+            u32 currMaskBit = 0b1;
             for (u32 u = 0; u < 4; u++)
             {
                 u32 activeMechanic = ((codeMenu::cmSelectionLine*)indexBuffer[lid_ACTIVE_MECHANIC_P1 + u])->m_value;
@@ -95,13 +101,16 @@ namespace mechHub
                 currMaskBit = currMaskBit << 1;
             }
             *currMask = maskValue;
+            *currDiffMask = maskValueBak ^ maskValue;
         }
         for (u32 i = 0; i < pmid__COUNT; i++)
         {
             currMask++;
+            currDiffMask++;
             u32 p1ToggleLineID = passiveMechanicP1ToggleLineIDs[i];
-            u8 maskValue = *currMask;
-            u8 currMaskBit = 0b1;
+            u32 maskValue = *currMask;
+            u32 maskValueBak = maskValue;
+            u32 currMaskBit = 0b1;
             for (u32 u = 0; u < 4; u++)
             {
                 u32 mechanicEnabled = ((codeMenu::cmSelectionLine*)indexBuffer[p1ToggleLineID + u])->m_value;
@@ -116,14 +125,24 @@ namespace mechHub
                 currMaskBit = currMaskBit << 1;
             }
             *currMask = maskValue;
+            *currDiffMask = maskValue ^ maskValueBak;
         }
+    }
+
+    void onMeleeStart()
+    {
+        clearMechanicEnabledMasks();
+    }
+    void onMeleeUpdate()
+    {
+        updateMechanicEnabledMasks();
     }
 
 #pragma c99 on
     fighterHooks::callbackBundle callbacks =
     {
-        .m_MeleeOnUpdateCB = (fighterHooks::MeleeOnUpdateCB)updateMechanicEnabledMasks,
-        .m_MeleeOnGameSetCB = (fighterHooks::MeleeOnGameSetCB)clearMechanicEnabledMasks,
+        .m_MeleeOnStartCB = (fighterHooks::MeleeOnStartCB)onMeleeStart,
+        .m_MeleeOnUpdateCB = (fighterHooks::MeleeOnUpdateCB)onMeleeUpdate,
     };
 #pragma c99 off
 
@@ -165,6 +184,24 @@ namespace mechHub
         {
             lis r5, passiveMechanicEnabledMasks@ha;
             lwz r5, passiveMechanicEnabledMasks@l(r5);
+            bl getMechanicEnabled;
+        }
+    }
+    bool getActiveMechanicEnabledDiff(u32 playerNo, activeMechanicIDs mechanicID)
+    {
+        asm
+        {
+            lis r5, activeMechanicEnabledDiffMasks@ha;
+            lwz r5, activeMechanicEnabledDiffMasks@l(r5);
+            bl getMechanicEnabled;
+        }
+    }
+    bool getPassiveMechanicEnabledDiff(u32 playerNo, passiveMechanicIDs mechanicID)
+    {
+        asm
+        {
+            lis r5, passiveMechanicEnabledDiffMasks@ha;
+            lwz r5, passiveMechanicEnabledDiffMasks@l(r5);
             bl getMechanicEnabled;
         }
     }

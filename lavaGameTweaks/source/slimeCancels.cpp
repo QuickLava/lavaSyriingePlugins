@@ -25,6 +25,7 @@ namespace slimeCancels
         {
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
             targetMeterBundle->setMeterConfig(meterConf, 1);
+            OSReport_N("%sMeter Reset Handled\n", outputTag);
         }
     }
     void onAttackCallback(Fighter* attacker, StageObject* target, float damage, StageObject* projectile, u32 attackKind, u32 attackSituation)
@@ -43,13 +44,18 @@ namespace slimeCancels
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
         if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_SLIME_CANCELS))
         {
+            fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
+            if (mechHub::getActiveMechanicEnabledDiff(fighterPlayerNo, mechHub::amid_AIRDODGE_CANCELS))
+            {
+                targetMeterBundle->setMeterConfig(meterConf, 1);
+            }
+
             soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
             soStatusModule* statusModule = moduleEnum->m_statusModule;
             soSituationModule* situationModule = moduleEnum->m_situationModule;
             soWorkManageModule* workManageModule = moduleEnum->m_workManageModule;
             soControllerModule* controllerModule = moduleEnum->m_controllerModule;
             
-            fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
             u32 currMeterStocks = targetMeterBundle->getMeterStocks();
             bool infiniteMeterMode = (infiniteMeterModeFlags >> fighterPlayerNo) & 0b1;
 

@@ -49,13 +49,19 @@ namespace airdodgeCancels
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
         if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_AIRDODGE_CANCELS))
         {
+            fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
+            if (mechHub::getActiveMechanicEnabledDiff(fighterPlayerNo, mechHub::amid_AIRDODGE_CANCELS))
+            {
+                targetMeterBundle->setMeterConfig(meterConf, 1);
+                OSReport_N("%sMeter Reset Handled\n", outputTag);
+            }
+
             soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
             soWorkManageModule* workManageModule = moduleEnum->m_workManageModule;
             soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleEnum->m_statusModule;
             soTransitionModule* transitionModule = statusModule->m_transitionModule;
             soControllerModule* controllerModule = moduleEnum->m_controllerModule;
             
-            fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
             u32 currMeterStocks = targetMeterBundle->getMeterStocks();
             bool infiniteMeterMode = (infiniteMeterModeFlags >> fighterPlayerNo) & 0b1;
 

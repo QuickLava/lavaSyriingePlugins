@@ -61,8 +61,14 @@ namespace rocketBurst
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
         if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_ROCKET_BURST))
         {
-            soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
+            if (mechHub::getActiveMechanicEnabledDiff(fighterPlayerNo, mechHub::amid_AIRDODGE_CANCELS))
+            {
+                targetMeterBundle->setMeterConfig(meterConf, 1);
+                OSReport_N("%sMeter Reset Handled\n", outputTag);
+            }
+
+            soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
 
             soStatusModule* statusModule = moduleAccesser->getStatusModule();
             u32 currStatus = statusModule->getStatusKind();
