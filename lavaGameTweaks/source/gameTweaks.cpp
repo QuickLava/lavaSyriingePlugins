@@ -9,6 +9,7 @@
 #include "focusAttacks.h"
 #include "squatDodge.h"
 #include "horizontalWavedashes.h"
+#include "actionableAirdodge.h"
 //#include "transitionListener.h"
 #include "_mechanicsHub.h"
 
@@ -28,7 +29,7 @@ namespace lavaGameTweaks
         focusAttacks::registerHooks();
         horiWavedashes::registerHooks();
         squatDodge::registerHooks();
-
+        actionableAirdodge::registerHooks();    
         //transitionListener::registerHooks();
 
         //meleeFreeze::registerHooks();

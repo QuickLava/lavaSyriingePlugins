@@ -35,6 +35,9 @@
 		<codeMenuToggle name="Full-Horizontal Wavedashes Enabled" shortName="LINE_021">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Actionable Airdodges Enabled" shortName="LINE_025">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_002">
 		<codeMenuComment text="Player 2 Mechanic Settings: "/>
@@ -56,6 +59,9 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Full-Horizontal Wavedashes Enabled" shortName="LINE_022">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Actionable Airdodges Enabled" shortName="LINE_026">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>
@@ -81,6 +87,9 @@
 		<codeMenuToggle name="Full-Horizontal Wavedashes Enabled" shortName="LINE_023">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Actionable Airdodges Enabled" shortName="LINE_027">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_004">
 		<codeMenuComment text="Player 4 Mechanic Settings: "/>
@@ -102,6 +111,9 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Full-Horizontal Wavedashes Enabled" shortName="LINE_024">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Actionable Airdodges Enabled" shortName="LINE_028">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>
