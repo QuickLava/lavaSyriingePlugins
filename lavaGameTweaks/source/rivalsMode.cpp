@@ -37,7 +37,7 @@ namespace rivalsMode
     {
         soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
         soPostureModule* postureModule = moduleAccesser->m_enumerationStart->m_postureModule;
-        float stickX = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_X, 0);
+        float stickX = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Var_Float_Controller_Stick_X, 0);
         if (fabs(stickX) >= 0.5f)
         {
             Vec3f wallCheckVec = { 5.0f, 0.0f, 0.0f };
@@ -115,7 +115,7 @@ namespace rivalsMode
                         Vec3f hitPosOut;
                         Vec3f normalVecOut;
                         if (stRayCheck(&currPos, &searchVector, &lineIDOut, &hitPosOut, &normalVecOut, 1, 0, 1)
-                            && ftValueAccesser::getValueFloat(moduleAccesser, ftValueAccesser::Variable_Float_Kinetic_Sum_Speed_Y, 0) <= 0.0f)
+                            && ftValueAccesser::getValueFloat(moduleAccesser, ftValueAccesser::Var_Float_Kinetic_Sum_Speed_Y, 0) <= 0.0f)
                         {
                             float distanceFromGround = currPos.m_y - hitPosOut.m_y;
                             OSReport_N("%sDistanceFromGround: %.3f\n", outputTag, distanceFromGround);
@@ -156,8 +156,8 @@ namespace rivalsMode
                         && moduleAccesser->m_enumerationStart->m_controllerModule->getTrigger().m_attack
                         && (currMotion == Fighter::Motion_Attack_11 || currMotion == Fighter::Motion_Attack_12))
                     {
-                        float stickX = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_X_Lr, 0);
-                        float stickY = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_Y, 0);
+                        float stickX = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Var_Float_Controller_Stick_X_Lr, 0);
+                        float stickY = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Var_Float_Controller_Stick_Y, 0);
                         if (stickX > ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Common_Param_Float_Attack_S3_Stick_X, 0))
                         {
                             statusModule->changeStatusRequest(Fighter::Status_Attack_S3, moduleAccesser);
@@ -175,7 +175,7 @@ namespace rivalsMode
                 }
                 case Fighter::Status_Attack_Hi3: case Fighter::Status_Attack_Lw3:
                 {
-                    float stickX = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_X_Lr, 0);
+                    float stickX = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Var_Float_Controller_Stick_X_Lr, 0);
                     if ((tiltCancelReverseTemp & playerBit) && stickX <= -0.1f)
                     {
                         OSReport_N("%sReverse Requested\n", outputTag);
@@ -273,8 +273,8 @@ namespace rivalsMode
                 {
                     if (moduleAccesser->m_enumerationStart->m_motionModule->getFrame() < 3.0f)
                     {
-                        float stickXAbs = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_X_Abs, 0);
-                        float stickYAbs = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_Y_Abs, 0);
+                        float stickXAbs = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Var_Float_Controller_Stick_X_Abs, 0);
+                        float stickYAbs = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Var_Float_Controller_Stick_Y_Abs, 0);
 
                         if (stickXAbs < 0.2f && stickYAbs < 0.2f)
                         {
@@ -350,7 +350,7 @@ namespace rivalsMode
                                 {
                                     float animProgress = mechUtil::currAnimProgress(fighterIn);
                                     float ySpeed =
-                                        ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Kinetic_Sum_Speed_Y, 0);
+                                        ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Var_Float_Kinetic_Sum_Speed_Y, 0);
                                     if (animProgress >= 0.80f 
                                         || (animProgress >= 0.50f && ySpeed < -0.5f && !fighterIn->isEnableCancel()))
                                     {

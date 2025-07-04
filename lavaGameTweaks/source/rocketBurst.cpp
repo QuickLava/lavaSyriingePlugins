@@ -165,7 +165,7 @@ namespace rocketBurst
                         }
                         float xBoostValue = soValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Jump_Aerial_Speed_X_Mul, 0);
                         xBoostValue = (chargeAmount * 0.5f) + xBoostValue;
-                        xBoostValue *= soValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Variable_Float_Controller_Stick_X_Lr, 0);
+                        xBoostValue *= soValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Var_Float_Controller_Stick_X_Lr, 0);
 
                         statusModule->changeStatus(targetStatus, moduleAccesser);
                         Vec3f boostVec = { xBoostValue, yBoostValue, 0.0f };
