@@ -40,6 +40,10 @@ namespace mechHub
         lid_ACTI_WAVEDASH_TOGGLE_P2,
         lid_ACTI_WAVEDASH_TOGGLE_P3,
         lid_ACTI_WAVEDASH_TOGGLE_P4,
+        lid_BABY_DASH_TOGGLE_P1,
+        lid_BABY_DASH_TOGGLE_P2,
+        lid_BABY_DASH_TOGGLE_P3,
+        lid_BABY_DASH_TOGGLE_P4,
         lid__COUNT
     };
     enum activeMechanicIDs
@@ -58,6 +62,7 @@ namespace mechHub
         pmid_SQUAT_DODGE,
         pmid_HORI_WAVEDASH,
         pmid_ACTI_WAVEDASH,
+        pmid_BABY_DASH,
         pmid__COUNT,
     };
 

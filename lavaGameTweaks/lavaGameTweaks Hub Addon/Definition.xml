@@ -38,6 +38,9 @@
 		<codeMenuToggle name="Actionable Airdodges Enabled" shortName="LINE_025">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Baby Dashes Enabled" shortName="LINE_029">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_002">
 		<codeMenuComment text="Player 2 Mechanic Settings: "/>
@@ -62,6 +65,9 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Actionable Airdodges Enabled" shortName="LINE_026">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Baby Dashes Enabled" shortName="LINE_030">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>
@@ -90,6 +96,9 @@
 		<codeMenuToggle name="Actionable Airdodges Enabled" shortName="LINE_027">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Baby Dashes Enabled" shortName="LINE_031">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_004">
 		<codeMenuComment text="Player 4 Mechanic Settings: "/>
@@ -114,6 +123,9 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Actionable Airdodges Enabled" shortName="LINE_028">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Baby Dashes Enabled" shortName="LINE_032">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>

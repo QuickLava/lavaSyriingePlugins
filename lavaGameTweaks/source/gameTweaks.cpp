@@ -10,6 +10,7 @@
 #include "squatDodge.h"
 #include "horizontalWavedashes.h"
 #include "actionableAirdodge.h"
+#include "babyDashes.h"
 //#include "transitionListener.h"
 #include "_mechanicsHub.h"
 
@@ -30,6 +31,7 @@ namespace lavaGameTweaks
         horiWavedashes::registerHooks();
         squatDodge::registerHooks();
         actionableAirdodge::registerHooks();    
+        babyDashes::registerHooks();
         //transitionListener::registerHooks();
 
         //meleeFreeze::registerHooks();
