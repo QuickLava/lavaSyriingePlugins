@@ -1,6 +1,6 @@
 #include <st/st_utility.h>
 #include <ft/ft_external_value_accesser.h>
-#include "squatDodge.h"
+#include "rivalsMode.h"
 
 using namespace codeMenu;
 namespace rivalsMode

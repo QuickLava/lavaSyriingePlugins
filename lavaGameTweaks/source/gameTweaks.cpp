@@ -7,9 +7,7 @@
 #include "rocketBurst.h"
 #include "finalSmashMeter.h"
 #include "focusAttacks.h"
-#include "squatDodge.h"
-#include "horizontalWavedashes.h"
-#include "actionableAirdodge.h"
+#include "rm_airdodgeTweaks.h"
 #include "babyDashes.h"
 //#include "transitionListener.h"
 #include "_mechanicsHub.h"
@@ -28,9 +26,7 @@ namespace lavaGameTweaks
         rocketBurst::registerHooks();
         finalSmashMeter::registerHooks();
         focusAttacks::registerHooks();
-        horiWavedashes::registerHooks();
-        squatDodge::registerHooks();
-        actionableAirdodge::registerHooks();    
+        rmAirdodgeTweaks::registerHooks();    
         babyDashes::registerHooks();
         //transitionListener::registerHooks();
 

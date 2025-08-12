@@ -1,12 +1,12 @@
-#ifndef LAVA_ACTIONABLE_AIRDODGE_H_V1
-#define LAVA_ACTIONABLE_AIRDODGE_H_V1
+#ifndef LAVA_RM_AIRDODGE_TWEAKS_H_V1
+#define LAVA_RM_AIRDODGE_TWEAKS_H_V1
 
 #include <cstdlib>
 #include "_mechanicsHub.h"
 #include "fighterHooks.h"
 #include "fighterMeters.h"
 
-namespace actionableAirdodge
+namespace rmAirdodgeTweaks
 {
     void registerHooks();
 }
