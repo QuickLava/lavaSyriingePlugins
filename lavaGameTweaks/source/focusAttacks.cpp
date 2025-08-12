@@ -46,7 +46,7 @@ namespace focusAttacks
         if (mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_FOCUS_ATTACKS) && target->m_taskCategory == gfTask::Category_Fighter)
         {
             if (focusChargedFlags & (1 << fighterPlayerNo)
-                && classifySmashAttackState(attacker->m_moduleAccesser->getStatusModule()->getStatusKind()) == sas_ATTACK)
+                && classifySmashAttackState(attacker->m_moduleAccesser->getStatusModule().getStatusKind()) == sas_ATTACK)
             {
                 u32 targetStatus;
                 OSReport_N("%s", outputTag);
@@ -67,7 +67,7 @@ namespace focusAttacks
                     g_ecMgr->setSlowRate(dustGHXHandle, 2);
                     OSReport_N("Grounded ");
                 }
-                enableDashCancel((soStatusModuleImpl*)attacker->m_moduleAccesser->getStatusModule());
+                enableDashCancel((soStatusModuleImpl*)attacker->m_moduleAccesser->m_enumerationStart->m_statusModule);
             }
         }
     }
@@ -76,7 +76,7 @@ namespace focusAttacks
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(target);
         if (mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_FOCUS_ATTACKS))
         {
-            if (classifySmashAttackState(target->m_moduleAccesser->getStatusModule()->getStatusKind()) == sas_CHARGE)
+            if (classifySmashAttackState(target->m_moduleAccesser->getStatusModule().getStatusKind()) == sas_CHARGE)
             {
                 focusChargedFlags |= 1 << fighterPlayerNo;
             }
@@ -102,7 +102,7 @@ namespace focusAttacks
                 {
                     if (workManageModule->isFlag(crumpled))
                     {
-                        fighterIn->m_moduleAccesser->getDamageModule()->sleep(0);
+                        fighterIn->m_moduleAccesser->getDamageModule().sleep(0);
                         workManageModule->offFlag(crumpled);
                     }
                 }

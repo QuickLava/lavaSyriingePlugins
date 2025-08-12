@@ -88,16 +88,16 @@ namespace slimeCancels
                 {
                     int currEntryID = fighterMgr->getEntryIdFromIndex(i);
                     Fighter* currFighter = fighterMgr->getFighter(currEntryID, 0);
-                    soWorkManageModule* targetWorkManageModule = currFighter->m_moduleAccesser->getWorkManageModule();
+                    soWorkManageModule* targetWorkManageModule = currFighter->m_moduleAccesser->m_enumerationStart->m_workManageModule;
                     if (targetWorkManageModule->isFlag(beenFrozenVar)) continue;
 
-                    u32 currFtStatus = currFighter->m_moduleAccesser->getStatusModule()->getStatusKind();
+                    u32 currFtStatus = currFighter->m_moduleAccesser->getStatusModule().getStatusKind();
                     if (!mechUtil::isDamageStatusKind(currFtStatus)) continue;
 
-                    float currAnimFrame = currFighter->m_moduleAccesser->getMotionModule()->getFrame();
+                    float currAnimFrame = currFighter->m_moduleAccesser->getMotionModule().getFrame();
                     if (currAnimFrame > onCancelStopWindowLength) continue;
 
-                    soDamageLog* damageLog = currFighter->m_moduleAccesser->getDamageModule()->getDamageLog();
+                    soDamageLog* damageLog = currFighter->m_moduleAccesser->getDamageModule().getDamageLog();
                     if (damageLog->m_attackerTeamOwnerId != fighterIn->m_taskId) continue;
 
                     soStopModule* attackerStopModule = fighterIn->m_moduleAccesser->m_enumerationStart->m_stopModule;
@@ -116,7 +116,7 @@ namespace slimeCancels
                     targetStopModule->setHitStopFrame(targetHitstop, 0);
                     targetWorkManageModule->onFlag(beenFrozenVar);
 
-                    soKineticEnergy* kbEnergy = currFighter->m_moduleAccesser->getKineticModule()->getEnergy(Fighter::Kinetic_Energy_Damage);
+                    soKineticEnergy* kbEnergy = currFighter->m_moduleAccesser->getKineticModule().getEnergy(Fighter::Kinetic_Energy_Damage);
                     kbEnergy->mulSpeed(&onCancelStopKBMult);
                 }
 

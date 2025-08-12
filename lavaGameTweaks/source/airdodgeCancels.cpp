@@ -35,7 +35,7 @@ namespace airdodgeCancels
             if (attackSituation == fighterHooks::as_AttackerFighter || distance <= indirectConnectMaxCancelDistance)
             {
                 OSReport_N("%sCancel Activated!\n", outputTag);
-                attacker->m_moduleAccesser->getWorkManageModule()->setFlag(1, hitboxConnectedVar);
+                attacker->m_moduleAccesser->getWorkManageModule().setFlag(1, hitboxConnectedVar);
             }
 
             mechUtil::doMeterGain(attacker, damage, ef_ptc_common_hit_ice, 0.75f, mechUtil::mgac_ON_STOCK_GAIN);

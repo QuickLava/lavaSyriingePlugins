@@ -346,7 +346,7 @@ namespace rasterizeVars
                     }
                     else
                     {
-                        currBufArg->m_rawValue = accesserIn->getWorkManageModule()->isFlag(currArg->m_rawValue);
+                        currBufArg->m_rawValue = accesserIn->getWorkManageModule().isFlag(currArg->m_rawValue);
                     }
                     OSReport_N(rasterizeFmtStr, outputTag, i, commandSignature, currArg->m_rawValue, currBufArg->m_rawValue, "BOL");
                 }

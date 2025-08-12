@@ -70,10 +70,10 @@ namespace rocketBurst
 
             soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
 
-            soStatusModule* statusModule = moduleAccesser->getStatusModule();
+            soStatusModule* statusModule = moduleAccesser->m_enumerationStart->m_statusModule;
             u32 currStatus = statusModule->getStatusKind();
 
-            soControllerModule* controllerModule = moduleAccesser->getControllerModule();
+            soControllerModule* controllerModule = moduleAccesser->m_enumerationStart->m_controllerModule;
             ipPadButton justPressed = controllerModule->getTrigger();
             ipPadButton pressed = controllerModule->getButton();
 
@@ -92,14 +92,14 @@ namespace rocketBurst
             }
             else if (framesSinceBurst == hitboxDuration)
             {
-                moduleAccesser->getCollisionAttackModule()->clear(hitboxID);
+                moduleAccesser->getCollisionAttackModule().clear(hitboxID);
             }
 
             u32 currStatusCurlCost = 0xFFFFFFFF;
-            soWorkManageModule* workManageModule = moduleAccesser->getWorkManageModule();
+            soWorkManageModule* workManageModule = moduleAccesser->m_enumerationStart->m_workManageModule;
             bool curled = workManageModule->isFlag(curledVar);
             u32 currMeterStocks = targetMeterBundle->getMeterStocks();
-            if (moduleAccesser->getSituationModule()->getKind() == 0x00)
+            if (moduleAccesser->getSituationModule().getKind() == 0x00)
             {
                 chargeArr[fighterPlayerNo] = 0.0f;
             }
@@ -144,7 +144,7 @@ namespace rocketBurst
                     if (chargeAmount >= chargeMax 
                         || ((pressed.m_mask & mechUtil::allTauntPadMask) == 0x00))
                     {
-                        soKineticModule* kineticModule = moduleAccesser->getKineticModule();
+                        soKineticModule* kineticModule = moduleAccesser->m_enumerationStart->m_kineticModule;
                         kineticModule->getEnergy(Fighter::Kinetic_Energy_Gravity)->clearSpeed();
                         kineticModule->getEnergy(Fighter::Kinetic_Energy_Damage)->mulSpeed(&curlKnockbackMul);
 
@@ -185,7 +185,7 @@ namespace rocketBurst
                         blastHitbox.m_power = (hitboxDamageChargeDiff * chargeAmount) + hitboxDamageBase;
                         blastHitbox.m_reactionEffect = (hitboxKBGChargeDiff * chargeAmount) + hitboxKBGBase;
                         blastHitbox.m_size = (hitboxSizeChargeDiff * chargeAmount) + hitboxSizeBase;
-                        moduleAccesser->getCollisionAttackModule()->set(hitboxID, hitboxGroup, &blastHitbox);
+                        moduleAccesser->getCollisionAttackModule().set(hitboxID, hitboxGroup, &blastHitbox);
 
                         targetMeterBundle->addMeterStocks(-1);
                         OSReport_N(meterChangeStr, outputTag, fighterHooks::getFighterPlayerNo(fighterIn), "Rocket Jump",
