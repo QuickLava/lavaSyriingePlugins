@@ -139,7 +139,7 @@ namespace mechUtil
         float result = 0.0f;
 
         soMotionModule* motionModule = objectIn->m_moduleAccesser->m_enumerationStart->m_motionModule;
-        if (motionModule != NULL)
+        if (motionModule != NULL && motionModule->getKind() > 0)
         {
             result = motionModule->getFrame() / motionModule->getEndFrame();
         }
