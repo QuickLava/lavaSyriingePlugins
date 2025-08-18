@@ -44,6 +44,18 @@ namespace mechHub
         lid_BABY_DASH_TOGGLE_P2,
         lid_BABY_DASH_TOGGLE_P3,
         lid_BABY_DASH_TOGGLE_P4,
+        lid_WALLJUMP_BUTTON_TOGGLE_P1,
+        lid_WALLJUMP_BUTTON_TOGGLE_P2,
+        lid_WALLJUMP_BUTTON_TOGGLE_P3,
+        lid_WALLJUMP_BUTTON_TOGGLE_P4,
+        lid_WALLJUMP_FROM_SPECIAL_TOGGLE_P1,
+        lid_WALLJUMP_FROM_SPECIAL_TOGGLE_P2,
+        lid_WALLJUMP_FROM_SPECIAL_TOGGLE_P3,
+        lid_WALLJUMP_FROM_SPECIAL_TOGGLE_P4,
+        lid_WALLJUMP_ONCE_PER_AIR_P1,
+        lid_WALLJUMP_ONCE_PER_AIR_P2,
+        lid_WALLJUMP_ONCE_PER_AIR_P3,
+        lid_WALLJUMP_ONCE_PER_AIR_P4,
         lid__COUNT
     };
     enum activeMechanicIDs
@@ -63,6 +75,9 @@ namespace mechHub
         pmid_HORI_WAVEDASH,
         pmid_ACTI_WAVEDASH,
         pmid_BABY_DASH,
+        pmid_WALLJUMP_BUTTON,
+        pmid_WALLJUMP_FROM_SPECIAL,
+        pmid_WALLJUMP_ONCE_PER_AIR,
         pmid__COUNT,
     };
 

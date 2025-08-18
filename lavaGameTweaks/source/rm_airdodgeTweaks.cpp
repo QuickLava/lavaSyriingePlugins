@@ -140,6 +140,12 @@ namespace rmAirdodgeTweaks
                         motionModule->changeMotionRequest(&changeParam);
                     }
                 }
+                // Otherwise, if we're in tumble...
+                else if (currStatus == Fighter::Status_Damage_Fall)
+                {
+                    // ... enable air dodge!
+                    statusModule->enableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Escape);
+                }
                 // Lastly, if we're in the air...
                 u32 currSituation = moduleAccesser->m_enumerationStart->m_situationModule->getKind();
                 if (currSituation == Situation_Air)

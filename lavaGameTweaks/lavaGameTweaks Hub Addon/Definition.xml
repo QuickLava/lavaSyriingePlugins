@@ -41,6 +41,15 @@
 		<codeMenuToggle name="Baby Dashes Enabled" shortName="LINE_029">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Button Walljumps Enabled" shortName="LINE_033">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Walljump from Special Fall Enabled" shortName="LINE_037">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Walljump Once Per Airtime" shortName="LINE_041">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_002">
 		<codeMenuComment text="Player 2 Mechanic Settings: "/>
@@ -68,6 +77,15 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Baby Dashes Enabled" shortName="LINE_030">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Button Walljumps Enabled" shortName="LINE_034">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Walljump from Special Fall Enabled" shortName="LINE_038">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Walljump Once Per Airtime" shortName="LINE_042">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>
@@ -99,6 +117,15 @@
 		<codeMenuToggle name="Baby Dashes Enabled" shortName="LINE_031">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Button Walljumps Enabled" shortName="LINE_035">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Walljump from Special Fall Enabled" shortName="LINE_039">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Walljump Once Per Airtime" shortName="LINE_043">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_004">
 		<codeMenuComment text="Player 4 Mechanic Settings: "/>
@@ -126,6 +153,15 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Baby Dashes Enabled" shortName="LINE_032">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Button Walljumps Enabled" shortName="LINE_036">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Walljump from Special Fall Enabled" shortName="LINE_040">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Walljump Once Per Airtime" shortName="LINE_044">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>

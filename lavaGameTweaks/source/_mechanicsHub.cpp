@@ -19,7 +19,8 @@ namespace mechHub
     u8 const passiveMechanicP1ToggleLineIDs[pmid__COUNT] = 
     { 
         lid_MAGIC_SERIES_TOGGLE_P1, lid_FINAL_SMASH_METER_TOGGLE_P1, lid_FOCUS_ATTACKS_TOGGLE_P1, lid_SQUAT_DODGE_TOGGLE_P1,
-        lid_HORI_WAVEDASH_TOGGLE_P1, lid_ACTI_WAVEDASH_TOGGLE_P1, lid_BABY_DASH_TOGGLE_P1,
+        lid_HORI_WAVEDASH_TOGGLE_P1, lid_ACTI_WAVEDASH_TOGGLE_P1, lid_BABY_DASH_TOGGLE_P1, lid_WALLJUMP_BUTTON_TOGGLE_P1,
+        lid_WALLJUMP_FROM_SPECIAL_TOGGLE_P1, lid_WALLJUMP_ONCE_PER_AIR_P1
     };
 
     bool getFlagForPlayer(register u8 flagByte, register u32 playerNo)
