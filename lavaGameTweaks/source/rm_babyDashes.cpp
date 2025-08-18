@@ -1,11 +1,11 @@
 #include <st/st_utility.h>
 #include <ft/ft_external_value_accesser.h>
-#include "babyDashes.h"
+#include "rm_babyDashes.h"
 
 using namespace codeMenu;
-namespace babyDashes
+namespace rmBabyDashes
 {
-    char outputTag[] = "[babyDashes] ";
+    char outputTag[] = "[RM_BabyDashes] ";
 
     const float babyDashMinSpeed = 1.666f;
     void onUpdateCallback(Fighter* fighterIn)

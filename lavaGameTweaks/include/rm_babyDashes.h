@@ -5,7 +5,7 @@
 #include "_mechanicsHub.h"
 #include "fighterHooks.h"
 
-namespace babyDashes
+namespace rmBabyDashes
 {
     void registerHooks();
 }
