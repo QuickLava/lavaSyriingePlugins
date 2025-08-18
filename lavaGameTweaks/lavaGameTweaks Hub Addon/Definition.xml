@@ -50,6 +50,9 @@
 		<codeMenuToggle name="Walljump Once Per Airtime" shortName="LINE_041">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_045">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_002">
 		<codeMenuComment text="Player 2 Mechanic Settings: "/>
@@ -86,6 +89,9 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Walljump Once Per Airtime" shortName="LINE_042">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_046">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>
@@ -126,6 +132,9 @@
 		<codeMenuToggle name="Walljump Once Per Airtime" shortName="LINE_043">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_047">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_004">
 		<codeMenuComment text="Player 4 Mechanic Settings: "/>
@@ -162,6 +171,9 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Walljump Once Per Airtime" shortName="LINE_044">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_048">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>

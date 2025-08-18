@@ -56,6 +56,10 @@ namespace mechHub
         lid_WALLJUMP_ONCE_PER_AIR_P2,
         lid_WALLJUMP_ONCE_PER_AIR_P3,
         lid_WALLJUMP_ONCE_PER_AIR_P4,
+        lid_TILT_CANCELS_P1,
+        lid_TILT_CANCELS_P2,
+        lid_TILT_CANCELS_P3,
+        lid_TILT_CANCELS_P4,
         lid__COUNT
     };
     enum activeMechanicIDs
@@ -78,6 +82,7 @@ namespace mechHub
         pmid_WALLJUMP_BUTTON,
         pmid_WALLJUMP_FROM_SPECIAL,
         pmid_WALLJUMP_ONCE_PER_AIR,
+        pmid_TILT_CANCELS,
         pmid__COUNT,
     };
 
