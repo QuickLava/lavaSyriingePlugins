@@ -53,6 +53,12 @@
 		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_045">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Non-Shrinking Shields Enabled" shortName="LINE_049">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Reduced Shieldbreak Stun Enabled" shortName="LINE_053">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_002">
 		<codeMenuComment text="Player 2 Mechanic Settings: "/>
@@ -92,6 +98,12 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_046">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Non-Shrinking Shields Enabled" shortName="LINE_050">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Reduced Shieldbreak Stun Enabled" shortName="LINE_054">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>
@@ -135,6 +147,12 @@
 		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_047">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Non-Shrinking Shields Enabled" shortName="LINE_051">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Reduced Shieldbreak Stun Enabled" shortName="LINE_055">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_004">
 		<codeMenuComment text="Player 4 Mechanic Settings: "/>
@@ -174,6 +192,12 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_048">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Non-Shrinking Shields Enabled" shortName="LINE_052">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Reduced Shieldbreak Stun Enabled" shortName="LINE_056">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>

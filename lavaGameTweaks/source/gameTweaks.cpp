@@ -11,6 +11,7 @@
 #include "rm_airdodgeTweaks.h"
 #include "rm_walljumpTweaks.h"
 #include "rm_tiltCancels.h"
+#include "rm_shieldTweaks.h"
 //#include "transitionListener.h"
 #include "_mechanicsHub.h"
 
@@ -32,6 +33,7 @@ namespace lavaGameTweaks
         rmAirdodgeTweaks::registerHooks();    
         rmWalljumpTweaks::registerHooks();
         rmTiltCancels::registerHooks();
+        rmShieldTweaks::registerHooks();
         //transitionListener::registerHooks();
 
         //meleeFreeze::registerHooks();
