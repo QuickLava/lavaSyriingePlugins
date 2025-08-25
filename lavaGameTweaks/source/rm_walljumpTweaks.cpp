@@ -21,32 +21,47 @@ namespace rmWalljumpTweaks
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
         soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
+        soModuleEnumeration* moduleEnum = moduleAccesser->m_enumerationStart;
+        // If this fighter is in a valid slot, can walljump, *and* their current state allows for it..
         if (fighterPlayerNo < fighterHooks::maxFighterCount
-            && moduleAccesser->m_enumerationStart->m_statusModule->isEnableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump))
+            && ftValueAccesser::getConstantInt(moduleAccesser, ftValueAccesser::Info_Param_Int_Wall_Jump_Type, 0)
+            && moduleEnum->m_statusModule->isEnableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump))
         {
-            soGroundModule* groundModule = moduleAccesser->m_enumerationStart->m_groundModule;
-            float finalDir;
+            // ... then check that we're touching a wall.
+            soGroundModule* groundModule = moduleEnum->m_groundModule;
+            // Initialize final direction to 0.0, to indicate no successful jump.
+            float finalDir = 0.0f;
+            // If we're touching a wall to our left...
             if (groundModule->isTouch(2, 0))
             {
+                // ... then final direction is 1.0f (right).
                 finalDir = 1.0f;
             }
+            // If instead we're touching to our right...
             else if (groundModule->isTouch(4, 0))
             {
+                // ... final direction is -1.0f (left).
                 finalDir = -1.0f;
             }
-            else
-            {
-                return;
-            }
 
-            OSReport_N("%sFinal ButtonJump Dir: %.0f\n", outputTag, finalDir);
-
-            soPostureModule* postureModule = moduleAccesser->m_enumerationStart->m_postureModule;
-            soControllerModule* controllerModule = moduleAccesser->m_enumerationStart->m_controllerModule;
-            if (controllerModule->getTrigger().m_jump)
+            // Finally get the absolute x position of the control stick.
+            float stickXPos = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Var_Float_Controller_Stick_X, 0);
+            // If the stick is being held left or right, multiply finalDir into the current stick x position. If the result is less than 0.0f,
+            // then we were holding into the wall we were touching...
+            if (fabsf(stickXPos) > 0.15f && (finalDir * stickXPos) < 0.0f)
             {
-                postureModule->setLr(finalDir);
-                moduleAccesser->m_enumerationStart->m_statusModule->changeStatusRequest(Fighter::Status_Wall_Jump, moduleAccesser);
+                // ... then our conditions are satisfied!
+                OSReport_N("%sButtonJump Allowed!\n", outputTag, finalDir);
+                // In that case, check that we've just pressed the jump button...
+                soControllerModule* controllerModule = moduleEnum->m_controllerModule;
+                if (controllerModule->getTrigger().m_jump)
+                {
+                    // ... and if so, set our LR to our final direction...
+                    soPostureModule* postureModule = moduleEnum->m_postureModule;
+                    postureModule->setLr(finalDir);
+                    // ... and perform the Wall Jump!
+                    moduleEnum->m_statusModule->changeStatusRequest(Fighter::Status_Wall_Jump, moduleAccesser);
+                }
             }
         }
     }
