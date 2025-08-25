@@ -45,7 +45,7 @@ namespace mechHub
             rlwnm r0, r0, playerNo, 0x18, 0x1F;
             andc result, flagByte, r0;
             cmplwi stateIn, 0x00;
-            b exit;
+            beq exit;
             or result, flagByte, r0;
         exit:
         }
