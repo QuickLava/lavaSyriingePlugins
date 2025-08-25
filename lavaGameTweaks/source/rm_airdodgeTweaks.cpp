@@ -32,13 +32,12 @@ namespace rmAirdodgeTweaks
             // Get the relevant bitmask for this player's flag bytes.
             const u32 playerBit = 1 << fighterPlayerNo;
             u32 currStatus = statusModule->getStatusKind();
-            float currAnimProgress = mechUtil::currAnimProgress(fighterIn);
 
             // If Horizontal Wavedashing is enabled, and we're currently Air Dodging...
             if (mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_HORI_WAVEDASH) && currStatus == Fighter::Status_Escape_Air)
             {
                 // ... verify that we're past the we're at least 25% of the way through the animation.
-                if (currAnimProgress <= 0.25)
+                if (mechUtil::currAnimProgress(fighterIn) <= 0.25)
                 {
                     // If we are, we're allowed to snap to ground. Grab the groundModule...
                     soGroundModule* groundModule = moduleAccesser->m_enumerationStart->m_groundModule;
