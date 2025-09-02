@@ -18,16 +18,21 @@ namespace rmShieldTweaks
             soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleAccesser->m_enumerationStart->m_statusModule;
             soWorkManageModule* workManageModule = moduleAccesser->m_enumerationStart->m_workManageModule;
 
+            // Grab the current status...
             u32 currStatus = statusModule->getStatusKind();
             switch (currStatus)
             {
+                // ... and if we're currently in shield...
                 case Fighter::Status_Guard_On: case Fighter::Status_Guard: case Fighter::Status_Guard_Damage:
                 {
+                    // ... fetch the shield's radius...
                     float shieldRadius = ftValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Shield_Radius, 0);
+                    // ... and initialize a Vector3f with it.
                     Vec3f scaleBuf = { shieldRadius, shieldRadius, shieldRadius };
-
+                    // Then grab the shield node via the model module...
                     soModelModule* modelModule = moduleAccesser->m_enumerationStart->m_modelModule;
                     u32 nodeHandle = modelModule->getCorrectNodeId(300);
+                    // ... and force its scale back to the default value.
                     modelModule->setNodeScale(nodeHandle, &scaleBuf);
                     break;
                 }

@@ -68,6 +68,10 @@ namespace mechHub
         lid_SHIELD_BREAK_REDUCTION_P2,
         lid_SHIELD_BREAK_REDUCTION_P3,
         lid_SHIELD_BREAK_REDUCTION_P4,
+        lid_SHIELD_PARRY_P1,
+        lid_SHIELD_PARRY_P2,
+        lid_SHIELD_PARRY_P3,
+        lid_SHIELD_PARRY_P4,
         lid__COUNT
     };
     enum activeMechanicIDs
@@ -93,6 +97,7 @@ namespace mechHub
         pmid_TILT_CANCELS,
         pmid_SHIELD_SIZE_LOCK,
         pmid_SHIELD_BREAK_REDUCTION,
+        pmid_SHIELD_PARRY,
         pmid__COUNT,
     };
 

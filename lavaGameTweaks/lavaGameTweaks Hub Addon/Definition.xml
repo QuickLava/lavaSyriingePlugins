@@ -47,7 +47,7 @@
 		<codeMenuToggle name="Walljump from Special Fall Enabled" shortName="LINE_037">
 			<defaultValue value="false" />
 		</codeMenuToggle>
-		<codeMenuToggle name="Walljump Once Per Airtime" shortName="LINE_041">
+		<codeMenuToggle name="Walljump Once Per Airtime Enabled" shortName="LINE_041">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_045">
@@ -57,6 +57,9 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Reduced Shieldbreak Stun Enabled" shortName="LINE_053">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Parries Enabled" shortName="LINE_057">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>
@@ -106,6 +109,9 @@
 		<codeMenuToggle name="Reduced Shieldbreak Stun Enabled" shortName="LINE_054">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Parries Enabled" shortName="LINE_058">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_003">
 		<codeMenuComment text="Player 3 Mechanic Settings: "/>
@@ -153,6 +159,9 @@
 		<codeMenuToggle name="Reduced Shieldbreak Stun Enabled" shortName="LINE_055">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+		<codeMenuToggle name="Parries Enabled" shortName="LINE_059">
+			<defaultValue value="false" />
+		</codeMenuToggle>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_004">
 		<codeMenuComment text="Player 4 Mechanic Settings: "/>
@@ -198,6 +207,9 @@
 			<defaultValue value="false" />
 		</codeMenuToggle>
 		<codeMenuToggle name="Reduced Shieldbreak Stun Enabled" shortName="LINE_056">
+			<defaultValue value="false" />
+		</codeMenuToggle>
+		<codeMenuToggle name="Parries Enabled" shortName="LINE_060">
 			<defaultValue value="false" />
 		</codeMenuToggle>
 	</codeMenuPage>
