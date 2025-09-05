@@ -13,6 +13,7 @@
 #include "rm_tiltCancels.h"
 #include "rm_shieldTweaks.h"
 #include "rm_parries.h"
+#include "rm_hitfalling.h"
 //#include "transitionListener.h"
 #include "_mechanicsHub.h"
 
@@ -36,6 +37,7 @@ namespace lavaGameTweaks
         rmTiltCancels::registerHooks();
         rmShieldTweaks::registerHooks();
         rmParries::registerHooks();
+        rmHitfalling::registerHooks();
         //transitionListener::registerHooks();
 
         //meleeFreeze::registerHooks();

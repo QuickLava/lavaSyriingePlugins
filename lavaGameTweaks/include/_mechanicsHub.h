@@ -72,6 +72,10 @@ namespace mechHub
         lid_SHIELD_PARRY_P2,
         lid_SHIELD_PARRY_P3,
         lid_SHIELD_PARRY_P4,
+        lid_HITFALLING_P1,
+        lid_HITFALLING_P2,
+        lid_HITFALLING_P3,
+        lid_HITFALLING_P4,
         lid__COUNT
     };
     enum activeMechanicIDs
@@ -98,6 +102,7 @@ namespace mechHub
         pmid_SHIELD_SIZE_LOCK,
         pmid_SHIELD_BREAK_REDUCTION,
         pmid_SHIELD_PARRY,
+        pmid_HITFALLING,
         pmid__COUNT,
     };
 
