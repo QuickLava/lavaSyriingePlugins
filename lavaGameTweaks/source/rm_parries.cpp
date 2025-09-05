@@ -20,6 +20,7 @@ namespace rmParries
     enum playerFlags
     {
         pf_ParryBuffered = 0x00,
+        pf_ParrySuffered,
         pf__COUNT
     };
     u8 perPlayerFlags[pf__COUNT];
@@ -122,6 +123,10 @@ namespace rmParries
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
         if (fighterPlayerNo < fighterHooks::maxFighterCount)
         {
+            // Additionally, we'll need to flag that the attacker has *been* parried. Fetch relevant flag byte, and determine relevant bit.
+            const u32 playerBit = 1 << fighterHooks::getFighterPlayerNo(fighterIn);
+            u32 parrySufferedTemp = perPlayerFlags[pf_ParrySuffered];
+
             // Check what state we're in.
             soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
             soStatusModule* statusModule = fighterIn->m_moduleAccesser->m_enumerationStart->m_statusModule;
@@ -171,18 +176,49 @@ namespace rmParries
                     perPlayerFlags[pf_ParryBuffered] = parryBufferedTemp;
                     break;
                 }
+                // If we're entering FuraFura...
+                case Fighter::Status_FuraFura:
+                {
+                    // ... and arrives there *because* they were parried...
+                    if (parrySufferedTemp & playerBit)
+                    {
+                        // ... jump straight to FuraFuraEnd.
+                        statusModule->changeStatus(Fighter::Status_FuraFura_End, moduleAccesser);
+                    }
+                    break;
+                }
                 // Additionally, FuraFura_End is the state we use for opponent parry lag; if a fighter enters that state...
                 case Fighter::Status_FuraFura_End:
                 {
-                    // ... then disable all of their relevant ground interrupts.
-                    for (u32 i = Fighter::Status_Transition_Term_Group_Chk_Ground_Special; i <= Fighter::Status_Transition_Term_Group_Chk_Ground; i++)
+                    // ... and arrives there *because* they were parried...
+                    if (parrySufferedTemp & playerBit)
                     {
-                        statusModule->unableTransitionTermGroup(i);
+                        // Turn off the flag and store it back!
+                        perPlayerFlags[pf_ParrySuffered] = parrySufferedTemp & ~playerBit;
+                        // Additionally, disable all of their relevant ground interrupts.
+                        for (u32 i = Fighter::Status_Transition_Term_Group_Chk_Ground_Special; i <= Fighter::Status_Transition_Term_Group_Chk_Ground; i++)
+                        {
+                            statusModule->unableTransitionTermGroup(i);
+                        }
+                        // Lastly, slow their animation speed to lengthen the punishment period.
+                        moduleAccesser->m_enumerationStart->m_motionModule->setRate(0.5f);
+                    }
+                    // Intentionally, also flow down into the below to trigger the parry overlay!
+                    // Note: we intentionally left parrySufferedTemp unmodified cuz we need it to trigger when we flow into the below case!
+                }
+                // If we're in any of the intermediate states experienced after getting parried in the air...
+                case Fighter::Status_Shield_Break_Fall: case Fighter::Status_Shield_Break_Down: case Fighter::Status_FuraFura_Stand:
+                {
+                    // ... and we arrived there *because* we were parried...
+                    if (parrySufferedTemp & playerBit)
+                    {
+                        // ...apply the darkening effect.
+                        GXColor parryFlashRGBA = { 0x08, 0x08, 0x00, 0xA0 };
+                        moduleAccesser->m_enumerationStart->m_colorBlendModule->setFlash(parryFlashRGBA, 1);
                     }
                     break;
                 }
             }
-
         }
     }
     void onAttackCallback(Fighter* attacker, StageObject* target, float damage, StageObject* projectile, u32 attackKind, u32 attackSituation)
@@ -204,30 +240,28 @@ namespace rmParries
             {
                 // If they are, signal that they've successfully parried!
                 tr_workManageModule->onFlag(parrySuccessBit);
+                
                 // Next, set the attacker's state to enforce the parry lag!
                 soStatusModule* at_statusModule = at_moduleAccesser->m_enumerationStart->m_statusModule;
                 SituationKind at_situation = at_moduleAccesser->m_enumerationStart->m_situationModule->getKind();
-                // If they're on the ground...
-                if (at_situation == Situation_Ground)
+                // Initialize the attackers targeted end state to just their current one, since if they just jabbed we don't wanna change state.
+                u32 endState = at_statusModule->getStatusKind();
+                // If they're on the ground and landed anything stronger than a jab...
+                if (at_situation == Situation_Ground && attackKind >= fighterHooks::ak_ATTACK_DASH)
                 {
-                    // ... and landed anything stronger than a jab...
-                    if (attackKind >= fighterHooks::ak_ATTACK_DASH)
-                    {
-                        // ... put them into FuraFuraEnd!
-                        at_statusModule->changeStatusRequest(Fighter::Status_FuraFura_End, at_moduleAccesser);
-                        // Additionally, apply the darkening effect...
-                        GXColor parryFlashRGBA = { 0x08, 0x08, 0x00, 0xA0 };
-                        at_moduleAccesser->m_enumerationStart->m_colorBlendModule->setFlash(parryFlashRGBA, 1);
-                        // ... and slow their animation speed to lengthen the punishment period.
-                        at_moduleAccesser->m_enumerationStart->m_motionModule->setRate(0.5f);
-                    }
+                    // ... set target state to FuraFuraEnd.
+                    endState = Fighter::Status_FuraFura_End;
                 }
                 // Otherwise, if they're in the air...
                 else if (at_situation == Situation_Air)
                 {
-                    // ... put them into Shield Break Fall, so they lose actionability and transition into FuraFura on landing!
-                    at_statusModule->changeStatusRequest(Fighter::Status_Shield_Break_Fall, at_moduleAccesser);
+                    // ... set target state to Shield Break Fall, so they lose actionability and transition into FuraFura on landing.
+                    endState = Fighter::Status_Shield_Break_Fall;
                 }
+                // Lastly, flag that the attacker has *been* parried...
+                perPlayerFlags[pf_ParrySuffered] |= (1 << fighterHooks::getFighterPlayerNo(attacker));
+                // ... and put the character into the target end state.
+                at_statusModule->changeStatusRequest(endState, at_moduleAccesser);
             }
         }
     }
