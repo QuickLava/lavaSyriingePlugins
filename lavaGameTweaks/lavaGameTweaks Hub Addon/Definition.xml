@@ -32,18 +32,18 @@
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_R01">
 		<codeMenuComment text="Player 1 RivalsMode Mechanic Settings: "/>
+		<codeMenuToggle name="Parries Enabled" shortName="LINE_057"/>
+		<codeMenuToggle name="Hitfalling Enabled" shortName="LINE_061"/>
+		<codeMenuToggle name="Baby Dashes Enabled" shortName="LINE_029"/>
+		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_045"/>
+		<codeMenuToggle name="Actionable Airdodges Enabled" shortName="LINE_025"/>
 		<codeMenuToggle name="Wavedash out of Jumpsquat Enabled" shortName="LINE_017"/>
 		<codeMenuToggle name="Full-Horizontal Wavedashes Enabled" shortName="LINE_021"/>
-		<codeMenuToggle name="Actionable Airdodges Enabled" shortName="LINE_025"/>
-		<codeMenuToggle name="Baby Dashes Enabled" shortName="LINE_029"/>
 		<codeMenuToggle name="Button Walljumps Enabled" shortName="LINE_033"/>
 		<codeMenuToggle name="Walljump from Special Fall Enabled" shortName="LINE_037"/>
 		<codeMenuToggle name="Walljump Once Per Airtime Enabled" shortName="LINE_041"/>
-		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_045"/>
 		<codeMenuToggle name="Non-Shrinking Shields Enabled" shortName="LINE_049"/>
 		<codeMenuToggle name="Reduced Shieldbreak Stun Enabled" shortName="LINE_053"/>
-		<codeMenuToggle name="Parries Enabled" shortName="LINE_057"/>
-		<codeMenuToggle name="Hitfalling Enabled" shortName="LINE_061"/>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_002">
 		<codeMenuComment text="Player 2 Mechanic Settings: "/>
@@ -58,18 +58,18 @@
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_R02">
 		<codeMenuComment text="Player 2 RivalsMode Mechanic Settings: "/>
+		<codeMenuToggle name="Parries Enabled" shortName="LINE_058"/>
+		<codeMenuToggle name="Hitfalling Enabled" shortName="LINE_062"/>
+		<codeMenuToggle name="Baby Dashes Enabled" shortName="LINE_030"/>
+		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_046"/>
+		<codeMenuToggle name="Actionable Airdodges Enabled" shortName="LINE_026"/>
 		<codeMenuToggle name="Wavedash out of Jumpsquat Enabled" shortName="LINE_018"/>
 		<codeMenuToggle name="Full-Horizontal Wavedashes Enabled" shortName="LINE_022"/>
-		<codeMenuToggle name="Actionable Airdodges Enabled" shortName="LINE_026"/>
-		<codeMenuToggle name="Baby Dashes Enabled" shortName="LINE_030"/>
 		<codeMenuToggle name="Button Walljumps Enabled" shortName="LINE_034"/>
 		<codeMenuToggle name="Walljump from Special Fall Enabled" shortName="LINE_038"/>
 		<codeMenuToggle name="Walljump Once Per Airtime" shortName="LINE_042"/>
-		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_046"/>
 		<codeMenuToggle name="Non-Shrinking Shields Enabled" shortName="LINE_050"/>
 		<codeMenuToggle name="Reduced Shieldbreak Stun Enabled" shortName="LINE_054"/>
-		<codeMenuToggle name="Parries Enabled" shortName="LINE_058"/>
-		<codeMenuToggle name="Hitfalling Enabled" shortName="LINE_062"/>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_003">
 		<codeMenuComment text="Player 3 Mechanic Settings: "/>
@@ -84,18 +84,18 @@
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_R03">
 		<codeMenuComment text="Player 3 RivalsMode Mechanic Settings: "/>
+		<codeMenuToggle name="Parries Enabled" shortName="LINE_059"/>
+		<codeMenuToggle name="Hitfalling Enabled" shortName="LINE_063"/>
+		<codeMenuToggle name="Baby Dashes Enabled" shortName="LINE_031"/>
+		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_047"/>
+		<codeMenuToggle name="Actionable Airdodges Enabled" shortName="LINE_027"/>
 		<codeMenuToggle name="Wavedash out of Jumpsquat Enabled" shortName="LINE_019"/>
 		<codeMenuToggle name="Full-Horizontal Wavedashes Enabled" shortName="LINE_023"/>
-		<codeMenuToggle name="Actionable Airdodges Enabled" shortName="LINE_027"/>
-		<codeMenuToggle name="Baby Dashes Enabled" shortName="LINE_031"/>
 		<codeMenuToggle name="Button Walljumps Enabled" shortName="LINE_035"/>
 		<codeMenuToggle name="Walljump from Special Fall Enabled" shortName="LINE_039"/>
 		<codeMenuToggle name="Walljump Once Per Airtime" shortName="LINE_043"/>
-		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_047"/>
 		<codeMenuToggle name="Non-Shrinking Shields Enabled" shortName="LINE_051"/>
 		<codeMenuToggle name="Reduced Shieldbreak Stun Enabled" shortName="LINE_055"/>
-		<codeMenuToggle name="Parries Enabled" shortName="LINE_059"/>
-		<codeMenuToggle name="Hitfalling Enabled" shortName="LINE_063"/>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_004">
 		<codeMenuComment text="Player 4 Mechanic Settings: "/>
@@ -110,18 +110,18 @@
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_R04">
 		<codeMenuComment text="Player 4 RivalsMode Mechanic Settings: "/>
+		<codeMenuToggle name="Parries Enabled" shortName="LINE_060"/>
+		<codeMenuToggle name="Hitfalling Enabled" shortName="LINE_064"/>
+		<codeMenuToggle name="Baby Dashes Enabled" shortName="LINE_032"/>
+		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_048"/>
+		<codeMenuToggle name="Actionable Airdodges Enabled" shortName="LINE_028"/>
 		<codeMenuToggle name="Wavedash out of Jumpsquat Enabled" shortName="LINE_020"/>
 		<codeMenuToggle name="Full-Horizontal Wavedashes Enabled" shortName="LINE_024"/>
-		<codeMenuToggle name="Actionable Airdodges Enabled" shortName="LINE_028"/>
-		<codeMenuToggle name="Baby Dashes Enabled" shortName="LINE_032"/>
 		<codeMenuToggle name="Button Walljumps Enabled" shortName="LINE_036"/>
 		<codeMenuToggle name="Walljump from Special Fall Enabled" shortName="LINE_040"/>
 		<codeMenuToggle name="Walljump Once Per Airtime" shortName="LINE_044"/>
-		<codeMenuToggle name="Tilt Cancels Enabled" shortName="LINE_048"/>
 		<codeMenuToggle name="Non-Shrinking Shields Enabled" shortName="LINE_052"/>
 		<codeMenuToggle name="Reduced Shieldbreak Stun Enabled" shortName="LINE_056"/>
-		<codeMenuToggle name="Parries Enabled" shortName="LINE_060"/>
-		<codeMenuToggle name="Hitfalling Enabled" shortName="LINE_064"/>
 	</codeMenuPage>
 </addon>
 
