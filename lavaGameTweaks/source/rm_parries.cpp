@@ -124,19 +124,18 @@ namespace rmParries
         if (fighterPlayerNo < fighterHooks::maxFighterCount)
         {
             // Additionally, we'll need to flag that the attacker has *been* parried. Fetch relevant flag byte, and determine relevant bit.
-            const u32 playerBit = 1 << fighterHooks::getFighterPlayerNo(fighterIn);
+            const u32 playerBit = 1 << fighterPlayerNo;
             u32 parrySufferedTemp = perPlayerFlags[pf_ParrySuffered];
 
             // Check what state we're in.
             soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
-            soStatusModule* statusModule = fighterIn->m_moduleAccesser->m_enumerationStart->m_statusModule;
+            soStatusModuleImpl* statusModule = (soStatusModuleImpl*)fighterIn->m_moduleAccesser->m_enumerationStart->m_statusModule;
             switch (statusModule->getStatusKind())
             {
                 // If we're in GuardOff...
                 case Fighter::Status_Guard_Off:
                 {
                     // ... check if we arrived here with a parry buffered. If so...
-                    const u32 playerBit = 1 << fighterPlayerNo;
                     u32 parryBufferedTemp = perPlayerFlags[pf_ParryBuffered];
                     if (parryBufferedTemp & playerBit)
                     {
@@ -215,6 +214,42 @@ namespace rmParries
                         // ...apply the darkening effect.
                         GXColor parryFlashRGBA = { 0x08, 0x08, 0x00, 0xA0 };
                         moduleAccesser->m_enumerationStart->m_colorBlendModule->setFlash(parryFlashRGBA, 1);
+                    }
+                    break;
+                }
+                // If we're not in any of the above Actions...
+                default:
+                {
+                    // ... and parries are enabled for this fighter... 
+                    if (mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_SHIELD_PARRY))
+                    {
+                        // ... we'll check for the Frame-Perfect input. First, grab the transition module...
+                        soTransitionModule* transitionModule = statusModule->m_transitionModule;
+                        // ... then check if to get to the current action we used a Ground Special transition, and also pressed shield this frame.
+                        soTransitionInfo* previousTransition = transitionModule->getLastTransitionInfo();
+                        if (previousTransition->m_groupId == Fighter::Status_Transition_Term_Group_Chk_Ground_Special
+                            && moduleAccesser->m_enumerationStart->m_controllerModule->getTrigger().m_guard)
+                        {
+                            // If so, that means pressed Shield + Special on the same frame, which is our parry input!
+                            // Also check if the previous state generally allows us to Special Cancel (to screen out things like magic series cancels).
+                            u32 prevStatus = statusModule->getPrevStatusKind(0);
+                            if (prevStatus <= Fighter::Status_Landing_Fall_Special)
+                            {
+                                // If that holds true, then log that a parry input occurred!
+                                soSituationModule* situationModule = moduleAccesser->m_enumerationStart->m_situationModule;
+                                OSReport_N("%sFrame Perfect Parry Input! Situation Pre:%d", outputTag, situationModule->getKind());
+                                // Then, prepare to perform the parry. Set the buffered flag so that the rest of the code handles it correctly...
+                                perPlayerFlags[pf_ParryBuffered] |= playerBit;
+                                // ... ensure we're attached to the ground, cuz some specials put you in the air immediately...
+                                soGroundModule* groundModule = moduleAccesser->m_enumerationStart->m_groundModule;
+                                groundModule->attachGround(0);
+                                groundModule->apply(); 
+                                situationModule->update();
+                                OSReport_N(", Situation Post:%d\n", situationModule->getKind());
+                                // ... and finally trigger the change!
+                                statusModule->changeStatusRequest(Fighter::Status_Guard_Off, moduleAccesser);
+                            }
+                        }
                     }
                     break;
                 }
