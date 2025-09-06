@@ -8,6 +8,12 @@
 		<codeMenuSubmenu name="Player 2 Mechanic Settings" shortName="PAGE_002"/>
 		<codeMenuSubmenu name="Player 3 Mechanic Settings" shortName="PAGE_003"/>
 		<codeMenuSubmenu name="Player 4 Mechanic Settings" shortName="PAGE_004"/>
+		<codeMenuComment text=""/>
+		<codeMenuComment text="RivalsMode Mechanic Settings: "/>
+		<codeMenuSubmenu name="Player 1 RivalsMode Settings" shortName="PAGE_R01"/>
+		<codeMenuSubmenu name="Player 2 RivalsMode Settings" shortName="PAGE_R02"/>
+		<codeMenuSubmenu name="Player 3 RivalsMode Settings" shortName="PAGE_R03"/>
+		<codeMenuSubmenu name="Player 4 RivalsMode Settings" shortName="PAGE_R04"/>
 	</codeMenuPage>
 	<codeMenuPage shortName="PAGE_001">
 		<codeMenuComment text="Player 1 Mechanic Settings: "/>
@@ -29,6 +35,9 @@
 		<codeMenuToggle name="Focus Attacks Enabled" shortName="LINE_013">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+	</codeMenuPage>
+	<codeMenuPage shortName="PAGE_R01">
+		<codeMenuComment text="Player 1 RivalsMode Mechanic Settings: "/>
 		<codeMenuToggle name="Wavedash out of Jumpsquat Enabled" shortName="LINE_017">
 			<defaultValue value="false" />
 		</codeMenuToggle>
@@ -82,6 +91,9 @@
 		<codeMenuToggle name="Focus Attacks Enabled" shortName="LINE_014">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+	</codeMenuPage>
+	<codeMenuPage shortName="PAGE_R02">
+		<codeMenuComment text="Player 2 RivalsMode Mechanic Settings: "/>
 		<codeMenuToggle name="Wavedash out of Jumpsquat Enabled" shortName="LINE_018">
 			<defaultValue value="false" />
 		</codeMenuToggle>
@@ -135,6 +147,9 @@
 		<codeMenuToggle name="Focus Attacks Enabled" shortName="LINE_015">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+	</codeMenuPage>
+	<codeMenuPage shortName="PAGE_R03">
+		<codeMenuComment text="Player 3 RivalsMode Mechanic Settings: "/>
 		<codeMenuToggle name="Wavedash out of Jumpsquat Enabled" shortName="LINE_019">
 			<defaultValue value="false" />
 		</codeMenuToggle>
@@ -188,6 +203,9 @@
 		<codeMenuToggle name="Focus Attacks Enabled" shortName="LINE_016">
 			<defaultValue value="false" />
 		</codeMenuToggle>
+	</codeMenuPage>
+	<codeMenuPage shortName="PAGE_R04">
+		<codeMenuComment text="Player 4 RivalsMode Mechanic Settings: "/>
 		<codeMenuToggle name="Wavedash out of Jumpsquat Enabled" shortName="LINE_020">
 			<defaultValue value="false" />
 		</codeMenuToggle>
