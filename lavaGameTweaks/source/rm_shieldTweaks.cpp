@@ -42,20 +42,26 @@ namespace rmShieldTweaks
 
     void onStatusChangeCallback(Fighter* fighterIn)
     {
+        // If the fighter is in a valid port, and has Shield Break Lag Reduction turned on...
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
         if (fighterPlayerNo < fighterHooks::maxFighterCount && mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_SHIELD_BREAK_REDUCTION))
         {
+            // Check what state they're in.
             soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
             soStatusModule* statusModule = fighterIn->m_moduleAccesser->m_enumerationStart->m_statusModule;
             switch (statusModule->getStatusKind())
             {
+                // If they're in the Shield Break Stun state (FuraFura)...
                 case Fighter::Status_FuraFura:
                 {
+                    // ... force them into FuraFuraEnd instead!
                     statusModule->changeStatus(Fighter::Status_FuraFura_End, moduleAccesser);
                     break;
                 }
+                // If they're in FuraFuraEnd though...
                 case Fighter::Status_FuraFura_End:
                 {
+                    // ... disable their grounded interrupts to force them through the full duration!
                     for (u32 i = Fighter::Status_Transition_Term_Group_Chk_Ground_Special; i <= Fighter::Status_Transition_Term_Group_Chk_Ground; i++)
                     {
                         statusModule->unableTransitionTermGroup(i);
