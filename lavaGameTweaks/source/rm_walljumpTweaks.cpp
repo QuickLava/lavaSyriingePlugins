@@ -139,8 +139,11 @@ namespace rmWalljumpTweaks
             u32 currSituation = moduleAccesser->m_enumerationStart->m_situationModule->getKind();
             if (currSituation == Situation_Air)
             {
+                // ... handle walljump availability.
+                // First, if we've hit someone this frame...
                 if (moduleAccesser->m_enumerationStart->m_collisionAttackModule->isInflict())
                 {
+                    // ... restore walljump, and log it!
                     perPlayerPrevWalljump[fighterPlayerNo] = wt_NONE;
                     OSReport_N("%s[P%d] Walljump Restored after Attack!\n", outputTag, fighterPlayerNo);
                 }
@@ -208,12 +211,12 @@ namespace rmWalljumpTweaks
             u32 walljumpNativeTemp = perPlayerFlags[pf_WalljumpAllowedNative];
             u32 specialWalljumpTemp = perPlayerFlags[pf_WalljumpOutOfSpecialEnabled];
 
+            // Update the native walljump cancel flag for the current action.
             walljumpNativeTemp &= ~playerBit;
             walljumpNativeTemp |= statusModule->isEnableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump) << fighterPlayerNo;
 
-            u32 currStatus = statusModule->getStatusKind();
-
             // If we're in the air...
+            u32 currStatus = statusModule->getStatusKind();
             u32 currSituation = moduleAccesser->m_enumerationStart->m_situationModule->getKind();
             if (currSituation == Situation_Air)
             {
@@ -255,11 +258,14 @@ namespace rmWalljumpTweaks
                     // Alternatively, if we've just been hit...
                     else if (mechUtil::isDamageStatusKind(currStatus))
                     {
+                        // ... restore walljump, and log it!
                         perPlayerPrevWalljump[fighterPlayerNo] = wt_NONE;
                         OSReport_N("%s[P%d] Walljump Restored after Damage!\n", outputTag, fighterPlayerNo);
                     }
+                    // Lastly, if we're either not touching a wall, or actively disallowed from walljumping...
                     if (decideWalljumpSituation(fighterIn) <= wt_NONE)
                     {
+                        // ... then disable the transition group.
                         statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump);
                     }
                 }
