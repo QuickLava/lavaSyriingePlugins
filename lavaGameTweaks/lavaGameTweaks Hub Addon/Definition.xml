@@ -41,7 +41,7 @@
 		<codeMenuToggle name="Full-Horizontal Wavedashes Enabled" shortName="LINE_021"/>
 		<codeMenuToggle name="Button Walljumps Enabled" shortName="LINE_033"/>
 		<codeMenuToggle name="Walljump from Special Fall Enabled" shortName="LINE_037"/>
-		<codeMenuToggle name="Walljump Once Per Airtime Enabled" shortName="LINE_041"/>
+		<codeMenuToggle name="Same-Direction Walljump Restriction Enabled" shortName="LINE_041"/>
 		<codeMenuToggle name="Non-Shrinking Shields Enabled" shortName="LINE_049"/>
 		<codeMenuToggle name="Reduced Shieldbreak Stun Enabled" shortName="LINE_053"/>
 	</codeMenuPage>
@@ -67,7 +67,7 @@
 		<codeMenuToggle name="Full-Horizontal Wavedashes Enabled" shortName="LINE_022"/>
 		<codeMenuToggle name="Button Walljumps Enabled" shortName="LINE_034"/>
 		<codeMenuToggle name="Walljump from Special Fall Enabled" shortName="LINE_038"/>
-		<codeMenuToggle name="Walljump Once Per Airtime" shortName="LINE_042"/>
+		<codeMenuToggle name="Same-Direction Walljump Restriction Enabled" shortName="LINE_042"/>
 		<codeMenuToggle name="Non-Shrinking Shields Enabled" shortName="LINE_050"/>
 		<codeMenuToggle name="Reduced Shieldbreak Stun Enabled" shortName="LINE_054"/>
 	</codeMenuPage>
@@ -93,7 +93,7 @@
 		<codeMenuToggle name="Full-Horizontal Wavedashes Enabled" shortName="LINE_023"/>
 		<codeMenuToggle name="Button Walljumps Enabled" shortName="LINE_035"/>
 		<codeMenuToggle name="Walljump from Special Fall Enabled" shortName="LINE_039"/>
-		<codeMenuToggle name="Walljump Once Per Airtime" shortName="LINE_043"/>
+		<codeMenuToggle name="Same-Direction Walljump Restriction Enabled" shortName="LINE_043"/>
 		<codeMenuToggle name="Non-Shrinking Shields Enabled" shortName="LINE_051"/>
 		<codeMenuToggle name="Reduced Shieldbreak Stun Enabled" shortName="LINE_055"/>
 	</codeMenuPage>
@@ -119,7 +119,7 @@
 		<codeMenuToggle name="Full-Horizontal Wavedashes Enabled" shortName="LINE_024"/>
 		<codeMenuToggle name="Button Walljumps Enabled" shortName="LINE_036"/>
 		<codeMenuToggle name="Walljump from Special Fall Enabled" shortName="LINE_040"/>
-		<codeMenuToggle name="Walljump Once Per Airtime" shortName="LINE_044"/>
+		<codeMenuToggle name="Same-Direction Walljump Restriction Enabled" shortName="LINE_044"/>
 		<codeMenuToggle name="Non-Shrinking Shields Enabled" shortName="LINE_052"/>
 		<codeMenuToggle name="Reduced Shieldbreak Stun Enabled" shortName="LINE_056"/>
 	</codeMenuPage>
