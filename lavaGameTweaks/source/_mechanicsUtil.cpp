@@ -2,9 +2,9 @@
 
 namespace mechUtil
 {
-    Vec3f gfxFaceScreenRotVec = { 0.0f, -90.0f * radianConvConstant, 0.0f };
-    Vec3f zeroVec = { 0.0f, 0.0f, 0.0f };
-    Vec3f gfxFlattenSclVec = { 2.0f, 2.0f, 0.1f };
+    Vec3f gfxFaceScreenRotVec = Vec3f(0.0f, -90.0f * radianConvConstant, 0.0f);
+    Vec3f zeroVec = Vec3f(0.0f, 0.0f, 0.0f );
+    Vec3f gfxFlattenSclVec = Vec3f(2.0f, 2.0f, 0.1f );
 
     int doMeterGain(Fighter* fighterIn, float meterIn, EfID meterGainGraphic, float graphicScale, meterGainAnnouncerCond announcerClipCond)
     {

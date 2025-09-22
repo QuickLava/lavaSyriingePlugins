@@ -10,7 +10,7 @@ namespace rmAirdodgeTweaks
 
     // Distance from which we're allowed to snap to the ground when airdodging.
     const float attachDistance = 5.0f;
-    Vec3f searchVector = { 0.0f, -attachDistance, 0.0f };
+    Vec3f searchVector = Vec3f(0.0f, -attachDistance, 0.0f);
 
     enum playerFlags
     {
@@ -122,8 +122,8 @@ namespace rmAirdodgeTweaks
                     if (airdodgeTimer > -0x0A)
                     {
                         // ... nulify our our gravity, so we get that Rivals-like hang in the air.
-                        Vec3f gravityMultiplier = { 0.0f, 0.0f, 0.0f };
-                        moduleAccesser->m_enumerationStart->m_kineticModule->getEnergy(Fighter::Kinetic_Energy_Gravity)->mulAccel(&gravityMultiplier);
+                        Vec3f gravityMultiplier(0.0f, 0.0f, 0.0f);
+                        moduleAccesser->m_enumerationStart->m_kineticModule->getEnergy(Fighter::Kinetic_Energy_Id_Gravity)->mulAccel(&gravityMultiplier);
                     }
                     // Otherwise...
                     else
@@ -143,7 +143,7 @@ namespace rmAirdodgeTweaks
                 else if (currStatus == Fighter::Status_Damage_Fall)
                 {
                     // ... enable air dodge!
-                    statusModule->enableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Escape);
+                    statusModule->enableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Escape);
                 }
                 // Lastly, if we're in the air...
                 u32 currSituation = moduleAccesser->m_enumerationStart->m_situationModule->getKind();
@@ -162,7 +162,7 @@ namespace rmAirdodgeTweaks
                         if (dodgeSpentTemp & playerBit)
                         {
                             // ... then enforce that we're not allowed to airdodge by disabling the transition.
-                            statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Escape);
+                            statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Escape);
                         }
                     }
                 }

@@ -195,7 +195,7 @@ namespace rmParries
                         // Turn off the flag and store it back!
                         perPlayerFlags[pf_ParrySuffered] = parrySufferedTemp & ~playerBit;
                         // Additionally, disable all of their relevant ground interrupts.
-                        for (u32 i = Fighter::Status_Transition_Term_Group_Chk_Ground_Special; i <= Fighter::Status_Transition_Term_Group_Chk_Ground; i++)
+                        for (u32 i = Fighter::Status_Transition_Group_Chk_Ground_Special; i <= Fighter::Status_Transition_Group_Chk_Ground; i++)
                         {
                             statusModule->unableTransitionTermGroup(i);
                         }
@@ -227,7 +227,7 @@ namespace rmParries
                         soTransitionModule* transitionModule = statusModule->m_transitionModule;
                         // ... then check if to get to the current action we used a Ground Special transition, and also pressed shield this frame.
                         soTransitionInfo* previousTransition = transitionModule->getLastTransitionInfo();
-                        if (previousTransition->m_groupId == Fighter::Status_Transition_Term_Group_Chk_Ground_Special
+                        if (previousTransition->m_groupId == Fighter::Status_Transition_Group_Chk_Ground_Special
                             && moduleAccesser->m_enumerationStart->m_controllerModule->getTrigger().m_guard)
                         {
                             // If so, that means pressed Shield + Special on the same frame, which is our parry input!
