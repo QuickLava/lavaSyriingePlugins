@@ -36,7 +36,7 @@ namespace rmBabyDashes
                         {
                             targetXSpeed = babyDashMinSpeed;
                         }
-                        Vec3f newSpeed = { targetXSpeed, 0.0f, 0.0f };
+                        Vec3f newSpeed(targetXSpeed, 0.0f, 0.0f);
                         kineticModule->addSpeed(&newSpeed, moduleAccesser);
                     }
                 }

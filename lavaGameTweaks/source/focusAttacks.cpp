@@ -20,11 +20,11 @@ namespace focusAttacks
     void enableDashCancel(soStatusModuleImpl* statusModuleIn)
     {
         soTransitionModule* transitionModule = statusModuleIn->m_transitionModule;
-        transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Ground);
-        transitionModule->unableTermAll(Fighter::Status_Transition_Term_Group_Chk_Ground);
-        transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Dash, Fighter::Status_Transition_Term_Group_Chk_Ground);
-        transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Turn_Dash, Fighter::Status_Transition_Term_Group_Chk_Ground);
-        transitionModule->unableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Ground_Escape);
+        transitionModule->enableTermGroup(Fighter::Status_Transition_Group_Chk_Ground);
+        transitionModule->unableTermAll(Fighter::Status_Transition_Group_Chk_Ground);
+        transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Dash, Fighter::Status_Transition_Group_Chk_Ground);
+        transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Turn_Dash, Fighter::Status_Transition_Group_Chk_Ground);
+        transitionModule->unableTermGroup(Fighter::Status_Transition_Group_Chk_Ground_Escape);
     }
     smashAttackState classifySmashAttackState(u32 statusIn)
     {

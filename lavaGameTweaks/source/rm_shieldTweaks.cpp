@@ -28,7 +28,7 @@ namespace rmShieldTweaks
                     // ... fetch the shield's radius...
                     float shieldRadius = ftValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Shield_Radius, 0);
                     // ... and initialize a Vector3f with it.
-                    Vec3f scaleBuf = { shieldRadius, shieldRadius, shieldRadius };
+                    Vec3f scaleBuf(shieldRadius, shieldRadius, shieldRadius);
                     // Then grab the shield node via the model module...
                     soModelModule* modelModule = moduleAccesser->m_enumerationStart->m_modelModule;
                     u32 nodeHandle = modelModule->getCorrectNodeId(300);
@@ -62,7 +62,7 @@ namespace rmShieldTweaks
                 case Fighter::Status_FuraFura_End:
                 {
                     // ... disable their grounded interrupts to force them through the full duration!
-                    for (u32 i = Fighter::Status_Transition_Term_Group_Chk_Ground_Special; i <= Fighter::Status_Transition_Term_Group_Chk_Ground; i++)
+                    for (u32 i = Fighter::Status_Transition_Group_Chk_Ground_Special; i <= Fighter::Status_Transition_Group_Chk_Ground; i++)
                     {
                         statusModule->unableTransitionTermGroup(i);
                     }

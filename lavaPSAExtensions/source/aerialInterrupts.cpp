@@ -33,7 +33,7 @@ namespace aerialInterrupts
                 soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleEnum->m_statusModule;
                 soTransitionModule* transitionModule = statusModule->m_transitionModule;
                 transitionModule->enableTerm(Fighter::Status_Transition_Term_Landing_Attack_Air, 0);
-                statusModule->enableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Landing);
+                statusModule->enableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Landing);
 
                 // If however we're moving upwards...
                 soInstanceAttribute flags; flags._0 = 0xFFFFu;
@@ -55,7 +55,7 @@ namespace aerialInterrupts
                         {
                             // ... disable landing...
                             transitionModule->unableTerm(Fighter::Status_Transition_Term_Landing_Attack_Air, 0);
-                            statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Landing);
+                            statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Landing);
                             // ... and log that we've done so!
                             OSReport_N("%s[f%.0f] Landing Disabled!\n", outputTag, currFrame);
                         }
