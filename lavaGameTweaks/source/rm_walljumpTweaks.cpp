@@ -92,16 +92,15 @@ namespace rmWalljumpTweaks
             {
                 soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleAccesser->m_enumerationStart->m_statusModule;
                 soTransitionModuleImpl* transitionModule = (soTransitionModuleImpl*)statusModule->m_transitionModule;
-                soTransitionModuleImpl::tdef_GroupArray groupVec = transitionModule->m_transitionTermGroupArray;
+                soArray<soTransitionTermGroup>* groupVec = transitionModule->m_transitionTermGroupArray;
                 if (groupVec->size() > 0)
                 {
                     soTransitionTermGroup& currGroup = groupVec->at(0);
-                    soTransitionTermGroup::tdef_InstanceMgr instanceMgr = currGroup.m_transitionTermInstanceManager;
-                    soTransitionTermGroup::tdef_InstanceMgr::tdef_ArrayVec instanceMgrVecPtr = instanceMgr.m_arrayVector;
-                    const u32 termCount = instanceMgrVecPtr->size();
+                    soArray<soInstanceUnitFullProperty<soTransitionTerm> >* termVecPtr = currGroup.m_transitionTermInstanceManager.m_array;
+                    const u32 termCount = termVecPtr->size();
                     for (u32 i = 0; i < termCount; i++)
                     {
-                        if (instanceMgrVecPtr->at(i).m_element.m_targetKind == Fighter::Status_Fall_Special)
+                        if (termVecPtr->at(i).m_element.m_targetKind == Fighter::Status_Fall_Special)
                         {
                             transitionIntoSpecialFallTemp |= playerBit;
                             OSReport_N("%sAction Transitions into Special Fall!\n", outputTag);

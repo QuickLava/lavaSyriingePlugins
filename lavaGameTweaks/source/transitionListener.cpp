@@ -2,7 +2,6 @@
 
 namespace transitionListener
 {
-    const u32 g_GeneralTermCache = 0x80B84F08;
     char outputTag[] = "[transitionListener] ";
     
     void onStatusChangeCallback(Fighter* fighterIn)
@@ -17,44 +16,70 @@ namespace transitionListener
             if (currStatus != prevStatus)
             {
                 soTransitionModuleImpl* transitionModule = (soTransitionModuleImpl*)statusModule->m_transitionModule;
-                /*u16 shortBuffer[2];
-                int transitionBuffer[5];
-                shortBuffer[0] = 0;
-                transitionBuffer[0] = -1;
-                transitionModule->checkEstablish(moduleAccesser, transitionBuffer, -1, shortBuffer, g_GeneralTermCache);
-                OSReport_N("%sBuffer1: {%08X, %08X, %08X, %08X, %08X}\n", outputTag,
-                    transitionBuffer[0], transitionBuffer[1], transitionBuffer[2], transitionBuffer[3], transitionBuffer[4]);
-                OSReport_N("%sBuffer2: {%04X, %04X}\n", outputTag, shortBuffer[0], shortBuffer[1]);*/
                 soTransitionInfo* lastTransition = transitionModule->getLastTransitionInfo();
-                OSReport_N("%sP%d: Status[0x%04X -> 0x%04X], Transition[0x%04X_0x%04X]\n", outputTag, fighterPlayerNo,
-                    prevStatus, currStatus, lastTransition->m_unitId, lastTransition->m_groupId);
-
-                soTransitionModuleImpl::tdef_GroupArray groupVec = transitionModule->m_transitionTermGroupArray;
+                OSReport_N("%sP%d: Status[0x%04X -> 0x%04X], Transition[0x%04X-0x%04X:0x%04X]\n", outputTag, fighterPlayerNo,
+                    prevStatus, currStatus, lastTransition->m_unitId, lastTransition->m_groupId, lastTransition->_unk08);
+                const soGeneralTermManager* termManager = &g_soGeneralTermManager;
+                soArray<soTransitionTermGroup>* groupVec = transitionModule->m_transitionTermGroupArray;
                 const u32 groupCount = groupVec->size();
                 OSReport_N("%sP%d TransModule Component Log (Group Count: %02d):\n", outputTag, fighterPlayerNo, groupCount);
                 for (u32 i = 0; i < groupCount; i++)
                 {
                     soTransitionTermGroup& currGroup = groupVec->at(i);
-                    OSReport_N("%s- Group %02X [%04X] @ %08X: Unk = %08X\n", outputTag, i, currGroup.m_unitID, &currGroup, *((u32*)currGroup._unk00));
+                    OSReport_N("%s- Group %02X [%04X] @ %08X: Unk = %08X ", outputTag, i, currGroup.m_unitID, &currGroup, *((u32*)currGroup._unk00));
 
-                    soTransitionTermGroup::tdef_InstanceMgr instanceMgr = currGroup.m_transitionTermInstanceManager;
-
-                    soTransitionTermGroup::tdef_InstanceMgr::tdef_ArrayVec instanceMgrVecPtr = instanceMgr.m_arrayVector;
-                    const u32 termCount = instanceMgrVecPtr->size();
-                    OSReport_N("%s  InstanceMgr: Size = %02d, Capacity = %02d", outputTag, termCount, instanceMgrVecPtr->capacity());
+                    soArray<soInstanceUnitFullProperty<soTransitionTerm> >* termVecPtr = currGroup.m_transitionTermInstanceManager.m_array;
+                    const u32 termCount = termVecPtr->size();
+                    OSReport_N("(InstanceMgr: Size = %02d, Capacity = %02d)\n", termCount, termVecPtr->capacity());
                     for (u32 u = 0; u < termCount; u++)
                     {
-                        if ((u % 4) == 0)
+                        soInstanceUnitFullProperty<soTransitionTerm>& currTermProp = termVecPtr->at(u);
+                        soTransitionTerm* currTermPtr = &currTermProp.m_element;
+
+                        OSReport_N("%s   [%02X] : [%02X-%5d-%03X-%02X] : ", outputTag, u,
+                            currTermProp.m_attribute, currTermProp.m_id, currTermPtr->m_targetKind, currTermPtr->m_flags);
+                        int currIndex = currTermPtr->m_generalTermIndex;
+                        while (currIndex > 0)
                         {
-                            OSReport_N("\n%s   [%02X) : ", outputTag, u);
+                            soGeneralTerm* currGeneralTerm = termManager->m_generalTerms2 + currIndex;
+                            const u32 argCount = currGeneralTerm->m_animCmdTable.size();
+                            acCmdArgConv* currArg = &currGeneralTerm->m_animCmdTable.at(0);
+                            OSReport_N("<%03X@%08X", currIndex, currArg);
+                            for (u32 y = 0; y < argCount; y++)
+                            {
+                                u32 data = currArg->data;
+                                u32 argType = currArg->argType;
+                                OSReport_N(":%1X-", currArg->argType);
+                                switch (argType)
+                                {
+                                    case AnimCmd_Arg_Type_Variable:
+                                    {
+                                        OSReport_N("%04d", data);
+                                        break;
+                                    }
+                                    case AnimCmd_Arg_Type_Requirement:
+                                    {
+                                        if (data & 0x80000000)
+                                        {
+                                            data &= ~0x80000000;
+                                            OSReport_N("!");
+                                        }
+                                        OSReport_N("%04X", data);
+                                        break;
+                                    }
+                                    default:
+                                    {
+                                        OSReport_N("%04X", data);
+                                    }
+                                }
+                                currArg++;
+                            }
+                            OSReport_N("> ");
+
+                            currIndex = termManager->m_indices2[currIndex];
                         }
-                        soInstanceUnitFullProperty<soTransitionTerm>& currTerm = instanceMgrVecPtr->at(u);
-                        soTransitionTerm* currTermPtr = &currTerm.m_element;
-                        OSReport_N("[%02X_%5d_%02X-%04X_%04X] ", 
-                            currTerm.m_attribute, currTerm.m_id,
-                            currTermPtr->m_targetKind, *((u16*)currTermPtr->_unk00), *((u16*)currTermPtr->_unk06));
+                        OSReport_N("\n");
                     }
-                    OSReport_N("\n");
                 }
             }
         }
