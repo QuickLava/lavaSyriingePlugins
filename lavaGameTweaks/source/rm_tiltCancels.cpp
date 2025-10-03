@@ -32,39 +32,42 @@ namespace rmTiltCancels
                 // If we're current jabbing...
                 case Fighter::Status_Attack:
                 {
-                    // ... determine what specific subaction we're in, to control how our transitions work.
-                    soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
-                    u32 currMotion = motionModule->getKind();
-                    // And determine whether or not we've actually hit anything in the current jab string...
+                    // ... ddetermine whether or not we've actually hit anything in the current jab string...
                     if (moduleAccesser->m_enumerationStart->m_collisionAttackModule->isInflictStatus() & 0b110)
                     {
                         // ... and enable reverses if so!
                         tiltCancelReverseTemp |= playerBit;
                     }
-                    // If we're at least 20% through the current action, hit the A button, and are in Jab 1 or 2...
-                    if (mechUtil::currAnimProgress(fighterIn) >= 0.20
-                        && moduleAccesser->m_enumerationStart->m_controllerModule->getTrigger().m_attack
-                        && (currMotion == Fighter::Motion_Attack_11 || currMotion == Fighter::Motion_Attack_12))
+                    // Piggyback off of the game's native tracking of jab combo progress!
+                    // - RA-Bit[17] (0x22000011) in this context signals that the character can progress to their next jab stage.
+                    // - RA-Bit[21] (0x22000015) signals that the next jab has been input (or buffered).
+                    soWorkManageModule* workManagerModule = moduleAccesser->m_enumerationStart->m_workManageModule;
+                    if (workManagerModule->isFlag(0x22000011) && workManagerModule->isFlag(0x22000015))
                     {
-                        // ... log that we've successfully triggered a tilt cancel!
+                        // If both are true, log that we've successfully triggered a tilt cancel scenario!
                         OSReport_N("%sTiltCancel Activated\n", outputTag);
                         // Grab the X and Y positions of the stick.
                         float stickX = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Var_Float_Controller_Stick_X_Lr, 0);
                         float stickY = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Var_Float_Controller_Stick_Y, 0);
+                        u32 targetStatus = currStatus;
                         // ... and give F-Tilt if you held forward...
                         if (stickX > ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Common_Param_Float_Attack_S3_Stick_X, 0))
                         {
-                            statusModule->changeStatusRequest(Fighter::Status_Attack_S3, moduleAccesser);
+                            targetStatus = Fighter::Status_Attack_S3;
                         }
                         // ... U-Tilt if you were holding up...
                         else if (stickY > ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Common_Param_Float_Attack_Hi3_Stick_Y, 0))
                         {
-                            statusModule->changeStatusRequest(Fighter::Status_Attack_Hi3, moduleAccesser);
+                            targetStatus = Fighter::Status_Attack_Hi3;
                         }
                         // ... and down-tilt if you were holding down.
                         else if (stickY < ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Common_Param_Float_Attack_Lw3_Stick_Y, 0))
                         {
-                            statusModule->changeStatusRequest(Fighter::Status_Attack_Lw3, moduleAccesser);
+                            targetStatus = Fighter::Status_Attack_Lw3;
+                        }
+                        if (targetStatus != currStatus)
+                        {
+                            statusModule->changeStatusRequest(targetStatus, moduleAccesser);
                         }
                     }
                     break;
