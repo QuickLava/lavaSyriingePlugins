@@ -13,8 +13,10 @@
 namespace lavaFrameHeapWatch {
 
     const char outputTag[] = "[frameHeapWatch] ";
-    u32 accruedSize[0xC] = {};
 
+    extern u32 GetFreeSize(u32* frameHeap);
+    extern u32 GetCurrentLevel(u32* frameHeap);
+    extern u32  MEMGetAllocatableSizeForFrmHeapEx(u32 heap, u32 padding);
     void printFrameHookAlloc()
     {
         register u32* destination;
@@ -28,14 +30,15 @@ namespace lavaFrameHeapWatch {
             mr size, r28;
             mr disposeFunc, r29;
         }
+        u32 freeSpace = GetFreeSize(frameHeap);
+        u32 current = GetCurrentLevel(frameHeap);
+
         u32* heapSys = *(((u32**)g_sndSystem) + 0xB4);
         u32* soundHeapArr = heapSys + 0x96;
         u32* soundHeap = frameHeap - 0x7;
         u32 soundHeapDist = (soundHeap - soundHeapArr) * 4;
         u32 soundHeapID = soundHeapDist / 0x2C;
-        u32 accrSize = accruedSize[soundHeapID] + size;
-        accruedSize[soundHeapID] = accrSize;
-        OSReport_N("%sAlloc: FrameHeap[%02X] @ %08X, Size: %08X (Accr: %08X)\n", outputTag, soundHeapID, destination, size, accrSize);
+        OSReport_N("%sAlloc: FrameHeap[%02X] @ %08X, Size: %08X (FreeSize: %08X, CurrLevel: %02X)\n", outputTag, soundHeapID, destination, size, freeSpace, current);
         //OSReport_N("%s- SoundHeapAddr: %08X, SoundHeapArr: %08X, SoundHeapDist: %08X\n", outputTag, soundHeap, soundHeapArr, soundHeapDist);
     }
 
