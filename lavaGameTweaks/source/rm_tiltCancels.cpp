@@ -14,6 +14,33 @@ namespace rmTiltCancels
     };
     u8 perPlayerFlags[pf__COUNT];
 
+    const float attackS3StickThresh = 0.25f;
+    const float attackHi3StickThresh = 0.25f;
+    const float attackLw3StickThresh = -0.25f;
+
+    u32 classifyRequestedTilt(soModuleAccesser* moduleAccesser)
+    {
+        u32 result = Fighter::Status_Test_Motion;
+        float stickX = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Var_Float_Controller_Stick_X_Lr, 0);
+        float stickY = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Var_Float_Controller_Stick_Y, 0);
+        // ... and give F-Tilt if you held forward...
+        if (stickX >= attackS3StickThresh)
+        {
+            result = Fighter::Status_Attack_S3;
+        }
+        // ... U-Tilt if you were holding up...
+        else if (stickY >= attackHi3StickThresh)
+        {
+            result = Fighter::Status_Attack_Hi3;
+        }
+        // ... and down-tilt if you were holding down.
+        else if (stickY <= attackLw3StickThresh)
+        {
+            result = Fighter::Status_Attack_Lw3;
+        }
+        return result;
+    }
+
     void onUpdateCallback(Fighter* fighterIn)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
@@ -46,26 +73,8 @@ namespace rmTiltCancels
                     {
                         // If both are true, log that we've successfully triggered a tilt cancel scenario!
                         OSReport_N("%sTiltCancel Activated\n", outputTag);
-                        // Grab the X and Y positions of the stick.
-                        float stickX = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Var_Float_Controller_Stick_X_Lr, 0);
-                        float stickY = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Var_Float_Controller_Stick_Y, 0);
-                        u32 targetStatus = currStatus;
-                        // ... and give F-Tilt if you held forward...
-                        if (stickX > ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Common_Param_Float_Attack_S3_Stick_X, 0))
-                        {
-                            targetStatus = Fighter::Status_Attack_S3;
-                        }
-                        // ... U-Tilt if you were holding up...
-                        else if (stickY > ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Common_Param_Float_Attack_Hi3_Stick_Y, 0))
-                        {
-                            targetStatus = Fighter::Status_Attack_Hi3;
-                        }
-                        // ... and down-tilt if you were holding down.
-                        else if (stickY < ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Common_Param_Float_Attack_Lw3_Stick_Y, 0))
-                        {
-                            targetStatus = Fighter::Status_Attack_Lw3;
-                        }
-                        if (targetStatus != currStatus)
+                        u32 targetStatus = classifyRequestedTilt(moduleAccesser);
+                        if (targetStatus != Fighter::Status_Test_Motion)
                         {
                             statusModule->changeStatusRequest(targetStatus, moduleAccesser);
                         }
@@ -97,11 +106,31 @@ namespace rmTiltCancels
             perPlayerFlags[pf_TiltCancelReverseEnabled] = tiltCancelReverseTemp;
         }
     }
-
+    u32 transitionOverrideCallback(Fighter* fighterIn, int transitionTermIDIn, u32 targetActionIn)
+    {
+        u32 result = targetActionIn;
+        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
+        if (fighterPlayerNo < fighterHooks::maxFighterCount && mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_TILT_CANCELS))
+        {
+            if (targetActionIn == Fighter::Status_Attack_100)
+            {
+                soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
+                u32 requestedAction = classifyRequestedTilt(moduleAccesser);
+                if (requestedAction != Fighter::Status_Test_Motion)
+                {
+                    // If both are true, log that we've successfully triggered a tilt cancel scenario!
+                    OSReport_N("%sAttack100 Tilt Cancel Activated\n", outputTag);
+                    result = requestedAction;
+                }
+            }
+        }
+        return result;
+    }
 #pragma c99 on
     fighterHooks::callbackBundle callbacks =
     {
         .m_FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
+        .m_TransitionOverrideCB = (fighterHooks::TransitionTermEventCB)transitionOverrideCallback
     };
 #pragma c99 off
 
