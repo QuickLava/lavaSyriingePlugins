@@ -36,6 +36,7 @@ namespace fighterHooks
 
 	typedef void (*FighterOnHitCB)(Fighter*, StageObject*, float);
 	typedef void (*FighterOnAttackCB)(Fighter*, StageObject*, float, StageObject*, u32, u32);
+	typedef u32(*TransitionTermEventCB)(Fighter*, int, u32);
 
 	enum attackKind
 	{
@@ -76,6 +77,8 @@ namespace fighterHooks
 
 		FighterOnHitCB m_FighterOnHitCB;
 		FighterOnAttackCB m_FighterOnAttackCB;
+
+		TransitionTermEventCB m_TransitionOverrideCB;
 	};
 	const u32 test = sizeof(callbackBundle);
 #define CALLBACK_INDEX(callbackMember) offsetof(callbackBundle, callbackMember) / sizeof(void*)
@@ -150,6 +153,9 @@ namespace fighterHooks
 
 		// OnHit & OnAttack Callbacks
 		static void performOnAttackCallbacks();
+
+		// Transition Override Callbacks
+		static bool performTransitionOverrideCallbacks(StageObject* stageObj, soInstanceUnitFullProperty<soTransitionTerm>* transitionIn, u32* actionOut, int* termIDOut);
 	};
 	void registerFighterHooks();
 }
