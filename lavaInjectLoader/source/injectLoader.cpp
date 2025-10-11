@@ -12,7 +12,7 @@
 namespace lavaInjectLoader {
 
     const char outputTag[] = "[lavaInjectLoader] ";
-    const char fighterInjectPath[] = "pf/injects/fighter/";
+    const char fighterInjectPath[] = "pf/injects/";
     const char allocFreeFmtStr[] = "%s[%s] Current Scene: %s";
     static unsigned long* const expansionReturnAddrPtr = 0x800017F0;
     static unsigned long* const expansionCodeAddrPtr = expansionReturnAddrPtr + 0x1;
@@ -23,7 +23,7 @@ namespace lavaInjectLoader {
         0x81FF0000 | ((unsigned long)expansionReturnAddrPtr & 0xFFFF), 0x38800000,      // lwz r15, ReturnAddrLo(r31)       li r4, 0x00
         0x4E800020, 0x00000000                                                          // blr
     };
-    static const unsigned long maxGCTLen = 0x2000;
+    static const unsigned long maxGCTLen = 0x8000;
     static const unsigned long codeBufferLen = maxGCTLen + sizeof(returnCodeArr) - 0x8;
     static char* codeBuf = NULL;
 
@@ -70,6 +70,11 @@ namespace lavaInjectLoader {
         return  codeBuf != NULL;
     }
 
+    void clearBootstrapBuffers()
+    {
+        *expansionCodeAddrPtr = 0x00;
+        *expansionSourcePathPtr = 0x00;
+    }
     void prepareGCT()
     {
         static FAEntryInfo info;
@@ -163,6 +168,7 @@ namespace lavaInjectLoader {
     }
     void doFighterInjectLoads()
     {
+        clearBootstrapBuffers();
         if (*expansionReturnAddrPtr != 0x00 && allocCodeBuffer(Heaps::OverlayFighter1, codeBufferLen))
         {
             *expansionSourcePathPtr = (unsigned long)fighterInjectPath;
