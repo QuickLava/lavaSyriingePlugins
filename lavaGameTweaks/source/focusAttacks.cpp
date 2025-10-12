@@ -32,9 +32,9 @@ namespace focusAttacks
 
         switch (statusIn)
         {
-        case Fighter::Status_Attack_Hi4_Start: case Fighter::Status_Attack_S4_Start: case Fighter::Status_Attack_Lw4_Start: { result = sas_START; break; }
-        case Fighter::Status_Attack_Hi4_Hold: case Fighter::Status_Attack_S4_Hold: case Fighter::Status_Attack_Lw4_Hold: { result = sas_CHARGE; break; }
-        case Fighter::Status_Attack_Hi4: case Fighter::Status_Attack_S4: case Fighter::Status_Attack_Lw4: { result = sas_ATTACK; break; }
+            case Fighter::Status_Attack_Hi4_Start: case Fighter::Status_Attack_S4_Start: case Fighter::Status_Attack_Lw4_Start: { result = sas_START; break; }
+            case Fighter::Status_Attack_Hi4_Hold: case Fighter::Status_Attack_S4_Hold: case Fighter::Status_Attack_Lw4_Hold: { result = sas_CHARGE; break; }
+            case Fighter::Status_Attack_Hi4: case Fighter::Status_Attack_S4: case Fighter::Status_Attack_Lw4: { result = sas_ATTACK; break; }
         }
 
         return result;
@@ -76,7 +76,8 @@ namespace focusAttacks
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(target);
         if (mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_FOCUS_ATTACKS))
         {
-            if (classifySmashAttackState(target->m_moduleAccesser->getStatusModule().getStatusKind()) == sas_CHARGE)
+            smashAttackState currState = classifySmashAttackState(target->m_moduleAccesser->getStatusModule().getStatusKind());
+            if (currState == sas_START || currState == sas_CHARGE)
             {
                 focusChargedFlags |= 1 << fighterPlayerNo;
             }
@@ -113,7 +114,7 @@ namespace focusAttacks
             {
                 if (!moduleEnum->m_workManageModule->isFlag(receivedArmor))
                 {
-                    moduleEnum->m_damageModule->setNoReactionModeStatus(120.0f, -1.0f, 2);
+                    moduleEnum->m_damageModule->setNoReactionModeStatus(300.0f, -1.0f, 2);
                     workManageModule->onFlag(receivedArmor);
                 }
                 if (focusChargedFlagsTemp & playerBitMask)
@@ -137,6 +138,7 @@ namespace focusAttacks
     {
         .m_FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
         .m_FighterOnAttackCB = (fighterHooks::FighterOnAttackCB)onAttackCallback,
+        .m_FighterOnHitCB = (fighterHooks::FighterOnHitCB)onHitCallback,
     };
 #pragma c99 off
 
