@@ -31,7 +31,7 @@ endif
 #---------------------------------------------------------------------------------
 
 TARGET		:=	lavaGameTweaks
-RELID		:=  8320
+RELID		:=  8194
 BUILD		:=	build
 SOURCES		:=	source $(wildcard source/*) ../lib/ ../lib/BrawlHeaders/PowerPC_EABI_Support/Runtime/Src/ # have to hardcode lib dir here???????
 INCLUDES	:=	include
