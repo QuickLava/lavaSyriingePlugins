@@ -7,10 +7,17 @@
 #include "rocketBurst.h"
 #include "finalSmashMeter.h"
 #include "focusAttacks.h"
-//#include "transitionListener.h"
+#include "rm_babyDashes.h"
+#include "rm_airdodgeTweaks.h"
+#include "rm_walljumpTweaks.h"
+#include "rm_tiltCancels.h"
+#include "rm_shieldTweaks.h"
+#include "rm_parries.h"
+#include "rm_hitfalling.h"
+#include "transitionListener.h"
 #include "_mechanicsHub.h"
 
-// Note: 0x8070AA14 is SORA_MELEE base address
+// Note: 0x8070AA14 is SORA_MELEE base address, Ghidra is 0x807189A0, 0xDF8C Difference
 namespace lavaGameTweaks
 {
     void Init()
@@ -24,7 +31,14 @@ namespace lavaGameTweaks
         rocketBurst::registerHooks();
         finalSmashMeter::registerHooks();
         focusAttacks::registerHooks();
-        //transitionListener::registerHooks();
+        rmBabyDashes::registerHooks();
+        rmAirdodgeTweaks::registerHooks();    
+        rmWalljumpTweaks::registerHooks();
+        rmTiltCancels::registerHooks();
+        rmShieldTweaks::registerHooks();
+        rmParries::registerHooks();
+        rmHitfalling::registerHooks();
+        transitionListener::registerHooks();
 
         //meleeFreeze::registerHooks();
         //reflectOnHit::registerHooks();

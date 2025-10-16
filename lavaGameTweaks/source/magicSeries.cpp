@@ -39,11 +39,11 @@ namespace magicSeries
             {
                 if (moduleEnum->m_situationModule->getKind() == 0x00)
                 {
-                    transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Ground_Special);
+                    transitionModule->enableTermGroup(Fighter::Status_Transition_Group_Chk_Ground_Special);
                 }
                 else
                 {
-                    transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Special);
+                    transitionModule->enableTermGroup(Fighter::Status_Transition_Group_Chk_Air_Special);
                 }
                 OSReport_N("- Enabled Special Cancels!\n");
                 break;

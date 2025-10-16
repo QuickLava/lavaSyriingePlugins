@@ -25,15 +25,18 @@ namespace fighterHooks
 	typedef void (*GenericArglessCB)();
 	typedef GenericArglessCB MeleeOnStartCB;
 	typedef GenericArglessCB MeleeOnReadyGoCB;
+	typedef GenericArglessCB MeleeOnUpdateCB;
 	typedef GenericArglessCB MeleeOnGameSetCB;
 	typedef void (*GenericFighterEventCB)(Fighter*);
 	typedef GenericFighterEventCB FighterOnCreateCB;
 	typedef GenericFighterEventCB FighterOnStartCB;
 	typedef GenericFighterEventCB FighterOnRemoveCB;
 	typedef GenericFighterEventCB FighterOnUpdateCB;
+	typedef GenericFighterEventCB FighterOnStatusChangeCB;
 
 	typedef void (*FighterOnHitCB)(Fighter*, StageObject*, float);
 	typedef void (*FighterOnAttackCB)(Fighter*, StageObject*, float, StageObject*, u32, u32);
+	typedef u32(*TransitionTermEventCB)(Fighter*, int, u32);
 
 	enum attackKind
 	{
@@ -63,16 +66,21 @@ namespace fighterHooks
 	{
 		MeleeOnStartCB m_MeleeOnStartCB;
 		MeleeOnReadyGoCB m_MeleeOnReadyGoCB;
+		MeleeOnUpdateCB m_MeleeOnUpdateCB;
 		MeleeOnGameSetCB m_MeleeOnGameSetCB;
 
 		FighterOnCreateCB m_FighterOnCreateCB;
 		FighterOnStartCB m_FighterOnStartCB;
 		FighterOnRemoveCB m_FighterOnRemoveCB;
 		FighterOnUpdateCB m_FighterOnUpdateCB;
+		FighterOnStatusChangeCB m_FighterOnStatusChangeCB;
 
 		FighterOnHitCB m_FighterOnHitCB;
 		FighterOnAttackCB m_FighterOnAttackCB;
+
+		TransitionTermEventCB m_TransitionOverrideCB;
 	};
+	const u32 test = sizeof(callbackBundle);
 #define CALLBACK_INDEX(callbackMember) offsetof(callbackBundle, callbackMember) / sizeof(void*)
 
 #define INCLUDE_OUTSIDE_OBSERVER false
@@ -127,6 +135,8 @@ namespace fighterHooks
 		static void performMeleeOnStartCallbacks();
 		// OnMeleeReadyGo Callbacks
 		static void performMeleeOnReadyGoCallbacks();
+		// OnMeleeUpdate Callbacks
+		static void performMeleeOnUpdateCallbacks();
 		// OnMeleeGameSet Callbacks
 		static void performMeleeOnGameSetCallbacks();
 
@@ -136,11 +146,16 @@ namespace fighterHooks
 		static void performOnStartCallbacks();
 		// OnRemove Callbacks
 		static void performOnRemoveCallbacks();
-		// Update Callbacks
+		// OnUpdate Callbacks
 		static void performOnUpdateCallbacks();
+		// OnStatusChange Callbacks
+		static void performOnStatusChangeCallbacks();
 
 		// OnHit & OnAttack Callbacks
 		static void performOnAttackCallbacks();
+
+		// Transition Override Callbacks
+		static bool performTransitionOverrideCallbacks(StageObject* stageObj, soInstanceUnitFullProperty<soTransitionTerm>* transitionIn, u32* actionOut, int* termIDOut);
 	};
 	void registerFighterHooks();
 }

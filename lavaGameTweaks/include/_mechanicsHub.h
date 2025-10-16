@@ -28,6 +28,54 @@ namespace mechHub
         lid_FOCUS_ATTACKS_TOGGLE_P2,
         lid_FOCUS_ATTACKS_TOGGLE_P3,
         lid_FOCUS_ATTACKS_TOGGLE_P4,
+        lid_SQUAT_DODGE_TOGGLE_P1,
+        lid_SQUAT_DODGE_TOGGLE_P2,
+        lid_SQUAT_DODGE_TOGGLE_P3,
+        lid_SQUAT_DODGE_TOGGLE_P4,
+        lid_HORI_WAVEDASH_TOGGLE_P1,
+        lid_HORI_WAVEDASH_TOGGLE_P2,
+        lid_HORI_WAVEDASH_TOGGLE_P3,
+        lid_HORI_WAVEDASH_TOGGLE_P4,
+        lid_ACTI_WAVEDASH_TOGGLE_P1,
+        lid_ACTI_WAVEDASH_TOGGLE_P2,
+        lid_ACTI_WAVEDASH_TOGGLE_P3,
+        lid_ACTI_WAVEDASH_TOGGLE_P4,
+        lid_BABY_DASH_TOGGLE_P1,
+        lid_BABY_DASH_TOGGLE_P2,
+        lid_BABY_DASH_TOGGLE_P3,
+        lid_BABY_DASH_TOGGLE_P4,
+        lid_WALLJUMP_BUTTON_TOGGLE_P1,
+        lid_WALLJUMP_BUTTON_TOGGLE_P2,
+        lid_WALLJUMP_BUTTON_TOGGLE_P3,
+        lid_WALLJUMP_BUTTON_TOGGLE_P4,
+        lid_WALLJUMP_FROM_SPECIAL_TOGGLE_P1,
+        lid_WALLJUMP_FROM_SPECIAL_TOGGLE_P2,
+        lid_WALLJUMP_FROM_SPECIAL_TOGGLE_P3,
+        lid_WALLJUMP_FROM_SPECIAL_TOGGLE_P4,
+        lid_WALLJUMP_SAME_DIR_RESTRICTION_P1,
+        lid_WALLJUMP_SAME_DIR_RESTRICTION_P2,
+        lid_WALLJUMP_SAME_DIR_RESTRICTION_P3,
+        lid_WALLJUMP_SAME_DIR_RESTRICTION_P4,
+        lid_TILT_CANCELS_P1,
+        lid_TILT_CANCELS_P2,
+        lid_TILT_CANCELS_P3,
+        lid_TILT_CANCELS_P4,
+        lid_SHIELD_SIZE_LOCK_P1,
+        lid_SHIELD_SIZE_LOCK_P2,
+        lid_SHIELD_SIZE_LOCK_P3,
+        lid_SHIELD_SIZE_LOCK_P4,
+        lid_SHIELD_BREAK_REDUCTION_P1,
+        lid_SHIELD_BREAK_REDUCTION_P2,
+        lid_SHIELD_BREAK_REDUCTION_P3,
+        lid_SHIELD_BREAK_REDUCTION_P4,
+        lid_SHIELD_PARRY_P1,
+        lid_SHIELD_PARRY_P2,
+        lid_SHIELD_PARRY_P3,
+        lid_SHIELD_PARRY_P4,
+        lid_HITFALLING_P1,
+        lid_HITFALLING_P2,
+        lid_HITFALLING_P3,
+        lid_HITFALLING_P4,
         lid__COUNT
     };
     enum activeMechanicIDs
@@ -43,15 +91,29 @@ namespace mechHub
         pmid_MAGIC_SERIES,
         pmid_FINAL_SMASH_METER,
         pmid_FOCUS_ATTACKS,
+        pmid_SQUAT_DODGE,
+        pmid_HORI_WAVEDASH,
+        pmid_ACTI_WAVEDASH,
+        pmid_BABY_DASH,
+        pmid_WALLJUMP_BUTTON,
+        pmid_WALLJUMP_FROM_SPECIAL,
+        pmid_WALLJUMP_SAME_DIR_RESTRICTION,
+        pmid_TILT_CANCELS,
+        pmid_SHIELD_SIZE_LOCK,
+        pmid_SHIELD_BREAK_REDUCTION,
+        pmid_SHIELD_PARRY,
+        pmid_HITFALLING,
         pmid__COUNT,
     };
-    
+
     extern u32 indexBuffer[];
 
     bool populate();
     void registerHooks();
     bool getActiveMechanicEnabled(u32 playerNo, activeMechanicIDs mechanicID);
     bool getPassiveMechanicEnabled(u32 playerNo, passiveMechanicIDs mechanicID);
+    bool getActiveMechanicEnabledDiff(u32 playerNo, activeMechanicIDs mechanicID);
+    bool getPassiveMechanicEnabledDiff(u32 playerNo, passiveMechanicIDs mechanicID);
 }
 
 #endif

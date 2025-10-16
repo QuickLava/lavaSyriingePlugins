@@ -35,7 +35,7 @@ namespace airdodgeCancels
             if (attackSituation == fighterHooks::as_AttackerFighter || distance <= indirectConnectMaxCancelDistance)
             {
                 OSReport_N("%sCancel Activated!\n", outputTag);
-                attacker->m_moduleAccesser->getWorkManageModule()->setFlag(1, hitboxConnectedVar);
+                attacker->m_moduleAccesser->getWorkManageModule().setFlag(1, hitboxConnectedVar);
             }
 
             mechUtil::doMeterGain(attacker, damage, ef_ptc_common_hit_ice, 0.75f, mechUtil::mgac_ON_STOCK_GAIN);
@@ -49,13 +49,19 @@ namespace airdodgeCancels
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
         if (mechHub::getActiveMechanicEnabled(fighterPlayerNo, mechHub::amid_AIRDODGE_CANCELS))
         {
+            fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
+            if (mechHub::getActiveMechanicEnabledDiff(fighterPlayerNo, mechHub::amid_AIRDODGE_CANCELS))
+            {
+                targetMeterBundle->setMeterConfig(meterConf, 1);
+                OSReport_N("%sMeter Reset Handled\n", outputTag);
+            }
+
             soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
             soWorkManageModule* workManageModule = moduleEnum->m_workManageModule;
             soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleEnum->m_statusModule;
             soTransitionModule* transitionModule = statusModule->m_transitionModule;
             soControllerModule* controllerModule = moduleEnum->m_controllerModule;
             
-            fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
             u32 currMeterStocks = targetMeterBundle->getMeterStocks();
             bool infiniteMeterMode = (infiniteMeterModeFlags >> fighterPlayerNo) & 0b1;
 
@@ -65,10 +71,10 @@ namespace airdodgeCancels
                 && (justPressed.m_mask & mechUtil::allTauntPadMask))
             {
                 statusModule->changeStatusForce(Fighter::Status_Escape_Air, fighterIn->m_moduleAccesser);
-                transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Attack);
-                transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Special);
-                transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Wall_Jump);
-                transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Air_Jump_Aerial);
+                transitionModule->enableTermGroup(Fighter::Status_Transition_Group_Chk_Air_Attack);
+                transitionModule->enableTermGroup(Fighter::Status_Transition_Group_Chk_Air_Special);
+                transitionModule->enableTermGroup(Fighter::Status_Transition_Group_Chk_Air_Wall_Jump);
+                transitionModule->enableTermGroup(Fighter::Status_Transition_Group_Chk_Air_Jump_Aerial);
 
                 targetMeterBundle->addMeterStocks(-1);
 

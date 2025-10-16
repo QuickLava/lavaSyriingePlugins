@@ -144,7 +144,7 @@ namespace reflectOnHit
         {
             OSReport_N("%sDoing Reflect Effects:\n", outputTag);
 
-            soSoundModule* soundModule = attackerPtr->m_moduleAccesser->getSoundModule();
+            soSoundModule* soundModule = attackerPtr->m_moduleAccesser->m_enumerationStart->m_soundModule;
             soundModule->playSE(snd_se_item_Item_Get, 1, 1, 0);
         }
     }

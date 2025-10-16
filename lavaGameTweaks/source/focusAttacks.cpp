@@ -20,11 +20,11 @@ namespace focusAttacks
     void enableDashCancel(soStatusModuleImpl* statusModuleIn)
     {
         soTransitionModule* transitionModule = statusModuleIn->m_transitionModule;
-        transitionModule->enableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Ground);
-        transitionModule->unableTermAll(Fighter::Status_Transition_Term_Group_Chk_Ground);
-        transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Dash, Fighter::Status_Transition_Term_Group_Chk_Ground);
-        transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Turn_Dash, Fighter::Status_Transition_Term_Group_Chk_Ground);
-        transitionModule->unableTermGroup(Fighter::Status_Transition_Term_Group_Chk_Ground_Escape);
+        transitionModule->enableTermGroup(Fighter::Status_Transition_Group_Chk_Ground);
+        transitionModule->unableTermAll(Fighter::Status_Transition_Group_Chk_Ground);
+        transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Dash, Fighter::Status_Transition_Group_Chk_Ground);
+        transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Turn_Dash, Fighter::Status_Transition_Group_Chk_Ground);
+        transitionModule->unableTermGroup(Fighter::Status_Transition_Group_Chk_Ground_Escape);
     }
     smashAttackState classifySmashAttackState(u32 statusIn)
     {
@@ -32,9 +32,9 @@ namespace focusAttacks
 
         switch (statusIn)
         {
-        case Fighter::Status_Attack_Hi4_Start: case Fighter::Status_Attack_S4_Start: case Fighter::Status_Attack_Lw4_Start: { result = sas_START; break; }
-        case Fighter::Status_Attack_Hi4_Hold: case Fighter::Status_Attack_S4_Hold: case Fighter::Status_Attack_Lw4_Hold: { result = sas_CHARGE; break; }
-        case Fighter::Status_Attack_Hi4: case Fighter::Status_Attack_S4: case Fighter::Status_Attack_Lw4: { result = sas_ATTACK; break; }
+            case Fighter::Status_Attack_Hi4_Start: case Fighter::Status_Attack_S4_Start: case Fighter::Status_Attack_Lw4_Start: { result = sas_START; break; }
+            case Fighter::Status_Attack_Hi4_Hold: case Fighter::Status_Attack_S4_Hold: case Fighter::Status_Attack_Lw4_Hold: { result = sas_CHARGE; break; }
+            case Fighter::Status_Attack_Hi4: case Fighter::Status_Attack_S4: case Fighter::Status_Attack_Lw4: { result = sas_ATTACK; break; }
         }
 
         return result;
@@ -46,7 +46,7 @@ namespace focusAttacks
         if (mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_FOCUS_ATTACKS) && target->m_taskCategory == gfTask::Category_Fighter)
         {
             if (focusChargedFlags & (1 << fighterPlayerNo)
-                && classifySmashAttackState(attacker->m_moduleAccesser->getStatusModule()->getStatusKind()) == sas_ATTACK)
+                && classifySmashAttackState(attacker->m_moduleAccesser->getStatusModule().getStatusKind()) == sas_ATTACK)
             {
                 u32 targetStatus;
                 OSReport_N("%s", outputTag);
@@ -67,7 +67,7 @@ namespace focusAttacks
                     g_ecMgr->setSlowRate(dustGHXHandle, 2);
                     OSReport_N("Grounded ");
                 }
-                enableDashCancel((soStatusModuleImpl*)attacker->m_moduleAccesser->getStatusModule());
+                enableDashCancel((soStatusModuleImpl*)attacker->m_moduleAccesser->m_enumerationStart->m_statusModule);
             }
         }
     }
@@ -76,7 +76,8 @@ namespace focusAttacks
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(target);
         if (mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_FOCUS_ATTACKS))
         {
-            if (classifySmashAttackState(target->m_moduleAccesser->getStatusModule()->getStatusKind()) == sas_CHARGE)
+            smashAttackState currState = classifySmashAttackState(target->m_moduleAccesser->getStatusModule().getStatusKind());
+            if (currState == sas_START || currState == sas_CHARGE)
             {
                 focusChargedFlags |= 1 << fighterPlayerNo;
             }
@@ -102,7 +103,7 @@ namespace focusAttacks
                 {
                     if (workManageModule->isFlag(crumpled))
                     {
-                        fighterIn->m_moduleAccesser->getDamageModule()->sleep(0);
+                        fighterIn->m_moduleAccesser->getDamageModule().sleep(0);
                         workManageModule->offFlag(crumpled);
                     }
                 }
@@ -113,7 +114,7 @@ namespace focusAttacks
             {
                 if (!moduleEnum->m_workManageModule->isFlag(receivedArmor))
                 {
-                    moduleEnum->m_damageModule->setNoReactionModeStatus(120.0f, -1.0f, 2);
+                    moduleEnum->m_damageModule->setNoReactionModeStatus(300.0f, -1.0f, 2);
                     workManageModule->onFlag(receivedArmor);
                 }
                 if (focusChargedFlagsTemp & playerBitMask)
@@ -137,6 +138,7 @@ namespace focusAttacks
     {
         .m_FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
         .m_FighterOnAttackCB = (fighterHooks::FighterOnAttackCB)onAttackCallback,
+        .m_FighterOnHitCB = (fighterHooks::FighterOnHitCB)onHitCallback,
     };
 #pragma c99 off
 
