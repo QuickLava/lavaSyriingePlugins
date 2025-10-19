@@ -14,7 +14,7 @@
 #include "rm_shieldTweaks.h"
 #include "rm_parries.h"
 #include "rm_hitfalling.h"
-#include "transitionListener.h"
+//#include "transitionListener.h"
 #include "_mechanicsHub.h"
 
 // Note: 0x8070AA14 is SORA_MELEE base address, Ghidra is 0x807189A0, 0xDF8C Difference
@@ -38,9 +38,9 @@ namespace lavaGameTweaks
         rmShieldTweaks::registerHooks();
         rmParries::registerHooks();
         rmHitfalling::registerHooks();
-        transitionListener::registerHooks();
+        //transitionListener::registerHooks();
 
-        //meleeFreeze::registerHooks();
+        meleeFreeze::registerHooks();
         //reflectOnHit::registerHooks();
     }
 
