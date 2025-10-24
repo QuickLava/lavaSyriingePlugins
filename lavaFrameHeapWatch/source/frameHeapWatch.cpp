@@ -14,6 +14,7 @@
 namespace lavaFrameHeapWatch {
 
     const char outputTag[] = "[frameHeapWatch] ";
+    const char menuBankLoadUnloadMessage[] = "%s%s Menu, Narration_Menu, and Select!\n";
 
     extern u32 GetFreeSize(FrameHeap* frameHeap);
     extern u32 GetCurrentLevel(FrameHeap* frameHeap);
@@ -119,7 +120,6 @@ namespace lavaFrameHeapWatch {
     {
         hli_Menu = 0x00,
         hli_Select,
-        hli_PokeTrainer,
         hli_Narration_Menu,
         hli_Narration_Melee,
         hli__COUNT,
@@ -139,7 +139,6 @@ namespace lavaFrameHeapWatch {
         {
             case Snd_Group_Menu: { backupIndex = hli_Menu; break; }
             case Snd_Group_Select: { backupIndex = hli_Select; break; }
-            case Snd_Group_Fighter_PokeTrainer: { backupIndex = hli_PokeTrainer; break; }
             case Snd_Group_Narration_Menu: { backupIndex = hli_Narration_Menu; break; }
             case Snd_Group_Narration_Melee: { backupIndex = hli_Narration_Melee; break; }
             default: { return; }
@@ -150,22 +149,22 @@ namespace lavaFrameHeapWatch {
     void onMeleeStart()
     {
         sndSystem* soundSys = g_sndSystem;
-        soundSys->freeGroup(heapLevelBackupArr[hli_Menu], 0);
         soundSys->loadSoundGroup(Snd_Group_Narration_Melee, 0x0, 0);
         OSReport_N("%sMeleeStart: Swapped Menu for Narration_Melee!\n", outputTag);
         soundSys->freeGroup(heapLevelBackupArr[hli_Select], 0);
         soundSys->freeGroup(heapLevelBackupArr[hli_Narration_Menu], 0);
-        OSReport_N("%sMeleeStart: Unloaded Select and Narration_Menu!\n", outputTag);
+        soundSys->freeGroup(heapLevelBackupArr[hli_Menu], 0);
+        OSReport_N(menuBankLoadUnloadMessage, outputTag, "MeleeStart: Unloaded");
     }
     void onMeleeExit()
     {
         sndSystem* soundSys = g_sndSystem;
         soundSys->freeGroup(heapLevelBackupArr[hli_Narration_Melee], 0);
-        soundSys->loadSoundGroup(Snd_Group_Menu, 0x0, 1);
         OSReport_N("%sMeleeExit: Swapped Narration_Melee for Menu!\n", outputTag);
-        soundSys->loadSoundGroup(Snd_Group_Select, 0x1, 1);
+        soundSys->loadSoundGroup(Snd_Group_Menu, 0x1, 1);
         soundSys->loadSoundGroup(Snd_Group_Narration_Menu, 0x1, 1);
-        OSReport_N("%sMeleeExit: Loaded Select and Narration_Menu!\n", outputTag);
+        soundSys->loadSoundGroup(Snd_Group_Select, 0x1, 1);
+        OSReport_N(menuBankLoadUnloadMessage, outputTag, "MeleeExit: Loaded");
     }
 
     void applyHeapPatches(gfModuleInfo* loadedModuleIn)
@@ -176,6 +175,7 @@ namespace lavaFrameHeapWatch {
             u32 textAddr = moduleHeader->getTextSectionAddr();
             *(u32*)(textAddr + 0x4370) = 0x38800000; // op li r4, 0x00 @ $806BF8C4, Load Joucyu instead of Narration_Melee in FH0 Level 0
             *(u32*)(textAddr + 0x4398) = 0x388000D8; // op li r4, 0xD8 @ $806BF8EC, Load CharCall instead of Joucyu in FH0 Level 1
+            *(u32*)(textAddr + 0x43B0) = 0x38A00001; // op li r5, 0x01 @ $806BF904, Load Menu in FH1
             *(u32*)(textAddr + 0x43C4) = 0x38A00001; // op li r5, 0x01 @ $806BF918, Load Narration_Menu in FH1
             *(u32*)(textAddr + 0x43E0) = 0x60000000; // op nop         @ $806BF934, Disable original CharCall load (normally would load Narration_Melee here)
             *(u32*)(textAddr + 0x43EC) = 0x38A00001; // op li r5, 0x01 @ $806BF940, Load Select in FH1
