@@ -16,6 +16,9 @@ namespace lavaFrameHeapWatch {
     const char outputTag[] = "[frameHeapWatch] ";
     const char menuBankLoadUnloadMessage[] = "%s%s Menu, Narration_Menu, and Select!\n";
 
+    const char scMeleeStr[] = "scMelee";
+    const char scVsResultStr[] = "scVsResult";
+
     extern u32 GetFreeSize(FrameHeap* frameHeap);
     extern u32 GetCurrentLevel(FrameHeap* frameHeap);
     extern u32 MEMGetAllocatableSizeForFrmHeapEx(FrameHeap* heap, u32 padding);
@@ -146,25 +149,79 @@ namespace lavaFrameHeapWatch {
         heapLevelBackupArr[backupIndex] = determinedHeapLevel;
         OSReport_N("%sBacked Up Group %02X: HLI = %08X\n", outputTag, groupID, determinedHeapLevel);
     }
-    void onMeleeStart()
+
+    enum sceneCacheIndex
     {
-        sndSystem* soundSys = g_sndSystem;
-        soundSys->loadSoundGroup(Snd_Group_Narration_Melee, 0x0, 0);
-        OSReport_N("%sMeleeStart: Swapped Menu for Narration_Melee!\n", outputTag);
-        soundSys->freeGroup(heapLevelBackupArr[hli_Select], 0);
-        soundSys->freeGroup(heapLevelBackupArr[hli_Narration_Menu], 0);
-        soundSys->freeGroup(heapLevelBackupArr[hli_Menu], 0);
-        OSReport_N(menuBankLoadUnloadMessage, outputTag, "MeleeStart: Unloaded");
-    }
-    void onMeleeExit()
+        sci_PrevPrev = 0x00,
+        sci_Prev,
+        sci_Curr,
+        sci_Next,
+    };
+    class sceneCache
     {
-        sndSystem* soundSys = g_sndSystem;
-        soundSys->freeGroup(heapLevelBackupArr[hli_Narration_Melee], 0);
-        OSReport_N("%sMeleeExit: Swapped Narration_Melee for Menu!\n", outputTag);
-        soundSys->loadSoundGroup(Snd_Group_Menu, 0x1, 1);
-        soundSys->loadSoundGroup(Snd_Group_Narration_Menu, 0x1, 1);
-        soundSys->loadSoundGroup(Snd_Group_Select, 0x1, 1);
-        OSReport_N(menuBankLoadUnloadMessage, outputTag, "MeleeExit: Loaded");
+    private:
+        u8 currIndex;
+        gfScene* scenes[4];
+    public:        
+        void pushNextScene(gfScene* sceneIn)
+        {
+            u32 targetIndex = currIndex;
+            scenes[targetIndex] = sceneIn;
+            currIndex = (targetIndex + 1) % 4;
+        }
+        gfScene* getScene(u32 index)
+        {
+            u32 targetIndex = (currIndex + index) % 4;
+            return scenes[targetIndex];
+        }
+        void print()
+        {
+            const char nullStr[] = "-";
+            gfScene* targetScene;
+            OSReport_N("%s", outputTag);
+            for (u32 i = sci_PrevPrev; i < sci_Next; i++)
+            {
+                targetScene = getScene(i);
+                OSReport_N("%s -> ", (targetScene == NULL) ? "-" : targetScene->m_sceneName);
+            }
+            targetScene = getScene(sci_Next);
+            OSReport_N("%s\n", (targetScene == NULL) ? "-" : targetScene->m_sceneName);
+        }
+    };
+    sceneCache s_sceneCache;
+    
+    void onSceneChange()
+    {
+        gfSceneManager* sceneManager = gfSceneManager::getInstance();
+        s_sceneCache.pushNextScene(sceneManager->m_nextScene);
+
+        gfScene* prevScene = s_sceneCache.getScene(sci_Prev);
+        gfScene* nextScene = s_sceneCache.getScene(sci_Next);
+        s_sceneCache.print();
+        if (prevScene != NULL && nextScene != NULL)
+        {
+            // If we're moving into scMelee...
+            if (strcmp(nextScene->m_sceneName, scMeleeStr) == 0)
+            {
+                sndSystem* soundSys = g_sndSystem;
+                soundSys->loadSoundGroup(Snd_Group_Narration_Melee, 0x0, 0);
+                OSReport_N("%sMeleeStart: Swapped Menu for Narration_Melee!\n", outputTag);
+                soundSys->freeGroup(heapLevelBackupArr[hli_Select], 0);
+                soundSys->freeGroup(heapLevelBackupArr[hli_Narration_Menu], 0);
+                soundSys->freeGroup(heapLevelBackupArr[hli_Menu], 0);
+                OSReport_N(menuBankLoadUnloadMessage, outputTag, "MeleeStart: Unloaded");
+            }
+            else if (strcmp(prevScene->m_sceneName, scMeleeStr) == 0)
+            {
+                sndSystem* soundSys = g_sndSystem;
+                soundSys->freeGroup(heapLevelBackupArr[hli_Narration_Melee], 0);
+                OSReport_N("%sMeleeExit: Swapped Narration_Melee for Menu!\n", outputTag);
+                soundSys->loadSoundGroup(Snd_Group_Menu, 0x1, 1);
+                soundSys->loadSoundGroup(Snd_Group_Narration_Menu, 0x1, 1);
+                soundSys->loadSoundGroup(Snd_Group_Select, 0x1, 1);
+                OSReport_N(menuBankLoadUnloadMessage, outputTag, "MeleeExit: Loaded");
+            }
+        }
     }
 
     void applyHeapPatches(gfModuleInfo* loadedModuleIn)
@@ -200,10 +257,8 @@ namespace lavaFrameHeapWatch {
         SyringeCompat::syInlineHook(0x80073C1C, reinterpret_cast<void*>(backupGroupHeapID));
 
         // SoraScene = 0x806BB554
-        // 0x806CF160 lands 0x20 bytes into symbol "start/[scMelee]/sc_melee.o" @ 0x806CF140
-        SyringeCompat::syInlineHookRel(0x13C0C, reinterpret_cast<void*>(onMeleeStart), Modules::SORA_SCENE);
-        // 0x806D4870 lands 0x34 bytes into symbol "exit/[scMelee]/sc_melee.o" @ 0x806D483C 
-        SyringeCompat::syInlineHookRel(0x1931C, reinterpret_cast<void*>(onMeleeExit), Modules::SORA_SCENE);
+        // 0x8002D628 lands 0x7C bytes into symbol "setNextScene/[gfSceneManager]/gf_scene.o" @ 0x8002D5AC
+        SyringeCompat::syInlineHook(0x8002D628, reinterpret_cast<void*>(onSceneChange));
     }
 
     void Destroy()
