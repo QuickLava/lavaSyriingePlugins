@@ -122,7 +122,6 @@ namespace lavaFrameHeapWatch {
         hli_Menu = 0x00,
         hli_Select,
         hli_Narration_Menu,
-        hli_Narration_Melee,
         hli__COUNT,
     };
     u32 heapLevelBackupArr[hli__COUNT];
@@ -141,7 +140,6 @@ namespace lavaFrameHeapWatch {
             case Snd_Group_Menu: { backupIndex = hli_Menu; break; }
             case Snd_Group_Select: { backupIndex = hli_Select; break; }
             case Snd_Group_Narration_Menu: { backupIndex = hli_Narration_Menu; break; }
-            case Snd_Group_Narration_Melee: { backupIndex = hli_Narration_Melee; break; }
             default: { return; }
         }
         heapLevelBackupArr[backupIndex] = determinedHeapLevel;
@@ -202,10 +200,7 @@ namespace lavaFrameHeapWatch {
             // If we're moving into scMelee...
             if (strcmp(nextScene->m_sceneName, scMeleeStr) == 0)
             {
-                // ... then ensure that Narration_Melee is properly loaded...
-                soundSys->loadSoundGroup(Snd_Group_Narration_Melee, 0x0, 0);
-                OSReport_N("%sMeleeStart: Loaded Narration_Melee bank!\n", outputTag);
-                // ... and unload the FH01 banks.
+                // ... unload the FH01 banks.
                 soundSys->freeGroup(heapLevelBackupArr[hli_Select], 0);
                 soundSys->freeGroup(heapLevelBackupArr[hli_Narration_Menu], 0);
                 soundSys->freeGroup(heapLevelBackupArr[hli_Menu], 0);
@@ -214,10 +209,7 @@ namespace lavaFrameHeapWatch {
             // If we're not moving into scMelee and instead are moving *out of* scMelee...
             else if (strcmp(prevScene->m_sceneName, scMeleeStr) == 0)
             {
-                // ... ensure Narration_Melee is unloaded...
-                soundSys->freeGroup(heapLevelBackupArr[hli_Narration_Melee], 0);
-                OSReport_N("%sMeleeExit: Unloaded Narration_Melee bank!\n", outputTag);
-                // ... and ensure that the FH01 banks are loaded!
+                // ... ensure that the FH01 banks are loaded!
                 soundSys->loadSoundGroup(Snd_Group_Menu, 0x1, 1);
                 soundSys->loadSoundGroup(Snd_Group_Narration_Menu, 0x1, 1);
                 soundSys->loadSoundGroup(Snd_Group_Select, 0x1, 1);
