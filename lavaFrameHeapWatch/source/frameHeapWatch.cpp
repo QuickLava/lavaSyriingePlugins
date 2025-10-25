@@ -13,15 +13,13 @@
 
 namespace lavaFrameHeapWatch {
 
+    const char scMeleeStr[] = "scMelee";
+
     const char outputTag[] = "[frameHeapWatch] ";
     const char menuBankLoadUnloadMessage[] = "%s%s Menu, Narration_Menu, and Select!\n";
 
-    const char scMeleeStr[] = "scMelee";
-    const char scVsResultStr[] = "scVsResult";
-
     extern u32 GetFreeSize(FrameHeap* frameHeap);
     extern u32 GetCurrentLevel(FrameHeap* frameHeap);
-    extern u32 MEMGetAllocatableSizeForFrmHeapEx(FrameHeap* heap, u32 padding);
 
     u32 lowestRecordedFreeSize[0xC] = { 
         0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
@@ -200,22 +198,26 @@ namespace lavaFrameHeapWatch {
         s_sceneCache.print();
         if (prevScene != NULL && nextScene != NULL)
         {
+            sndSystem* soundSys = g_sndSystem;
             // If we're moving into scMelee...
             if (strcmp(nextScene->m_sceneName, scMeleeStr) == 0)
             {
-                sndSystem* soundSys = g_sndSystem;
+                // ... then ensure that Narration_Melee is properly loaded...
                 soundSys->loadSoundGroup(Snd_Group_Narration_Melee, 0x0, 0);
-                OSReport_N("%sMeleeStart: Swapped Menu for Narration_Melee!\n", outputTag);
+                OSReport_N("%sMeleeStart: Loaded Narration_Melee bank!\n", outputTag);
+                // ... and unload the FH01 banks.
                 soundSys->freeGroup(heapLevelBackupArr[hli_Select], 0);
                 soundSys->freeGroup(heapLevelBackupArr[hli_Narration_Menu], 0);
                 soundSys->freeGroup(heapLevelBackupArr[hli_Menu], 0);
                 OSReport_N(menuBankLoadUnloadMessage, outputTag, "MeleeStart: Unloaded");
             }
+            // If we're not moving into scMelee and instead are moving *out of* scMelee...
             else if (strcmp(prevScene->m_sceneName, scMeleeStr) == 0)
             {
-                sndSystem* soundSys = g_sndSystem;
+                // ... ensure Narration_Melee is unloaded...
                 soundSys->freeGroup(heapLevelBackupArr[hli_Narration_Melee], 0);
-                OSReport_N("%sMeleeExit: Swapped Narration_Melee for Menu!\n", outputTag);
+                OSReport_N("%sMeleeExit: Unloaded Narration_Melee bank!\n", outputTag);
+                // ... and ensure that the FH01 banks are loaded!
                 soundSys->loadSoundGroup(Snd_Group_Menu, 0x1, 1);
                 soundSys->loadSoundGroup(Snd_Group_Narration_Menu, 0x1, 1);
                 soundSys->loadSoundGroup(Snd_Group_Select, 0x1, 1);
@@ -224,6 +226,19 @@ namespace lavaFrameHeapWatch {
         }
     }
 
+    // Patches the common bank loading routine in loadFiles2 to set up for our contextual loading scheme.
+    // Specifically, the new arrangement is now:
+    //  - FH00:
+    //    - Joucyu
+    //    - CharaCall
+    //    - Narration_Melee
+    //  - FH01 (Out of Matches Only):
+    //    - Menu
+    //    - Narration Menu
+    //    - Select
+    //  - FH02:
+    //    - Item
+    //    - Monsterball
     void applyHeapPatches(gfModuleInfo* loadedModuleIn)
     {
         gfModuleHeader* moduleHeader = loadedModuleIn->m_module->header;
