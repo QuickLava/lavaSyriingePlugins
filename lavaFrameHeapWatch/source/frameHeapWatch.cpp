@@ -26,7 +26,24 @@ namespace lavaFrameHeapWatch {
         0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
         0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
     };
+    u32 highestRecordedFreeSize[0xC] = {
+        0x00000000, 0x00000000, 0x00000000, 0x00000000,
+        0x00000000, 0x00000000, 0x00000000, 0x00000000,
+        0x00000000, 0x00000000, 0x00000000, 0x00000000,
+    };
 
+    void recordInitialSizes()
+    {
+        SoundHeap* soundHeapArr = g_sndSystem->m_sndHeapSys->m_heapArr;
+        for (u32 i = 0; i < 0xC; i++)
+        {
+            SoundHeap* currHeap = soundHeapArr + i;
+            if (currHeap->m_frameHeap.m_heapPtr != NULL)
+            {
+                highestRecordedFreeSize[i] = GetFreeSize(&currHeap->m_frameHeap);
+            }
+        }
+    }
     void summarizeFrameHeaps()
     {
         SoundHeap* soundHeapArr = g_sndSystem->m_sndHeapSys->m_heapArr;
@@ -36,6 +53,7 @@ namespace lavaFrameHeapWatch {
             u32 currLevel = 0xFF;
             u32 freeSize = 0xFFFFFFFF;
             u32 lowestFreeSize = lowestRecordedFreeSize[i];
+            u32 highestFreeSize = highestRecordedFreeSize[i];
             u32 freeSizeDiff = freeSize;
             if (currHeap->m_frameHeap.m_heapPtr != NULL)
             {
@@ -46,9 +64,14 @@ namespace lavaFrameHeapWatch {
                     lowestFreeSize = freeSize;
                     lowestRecordedFreeSize[i] = freeSize;
                 }
+                if (highestFreeSize < freeSize)
+                {
+                    highestFreeSize = freeSize;
+                    highestRecordedFreeSize[i] = freeSize;
+                }
             }
-            OSReport_N("%sSummary: FrameHeap[%02X]: FreeSize: %08X, MinFreeSize: %08X, CurrLevel: %02X\n",
-                outputTag, i, freeSize, lowestFreeSize, currLevel);
+            OSReport_N("%sSummary: FrameHeap[%02X]: Free: %08X, MinFree: %08X, MaxFree: %08X, CurrLevel: %02X\n",
+                outputTag, i, freeSize, lowestFreeSize, highestFreeSize, currLevel);
         }
     }
     void printFrameHeapAlloc()
@@ -236,6 +259,7 @@ namespace lavaFrameHeapWatch {
         gfModuleHeader* moduleHeader = loadedModuleIn->m_module->header;
         if (moduleHeader->id == Modules::SORA_SCENE)
         {
+            // SoraScene = 0x806BB554
             u32 textAddr = moduleHeader->getTextSectionAddr();
             *(u32*)(textAddr + 0x4370) = 0x38800000; // op li r4, 0x00 @ $806BF8C4, Load Joucyu instead of Narration_Melee in FH0 Level 0
             *(u32*)(textAddr + 0x4398) = 0x388000D8; // op li r4, 0xD8 @ $806BF8EC, Load CharCall instead of Joucyu in FH0 Level 1
@@ -250,6 +274,9 @@ namespace lavaFrameHeapWatch {
 
     void Init()
     {
+        // Record Initial Heap Sizes
+        recordInitialSizes();
+
         // Patch bank loading configuration.
         SyringeCompat::ModuleLoadEvent::Subscribe(applyHeapPatches);
 
@@ -263,7 +290,6 @@ namespace lavaFrameHeapWatch {
         // 0x80073C1C lands 0x35C bytes into symbol "update/[sndSystem]/snd_system.o" @ 0x800738C0
         SyringeCompat::syInlineHook(0x80073C1C, reinterpret_cast<void*>(backupGroupHeapID));
 
-        // SoraScene = 0x806BB554
         // 0x8002D628 lands 0x7C bytes into symbol "setNextScene/[gfSceneManager]/gf_scene.o" @ 0x8002D5AC
         SyringeCompat::syInlineHook(0x8002D628, reinterpret_cast<void*>(onSceneChange));
     }
