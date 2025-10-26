@@ -142,9 +142,10 @@ namespace lavaFrameHeapWatch {
 
     enum heapLevelIndex
     {
-        hli_Menu = 0x00,
-        hli_Select,
+        hli_Select = 0x00,
         hli_Narration_Menu,
+        hli_Narration_Melee,
+        hli_Narration_CharaCall,
         hli__COUNT,
     };
     u32 heapLevelBackupArr[hli__COUNT];
@@ -160,9 +161,10 @@ namespace lavaFrameHeapWatch {
         u32 backupIndex;
         switch (groupID)
         {
-            case Snd_Group_Menu: { backupIndex = hli_Menu; break; }
             case Snd_Group_Select: { backupIndex = hli_Select; break; }
             case Snd_Group_Narration_Menu: { backupIndex = hli_Narration_Menu; break; }
+            case Snd_Group_Narration_Melee: { backupIndex = hli_Narration_Melee; break; }
+            case Snd_Group_Narration_CharaCall: { backupIndex = hli_Narration_CharaCall; break; }
             default: { return; }
         }
         heapLevelBackupArr[backupIndex] = determinedHeapLevel;
@@ -223,20 +225,25 @@ namespace lavaFrameHeapWatch {
             // If we're moving into scMelee...
             if (strcmp(nextScene->m_sceneName, scMeleeStr) == 0)
             {
+                soundSys->freeGroup(heapLevelBackupArr[hli_Narration_Menu], 0);
+                soundSys->loadSoundGroup(Snd_Group_Narration_Melee, 0x0, 1);
                 // ... unload the FH01 banks.
                 soundSys->freeGroup(heapLevelBackupArr[hli_Select], 0);
-                soundSys->freeGroup(heapLevelBackupArr[hli_Narration_Menu], 0);
-                soundSys->freeGroup(heapLevelBackupArr[hli_Menu], 0);
-                OSReport_N(menuBankLoadUnloadMessage, outputTag, "MeleeStart: Unloaded");
+                soundSys->freeGroup(heapLevelBackupArr[hli_Narration_CharaCall], 0);
+                OSReport_N(menuBankLoadUnloadMessage, outputTag, "MeleeStart: Swapped Narration Banks, Unloaded");
+
+                soundSys->loadSoundGroup(Snd_Group_Narration_Melee, 0x1, 1);
             }
             // If we're not moving into scMelee and instead are moving *out of* scMelee...
             else if (strcmp(prevScene->m_sceneName, scMeleeStr) == 0)
             {
+                // ... swap the narration banks...
+                soundSys->freeGroup(heapLevelBackupArr[hli_Narration_Melee], 0);
+                soundSys->loadSoundGroup(Snd_Group_Narration_Menu, 0x0, 1);
                 // ... ensure that the FH01 banks are loaded!
-                soundSys->loadSoundGroup(Snd_Group_Menu, 0x1, 1);
-                soundSys->loadSoundGroup(Snd_Group_Narration_Menu, 0x1, 1);
+                soundSys->loadSoundGroup(Snd_Group_Narration_CharaCall, 0x1, 1);
                 soundSys->loadSoundGroup(Snd_Group_Select, 0x1, 1);
-                OSReport_N(menuBankLoadUnloadMessage, outputTag, "MeleeExit: Loaded");
+                OSReport_N(menuBankLoadUnloadMessage, outputTag, "MeleeExit: Swapped Narration Banks, Loaded");
             }
         }
     }
@@ -245,12 +252,11 @@ namespace lavaFrameHeapWatch {
     // Specifically, the new arrangement is now:
     //  - FH00:
     //    - Joucyu
-    //    - CharaCall
-    //    - Narration_Melee
-    //  - FH01 (Out of Matches Only):
     //    - Menu
-    //    - Narration Menu
+    //    - Narration Menu / Narration_Melee
+    //  - FH01 (Out of Matches Only):
     //    - Select
+    //    - CharaCall
     //  - FH02:
     //    - Item
     //    - Monsterball
@@ -261,11 +267,8 @@ namespace lavaFrameHeapWatch {
         {
             // SoraScene = 0x806BB554
             u32 textAddr = moduleHeader->getTextSectionAddr();
-            *(u32*)(textAddr + 0x4370) = 0x38800000; // op li r4, 0x00 @ $806BF8C4, Load Joucyu instead of Narration_Melee in FH0 Level 0
-            *(u32*)(textAddr + 0x4398) = 0x388000D8; // op li r4, 0xD8 @ $806BF8EC, Load CharCall instead of Joucyu in FH0 Level 1
-            *(u32*)(textAddr + 0x43B0) = 0x38A00001; // op li r5, 0x01 @ $806BF904, Load Menu in FH1
-            *(u32*)(textAddr + 0x43C4) = 0x38A00001; // op li r5, 0x01 @ $806BF918, Load Narration_Menu in FH1
-            *(u32*)(textAddr + 0x43E0) = 0x60000000; // op nop         @ $806BF934, Disable original CharCall load (normally would load Narration_Melee here)
+            *(u32*)(textAddr + 0x437C) = 0x60000000; // op nop         @ $806BF8D0, Disable Narration_Melee load, as we'll only be loading it in matches.
+            *(u32*)(textAddr + 0x43D8) = 0x38A00001; // op li r5, 0x01 @ $806BF92C, Load Narration_CharaCall in FH1
             *(u32*)(textAddr + 0x43EC) = 0x38A00001; // op li r5, 0x01 @ $806BF940, Load Select in FH1
             OSReport_N("%sApplied bank loading adjustments!\n", outputTag);
             return;
