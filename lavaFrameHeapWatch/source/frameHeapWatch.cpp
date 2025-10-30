@@ -18,9 +18,6 @@ namespace lavaFrameHeapWatch {
     const char outputTag[] = "[frameHeapWatch] ";
     const char menuBankLoadUnloadMessage[] = "%s%s Menu, Narration_Menu, and Select!\n";
 
-    extern u32 GetFreeSize(FrameHeap* frameHeap);
-    extern u32 GetCurrentLevel(FrameHeap* frameHeap);
-
     u32 lowestRecordedFreeSize[0xC] = { 
         0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
         0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
@@ -40,7 +37,7 @@ namespace lavaFrameHeapWatch {
             SoundHeap* currHeap = soundHeapArr + i;
             if (currHeap->m_frameHeap.m_heapPtr != NULL)
             {
-                highestRecordedFreeSize[i] = GetFreeSize(&currHeap->m_frameHeap);
+                highestRecordedFreeSize[i] = currHeap->m_frameHeap.GetFreeSize();
             }
         }
     }
@@ -57,8 +54,8 @@ namespace lavaFrameHeapWatch {
             u32 freeSizeDiff = freeSize;
             if (currHeap->m_frameHeap.m_heapPtr != NULL)
             {
-                currLevel = GetCurrentLevel(&currHeap->m_frameHeap);
-                freeSize = GetFreeSize(&currHeap->m_frameHeap);
+                currLevel = currHeap->m_frameHeap.GetCurrentLevel();
+                freeSize = currHeap->m_frameHeap.GetFreeSize();
                 if (lowestFreeSize > freeSize)
                 {
                     lowestFreeSize = freeSize;
@@ -87,8 +84,8 @@ namespace lavaFrameHeapWatch {
             subi soundHeap, frameHeap, 0x1C;
             mr size, r28;
         }
-        u32 freeSpace = GetFreeSize(frameHeap);
-        u32 current = GetCurrentLevel(frameHeap);
+        u32 freeSpace = frameHeap->GetFreeSize();
+        u32 current = frameHeap->GetCurrentLevel();
 
         SoundHeap* soundHeapArr = g_sndSystem->m_sndHeapSys->m_heapArr;
         u32 soundHeapID = soundHeap - soundHeapArr;
@@ -110,7 +107,7 @@ namespace lavaFrameHeapWatch {
             mr frameHeap, r31;
             subi soundHeap, frameHeap, 0x1C;
         }
-        u32 freeSize = GetFreeSize(frameHeap);
+        u32 freeSize = frameHeap->GetFreeSize();
 
         SoundHeap* soundHeapArr = g_sndSystem->m_sndHeapSys->m_heapArr;
         u32 soundHeapID = soundHeap - soundHeapArr;
@@ -120,7 +117,7 @@ namespace lavaFrameHeapWatch {
         }
 
         OSReport_N("%sSaveState: FrameHeap[%02X] Raised to Level: %02X, FreeSize: %08X\n",
-            outputTag, soundHeapID, GetCurrentLevel(frameHeap), freeSize);
+            outputTag, soundHeapID, frameHeap->GetCurrentLevel(), freeSize);
         summarizeFrameHeaps();
     }
     void printFrameLoadState()
@@ -136,7 +133,7 @@ namespace lavaFrameHeapWatch {
         u32 soundHeapID = soundHeap - soundHeapArr;
 
         OSReport_N("%sLoadState: FrameHeap[%02X] Cleared to Level: %02X, FreeSize: %08X\n", 
-            outputTag, soundHeapID, GetCurrentLevel(&soundHeap->m_frameHeap), GetFreeSize(&soundHeap->m_frameHeap));
+            outputTag, soundHeapID, soundHeap->m_frameHeap.GetCurrentLevel(), soundHeap->m_frameHeap.GetFreeSize());
         summarizeFrameHeaps();
     }
 

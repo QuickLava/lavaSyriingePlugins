@@ -2,6 +2,3 @@
 // The format of linkages depends on where the target symbol resides:
 //  - Rels: "RelID,RelSectionId,offset:symbol_name"
 //  - Global: "address:symbol_name"
-801BFF28:GetFreeSize__18lavaFrameHeapWatchFP9FrameHeap
-801BFF1C:GetCurrentLevel__18lavaFrameHeapWatchFP9FrameHeap
-80204C30:MEMGetAllocatableSizeForFrmHeapEx__18lavaFrameHeapWatchFUlUl
