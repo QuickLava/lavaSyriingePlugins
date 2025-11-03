@@ -12,11 +12,24 @@
 #include <snd/snd_system.h>
 
 namespace lavaFrameHeapWatch {
-
-    const char scMeleeStr[] = "scMelee";
-
     const char outputTag[] = "[frameHeapWatch] ";
-    const char menuBankLoadUnloadMessage[] = "%s%s Menu, Narration_Menu, and Select!\n";
+
+    const char scEditStr[] = "scEdit";
+    const char scIntroStr[] = "scIntro";
+    const char scMeleeStr[] = "scMelee";
+    const char scVsResultStr[] = "scVsResult";
+    const char scClearGetterStr[] = "scClearGetter";
+    const char scSelctCharacterStr[] = "scSelctCharacter";
+
+    const char* toLoad[] = { scIntroStr, scVsResultStr, scSelctCharacterStr };
+    const u32 toLoadLen = sizeof(toLoad) / sizeof(char*);
+    const char* toUnload[] = { scEditStr, scMeleeStr, scClearGetterStr };
+    const u32 toUnloadLen = sizeof(toUnload) / sizeof(char*);
+
+    const char narrationMenuStr[] = "Narration_Menu";
+    const char narrationMeleeStr[] = "Narration_Melee";
+    const char narrationBankSwapMessage[] = "%sSwapped %s for %s in FH00!\n";
+    const char selCharBankLoadUnloadMessage[] = "%sRequested %s for Narration_CharaCall & Select on entering %s!\n";
 
     u32 lowestRecordedFreeSize[0xC] = { 
         0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
@@ -209,10 +222,11 @@ namespace lavaFrameHeapWatch {
             OSReport_N("%s\n", (targetScene == NULL) ? nullStr : targetScene->m_sceneName);
         }
     };
-    sceneCache s_sceneCache;
-    
+
     void onSceneChange()
     {
+        static sceneCache s_sceneCache;
+
         gfSceneManager* sceneManager = gfSceneManager::getInstance();
         s_sceneCache.pushNextScene(sceneManager->m_nextScene);
 
@@ -225,25 +239,43 @@ namespace lavaFrameHeapWatch {
             // If we're moving into scMelee...
             if (strcmp(nextScene->m_sceneName, scMeleeStr) == 0)
             {
+                // ... swap out the Menu Narration bank.
                 soundSys->freeGroup(heapLevelBackupArr[hli_Narration_Menu], 0);
                 soundSys->loadSoundGroup(Snd_Group_Narration_Melee, 0x0, 1);
-                // ... unload the FH01 banks.
-                soundSys->freeGroup(heapLevelBackupArr[hli_Select], 0);
-                soundSys->freeGroup(heapLevelBackupArr[hli_Narration_CharaCall], 0);
-                OSReport_N(menuBankLoadUnloadMessage, outputTag, "MeleeStart: Swapped Narration Banks, Unloaded");
-
-                soundSys->loadSoundGroup(Snd_Group_Narration_Melee, 0x1, 1);
+                OSReport_N(narrationBankSwapMessage, outputTag, narrationMenuStr, narrationMeleeStr);
             }
             // If we're not moving into scMelee and instead are moving *out of* scMelee...
             else if (strcmp(prevScene->m_sceneName, scMeleeStr) == 0)
             {
-                // ... swap the narration banks...
+                // ... swap out the Melee Narration bank.
                 soundSys->freeGroup(heapLevelBackupArr[hli_Narration_Melee], 0);
                 soundSys->loadSoundGroup(Snd_Group_Narration_Menu, 0x0, 1);
-                // ... ensure that the FH01 banks are loaded!
-                soundSys->loadSoundGroup(Snd_Group_Narration_CharaCall, 0x1, 1);
-                soundSys->loadSoundGroup(Snd_Group_Select, 0x1, 1);
-                OSReport_N(menuBankLoadUnloadMessage, outputTag, "MeleeExit: Swapped Narration Banks, Loaded");
+                OSReport_N(narrationBankSwapMessage, outputTag, narrationMeleeStr, narrationMenuStr);
+            }
+
+            for (u32 i = 0; i < toUnloadLen; i++)
+            {
+                const char* triggerSceneName = toUnload[i];
+                if (strcmp(nextScene->m_sceneName, triggerSceneName) == 0)
+                {
+                    // Unload SelChar banks.
+                    soundSys->freeGroup(heapLevelBackupArr[hli_Select], 0);
+                    soundSys->freeGroup(heapLevelBackupArr[hli_Narration_CharaCall], 0);
+                    OSReport_N(selCharBankLoadUnloadMessage, outputTag, "Unload", triggerSceneName);
+                    break;
+                }
+            }
+            for (u32 i = 0; i < toLoadLen; i++)
+            {
+                const char* triggerSceneName = toLoad[i];
+                if (strcmp(nextScene->m_sceneName, triggerSceneName) == 0)
+                {
+                    // Load SelChar banks.
+                    soundSys->loadSoundGroup(Snd_Group_Narration_CharaCall, 0x1, 1);
+                    soundSys->loadSoundGroup(Snd_Group_Select, 0x1, 1);
+                    OSReport_N(selCharBankLoadUnloadMessage, outputTag, "Load", triggerSceneName);
+                    break;
+                }
             }
         }
     }
