@@ -194,16 +194,19 @@ namespace lavaFrameHeapWatch {
         }
         void print()
         {
-            const char nullStr[] = "-";
-            gfScene* targetScene;
             OSReport_N("%s", outputTag);
+
+            const char nullStr[] = "-";
+            gfSequence* currentSequence = gfSceneManager::getInstance()->m_currentSequence;
+            OSReport_N("%s: ", (currentSequence == NULL) ? nullStr : currentSequence->m_sequenceName);
+            gfScene* targetScene;
             for (u32 i = sci_PrevPrev; i < sci_Next; i++)
             {
                 targetScene = getScene(i);
-                OSReport_N("%s -> ", (targetScene == NULL) ? "-" : targetScene->m_sceneName);
+                OSReport_N("%s -> ", (targetScene == NULL) ? nullStr : targetScene->m_sceneName);
             }
             targetScene = getScene(sci_Next);
-            OSReport_N("%s\n", (targetScene == NULL) ? "-" : targetScene->m_sceneName);
+            OSReport_N("%s\n", (targetScene == NULL) ? nullStr : targetScene->m_sceneName);
         }
     };
     sceneCache s_sceneCache;
