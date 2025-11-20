@@ -27,7 +27,7 @@ namespace rmHitfalling
                     if (controllerModule->getStickY() < .60f)
                     {
                         // ... we've flicked downwards, so put us into fastfall!
-                        moduleAccesser->m_enumerationStart->m_workManageModule->onFlag(Fighter::Status_Work_Flag_Dive);
+                        moduleAccesser->m_enumerationStart->m_workManageModule->onFlag(Fighter::Status_Work_Flag_Reserve_Dive);
                     }
                 }
             }
