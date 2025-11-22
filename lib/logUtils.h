@@ -1,6 +1,7 @@
 #ifndef LAVA_LOG_UTILS_H_V1
 #define LAVA_LOG_UTILS_H_V1
 
+#include <revolution/macros.h>
 #include <os/OSError.h>
 #include <types.h>
 

@@ -10,9 +10,9 @@ export TOOLS 	:= $(CURDIR)/tools
 export LIB 		:= $(CURDIR)/lib
 
 
-.PHONY: all lavaInjectLoader lavaPSAExtensions lavaGameTweaks lavaNeutralSpawns lavaFrameHeapWatch
+.PHONY: all lavaInjectLoader lavaPSAExtensions lavaGameTweaks lavaNeutralSpawns lavaFrameHeapWatch lavaIASAOverlay
 
-all: lavaInjectLoader lavaPSAExtensions lavaGameTweaks lavaNeutralSpawns lavaFrameHeapWatch
+all: lavaInjectLoader lavaPSAExtensions lavaGameTweaks lavaNeutralSpawns lavaFrameHeapWatch lavaIASAOverlay
 
 lavaInjectLoader:
 	$(MAKE) -C lavaInjectLoader
@@ -34,6 +34,10 @@ lavaFrameHeapWatch:
 	$(MAKE) -C lavaFrameHeapWatch
 	@cp lavaFrameHeapWatch/$@.rel ./output/$@.rel
 	
+lavaIASAOverlay:
+	$(MAKE) -C lavaIASAOverlay
+	@cp lavaIASAOverlay/$@.rel ./output/$@.rel
+
 clean:
 	@rm ./output/*.rel
 	$(MAKE) -s -C lavaInjectLoader clean
@@ -41,3 +45,4 @@ clean:
 	$(MAKE) -s -C lavaGameTweaks clean
 	$(MAKE) -s -C lavaNeutralSpawns clean
 	$(MAKE) -s -C lavaFrameHeapWatch clean
+	$(MAKE) -s -C lavaIASAOverlay clean
