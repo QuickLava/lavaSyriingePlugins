@@ -14,6 +14,7 @@
 #include "rm_shieldTweaks.h"
 #include "rm_parries.h"
 #include "rm_hitfalling.h"
+#include "pu_dacds.h"
 //#include "transitionListener.h"
 #include "_mechanicsHub.h"
 
@@ -38,6 +39,7 @@ namespace lavaGameTweaks
         rmShieldTweaks::registerHooks();
         rmParries::registerHooks();
         rmHitfalling::registerHooks();
+        puDACDS::registerHooks();
         //transitionListener::registerHooks();
 
         meleeFreeze::registerHooks();
