@@ -2,9 +2,22 @@
 #include <syWrapper.h>
 #include <logUtils.h>
 #include <ft/ft_manager.h>
+#include <_cmAddonInterface.h>
 #include "IASAOverlay.h"
 
 namespace lavaIASAOverlay {
+    const char outputTag[] = "IASAOverlay";
+    const char addonShortName[] = "IASAOVER";
+    enum _lineIDs
+    {
+        lid_WORKING_SPACE = 0,
+        lid_ENABLED_P1,
+        lid_ENABLED_P2,
+        lid_ENABLED_P3,
+        lid_ENABLED_P4,
+        lid__COUNT
+    };
+    u32 indexBuffer[lid__COUNT];
 
     const u8 groupsToCheck[] = {
         Fighter::Status_Transition_Group_Chk_Ground_Special,
@@ -23,6 +36,12 @@ namespace lavaIASAOverlay {
         Fighter::Status_Slip_Wait,
     };
 
+    bool enabledForPlayer(u32 playerNo)
+    {
+        const codeMenu::cmSelectionLine** enabledLines = (const codeMenu::cmSelectionLine**)indexBuffer + 1;
+        const codeMenu::cmSelectionLine* targetLine = enabledLines[playerNo];
+        return (targetLine != NULL) ? targetLine->m_value : 1;
+    }
     void applyRelevantFlash()
     {
         // Use the function's moduleAccesser parameter to attempt to fetch the Fighter*...
@@ -37,7 +56,7 @@ namespace lavaIASAOverlay {
 
         // Otherwise, check if the fighter is in a valid port...
         u32 fighterPlayerNo = g_ftManager->getPlayerNo(fighterIn->m_entryId);
-        if (fighterPlayerNo < 0x8)
+        if (fighterPlayerNo < 0x4 && enabledForPlayer(fighterPlayerNo))
         {
             // ... and if so, grab the Fighter's status module.
             soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleAccesser->m_enumerationStart->m_statusModule;
@@ -84,8 +103,23 @@ namespace lavaIASAOverlay {
         }
     }
 
+    bool populate()
+    {
+        bool result = codeMenu::loadCodeMenuAddonLOCsToBuffer(addonShortName, indexBuffer, lid__COUNT);
+        if (result)
+        {
+            OSReport_N("%sSuccessfully Loaded Addon Index File to Buffer 0x%08X!\n", outputTag, indexBuffer);
+        }
+        else
+        {
+            OSReport_N("%sFailed to Load Addon Index File to Buffer!\n", outputTag);
+        }
+        return result;
+    }
     void Init()
     {
+        // Populate Code Menu Buffer
+        populate();
         // 0x8077F150 lands 0x8C bytes into symbol "checkTransition/[soStatusModuleImpl]/so_status_module_imp" @ 0x8077F0C4
         SyringeCompat::syInlineHookRel(0x7473C, reinterpret_cast<void*>(applyRelevantFlash), Modules::SORA_MELEE);
     }
