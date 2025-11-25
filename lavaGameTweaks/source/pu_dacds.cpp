@@ -27,10 +27,11 @@ namespace puDACDS
             if (currStatus == Fighter::Status_Attack_Dash)
             {
                 soTransitionModule* transitionModule = statusModule->m_transitionModule;
-                if (currFrame <= 3.0f)
+                if (currFrame <= 3.0f || moduleAccesser->m_enumerationStart->m_collisionAttackModule->isInflictStatus())
                 {
                     transitionModule->enableTermGroup(Fighter::Status_Transition_Group_Chk_Ground_Attack);
                     transitionModule->unableTermAll(Fighter::Status_Transition_Group_Chk_Ground_Attack);
+                    transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Hi4_Start, Fighter::Status_Transition_Group_Chk_Ground_Attack);
                     transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Lw4_Start, Fighter::Status_Transition_Group_Chk_Ground_Attack);
                 }
                 else
