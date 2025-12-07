@@ -5,6 +5,8 @@ namespace puDACDS
     char outputTag[] = "[DACDS] ";
     const u32 momentumVar = 0x21000005;
     const u32 dacusFlagVar = 0x22000020;
+    const float inputWindowFrameLength = 3.0f;
+    const bool gatlingsCountForDACUS = true;
 
     u8 prevUpdateActionWasDashAttack = 0x00;
 
@@ -27,7 +29,7 @@ namespace puDACDS
             if (currStatus == Fighter::Status_Attack_Dash)
             {
                 soTransitionModule* transitionModule = statusModule->m_transitionModule;
-                if (currFrame <= 3.0f || moduleAccesser->m_enumerationStart->m_collisionAttackModule->isInflictStatus())
+                if (currFrame <= inputWindowFrameLength || moduleAccesser->m_enumerationStart->m_collisionAttackModule->isInflictStatus())
                 {
                     transitionModule->enableTermGroup(Fighter::Status_Transition_Group_Chk_Ground_Attack);
                     transitionModule->unableTermAll(Fighter::Status_Transition_Group_Chk_Ground_Attack);
@@ -49,7 +51,7 @@ namespace puDACDS
             }
 
             prevUpdateActionWasDashAttackTemp &= ~playerBit;
-            if (currStatus == Fighter::Status_Attack_Dash)
+            if (currStatus == Fighter::Status_Attack_Dash && (gatlingsCountForDACUS || currFrame < inputWindowFrameLength))
             {
                 prevUpdateActionWasDashAttackTemp |= playerBit;
             }
