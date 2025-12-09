@@ -51,7 +51,7 @@ namespace puDACDS
             }
 
             prevUpdateActionWasDashAttackTemp &= ~playerBit;
-            if (currStatus == Fighter::Status_Attack_Dash && (gatlingsCountForDACUS || currFrame < inputWindowFrameLength))
+            if (currStatus == Fighter::Status_Attack_Dash && (workManageModule->isFlag(dacusFlagVar) || currFrame < inputWindowFrameLength))
             {
                 prevUpdateActionWasDashAttackTemp |= playerBit;
             }
