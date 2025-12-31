@@ -42,7 +42,7 @@ namespace lavaGameTweaks
         puDACDS::registerHooks();
         //transitionListener::registerHooks();
 
-        meleeFreeze::registerHooks();
+        //meleeFreeze::registerHooks();
         //reflectOnHit::registerHooks();
     }
 
