@@ -27,22 +27,7 @@ namespace puDACDS
             u32 playerBit = 1 << fighterPlayerNo;
             u32 prevUpdateActionWasDashAttackTemp = prevUpdateActionWasDashAttack;
 
-            if (currStatus == Fighter::Status_Cliff_Climb || currStatus == Fighter::Status_Cliff_Escape)
-            {
-                soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
-                u32 currAnim = motionModule->getKind();
-                if (currAnim == Fighter::Motion_Cliff_Climb_Slow)
-                {
-                    motionChangeRequest.m_kind = Fighter::Motion_Cliff_Climb_Quick;
-                    motionModule->changeMotion(&motionChangeRequest);
-                }
-                else if (currAnim == Fighter::Motion_Cliff_Escape_Slow)
-                {
-                    motionChangeRequest.m_kind = Fighter::Motion_Cliff_Escape_Quick;
-                    motionModule->changeMotion(&motionChangeRequest);
-                }
-            }
-            else if (currStatus == Fighter::Status_Attack_Dash)
+            if (currStatus == Fighter::Status_Attack_Dash)
             {
                 soTransitionModule* transitionModule = statusModule->m_transitionModule;
                 if (currFrame <= inputWindowFrameLength || moduleAccesser->m_enumerationStart->m_collisionAttackModule->isInflictStatus())
