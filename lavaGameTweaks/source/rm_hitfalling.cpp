@@ -7,7 +7,6 @@ namespace rmHitfalling
 {
     char outputTag[] = "[RM_Hitfalling] ";
 
-    const float babyDashMinSpeed = 1.666f;
     void onUpdateCallback(Fighter* fighterIn)
     {
         // If we're in a valid port and have Hitfalling enabled...
