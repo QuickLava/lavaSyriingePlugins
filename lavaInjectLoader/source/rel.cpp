@@ -1,55 +1,20 @@
 #include <gf/gf_file_io_request.h>
 #include <gf/gf_memory_pool.h>
-#include <syWrapper.h>
+#include <sy_compat.h>
 
 #include "injectLoader.h"
 
 namespace Syringe
 {
-    const PluginMeta META = {
-        "lavaInjectLoader",
-        "QuickLava",
-        Version("0.6.6"),
-        Version(SYRINGE_VERSION)};
+    SY_COMPAT_EXTERN_C_BLOCK;
 
-    extern "C"
-    {
-        typedef void (*PFN_voidfunc)();
-        __attribute__((section(".ctors"))) extern PFN_voidfunc _ctors[];
-        __attribute__((section(".ctors"))) extern PFN_voidfunc _dtors[];
+    SY_COMPAT_PLG_META("lavaInjectLoader", "QuickLava", "0.7.0", SYRINGE_VERSION);
 
-        const PluginMeta *_prolog(CoreApi* api);
-        void _epilog();
-        void _unresolved();
-    }
+    SY_COMPAT_PROLOG_FN(lavaInjectLoader::Init);
+    
+    SY_COMPAT_MAIN_FN(lavaInjectLoader::Init);
 
-    const PluginMeta *_prolog(CoreApi* api)
-    {
-        // Run global constructors
-        PFN_voidfunc *ctor;
-        for (ctor = _ctors; *ctor; ctor++)
-        {
-            (*ctor)();
-        }
+    SY_COMPAT_EPILOG_FN;
 
-        SYCOMPAT_REGISTER_API(api);
-        lavaInjectLoader::Init();
-
-        return &META;
-    }
-
-    void _epilog()
-    {
-        // run the global destructors
-        PFN_voidfunc *dtor;
-        for (dtor = _dtors; *dtor; dtor++)
-        {
-            (*dtor)();
-        }
-    }
-
-    void _unresolved(void)
-    {
-    }
-
+    SY_COMPAT_UNRESOLVED_FN;
 }
