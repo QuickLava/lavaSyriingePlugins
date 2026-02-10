@@ -1,12 +1,12 @@
 #include <modules.h>
-#include <syWrapper.h>
+#include <sy_compat.h>
 #include <logUtils.h>
 #include <ft/ft_manager.h>
 #include <_cmAddonInterface.h>
 #include "IASAOverlay.h"
 
 namespace lavaIASAOverlay {
-    const char outputTag[] = "IASAOverlay";
+    const char outputTag[] = "[IASAOverlay] ";
     const char addonShortName[] = "IASAOVER";
     enum _lineIDs
     {
