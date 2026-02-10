@@ -47,21 +47,19 @@ namespace SyringeCompat
     }
     void sySimpleHook(const u32 address, const void* replacement)
     {
-        g_API->addHookEx(address, replacement, SyringeCore::OPT_ORIG_PRE | SyringeCore::OPT_SAVE_REGS | SyringeCore::OPT_NO_RETURN);
+        g_API->addHookEx(address, replacement, SyringeCore::OPT_DIRECT);
     }
     void sySimpleHookRel(const u32 offset, const void* replacement, int moduleId)
     {
-        g_API->addHookEx(offset, replacement, SyringeCore::OPT_ORIG_PRE | SyringeCore::OPT_SAVE_REGS | SyringeCore::OPT_NO_RETURN, moduleId);
+        g_API->addHookEx(offset, replacement, SyringeCore::OPT_DIRECT, moduleId);
     }
     void syReplaceFunc(const u32 address, const void* replacement, void** original)
     {
-        SyringeCore::Hook* hook = g_API->addHookEx(address, replacement, SyringeCore::OPT_DIRECT);
-        hook->getTrampoline(original);
+        g_API->addHookEx(address, replacement, SyringeCore::OPT_DIRECT)->getTrampoline(original);
     }
     void syReplaceFuncRel(const u32 offset, const void* replacement, void** original, int moduleId)
     {
-        SyringeCore::Hook* hook = g_API->addHookEx(offset, replacement, SyringeCore::OPT_DIRECT, moduleId);
-        hook->getTrampoline(original);
+        g_API->addHookEx(offset, replacement, SyringeCore::OPT_DIRECT, moduleId)->getTrampoline(original);
     }
 
     namespace ModuleLoadEvent
