@@ -1,5 +1,5 @@
 #include <os/OSError.h>
-#include <syWrapper.h>
+#include <sy_compat.h>
 #include <OS/OSCache.h>
 #include <modules.h>
 #include <st/stage.h>
