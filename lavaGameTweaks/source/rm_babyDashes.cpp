@@ -19,7 +19,7 @@ namespace rmBabyDashes
 
             u32 currStatus = statusModule->getStatusKind();
 
-            if (currStatus == Fighter::Status_Dash)
+            if (currStatus == Fighter::Status::Dash)
             {
                 if (moduleAccesser->m_enumerationStart->m_motionModule->getFrame() < 3.0f)
                 {
@@ -29,7 +29,7 @@ namespace rmBabyDashes
                     if (stickXAbs < 0.2f && stickYAbs < 0.2f)
                     {
                         soKineticModule* kineticModule = moduleAccesser->m_enumerationStart->m_kineticModule;
-                        statusModule->changeStatus(Fighter::Status_Wait, moduleAccesser);
+                        statusModule->changeStatus(Fighter::Status::Wait, moduleAccesser);
                         kineticModule->clearSpeedAll();
                         float targetXSpeed = ftValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Dash_Speed, 0);
                         if (targetXSpeed < babyDashMinSpeed)

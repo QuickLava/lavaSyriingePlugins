@@ -100,7 +100,7 @@ namespace rmWalljumpTweaks
                     const u32 termCount = termVecPtr->size();
                     for (u32 i = 0; i < termCount; i++)
                     {
-                        if (termVecPtr->at(i).m_element.m_targetKind == Fighter::Status_Fall_Special)
+                        if (termVecPtr->at(i).m_element.m_targetKind == Fighter::Status::Fall_Special)
                         {
                             transitionIntoSpecialFallTemp |= playerBit;
                             OSReport_N("%sAction Transitions into Special Fall!\n", outputTag);
@@ -120,7 +120,7 @@ namespace rmWalljumpTweaks
         walljumpSituation currWalljumpSituation = decideWalljumpSituation(fighterIn);
         soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
         if (currWalljumpSituation != wt_NONE
-            && moduleAccesser->m_enumerationStart->m_statusModule->isEnableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Wall_Jump))
+            && moduleAccesser->m_enumerationStart->m_statusModule->isEnableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Wall_Jump))
         {
             soModuleEnumeration* moduleEnum = moduleAccesser->m_enumerationStart;
             // Set finalDir based on the direction reported by the validation function.
@@ -141,7 +141,7 @@ namespace rmWalljumpTweaks
                     soPostureModule* postureModule = moduleEnum->m_postureModule;
                     postureModule->setLr(finalDir);
                     // ... and perform the Wall Jump!
-                    moduleEnum->m_statusModule->changeStatusRequest(Fighter::Status_Wall_Jump, moduleAccesser);
+                    moduleEnum->m_statusModule->changeStatusRequest(Fighter::Status::Wall_Jump, moduleAccesser);
                 }
             }
         }
@@ -180,7 +180,7 @@ namespace rmWalljumpTweaks
                 if (currWalljumpSituation == wt_INVALID)
                 {
                     // ... then disable the transition entirely.
-                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Wall_Jump);
+                    statusModule->unableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Wall_Jump);
                 }
                 // Otherwise, do our normal checks.
                 else
@@ -189,13 +189,13 @@ namespace rmWalljumpTweaks
                     if (walljumpNativeTemp & playerBit)
                     {
                         // ... enable walljumping.
-                        statusModule->enableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Wall_Jump);
+                        statusModule->enableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Wall_Jump);
                     }
                     // If Walljump out of Special(Fall) is enabled...
                     else if (mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_WALLJUMP_FROM_SPECIAL))
                     {
                         // ... check if we're currently in a special without the walljump flag set.
-                        if (currStatus > Fighter::Status_Test_Motion && (specialWalljumpTemp & playerBit) == 0)
+                        if (currStatus > Fighter::Status::Test_Motion && (specialWalljumpTemp & playerBit) == 0)
                         {
                             // If so, check the current state to see if we should enable the flag.
                             if (perPlayerFlags[pf_TransitionsIntoSpecialFall] & playerBit)
@@ -206,7 +206,7 @@ namespace rmWalljumpTweaks
                                 {
                                     // ... and if so, turn the flag on and enable walljumping!
                                     specialWalljumpTemp |= playerBit;
-                                    statusModule->enableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Wall_Jump);
+                                    statusModule->enableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Wall_Jump);
                                     OSReport_N("%s[P%d] Walljump out of Special End!\n", outputTag, fighterPlayerNo);
                                 }
                             }
@@ -237,7 +237,7 @@ namespace rmWalljumpTweaks
 
             // Update the native walljump cancel flag for the current action.
             walljumpNativeTemp &= ~playerBit;
-            walljumpNativeTemp |= statusModule->isEnableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Wall_Jump) << fighterPlayerNo;
+            walljumpNativeTemp |= statusModule->isEnableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Wall_Jump) << fighterPlayerNo;
 
             // If we're in the air...
             u32 currStatus = statusModule->getStatusKind();
@@ -248,14 +248,14 @@ namespace rmWalljumpTweaks
                 if (mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_WALLJUMP_FROM_SPECIAL))
                 {
                     // ... check if we're transitioning into a special...
-                    if (currStatus > Fighter::Status_Test_Motion)
+                    if (currStatus > Fighter::Status::Test_Motion)
                     {
                         // ... while the walljump flag is enabled, and if so...
                         if (specialWalljumpTemp & playerBit)
                         {
                             // ... enable walljumping in the new action, and signal that it's allowed!
                             OSReport_N("%sSpecialWalljumpOn\n", outputTag);
-                            statusModule->enableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Wall_Jump);
+                            statusModule->enableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Wall_Jump);
                         }
                     }
                     // Otherwise, if the action we're transitioning into isn't a special...
@@ -264,10 +264,10 @@ namespace rmWalljumpTweaks
                         // ... turn off the specials walljump flag.
                         specialWalljumpTemp &= ~playerBit;
                         // Additionally, check if we're transitioning into Special Fall.
-                        if (currStatus == Fighter::Status_Fall_Special)
+                        if (currStatus == Fighter::Status::Fall_Special)
                         {
                             // If so, enable that transition group.
-                            statusModule->enableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Wall_Jump);
+                            statusModule->enableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Wall_Jump);
                         }
                     }
                 }
@@ -275,7 +275,7 @@ namespace rmWalljumpTweaks
                 if (mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_WALLJUMP_SAME_DIR_RESTRICTION))
                 {
                     // ... check if we've just entered the Walljump status...
-                    if (currStatus == Fighter::Status_Wall_Jump)
+                    if (currStatus == Fighter::Status::Wall_Jump)
                     {
                         perPlayerPrevWalljump[fighterPlayerNo] = (moduleAccesser->m_enumerationStart->m_postureModule->getLr() > 0.0f) ? wt_RIGHT : wt_LEFT;
                     }
@@ -290,7 +290,7 @@ namespace rmWalljumpTweaks
                     if (decideWalljumpSituation(fighterIn) <= wt_NONE)
                     {
                         // ... then disable the transition group.
-                        statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Wall_Jump);
+                        statusModule->unableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Wall_Jump);
                     }
                 }
 

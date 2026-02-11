@@ -82,7 +82,7 @@ namespace rocketBurst
             {
                 framesSinceBurstArr[fighterPlayerNo] = ++framesSinceBurst;
             }
-            if (framesSinceBurst == 0x01 && (currStatus == Fighter::Status_Item_Screw_Fall || currStatus == Fighter::Status_Pass))
+            if (framesSinceBurst == 0x01 && (currStatus == Fighter::Status::Item_Screw_Fall || currStatus == Fighter::Status::Pass))
             {
                 float chargeAmount = chargeArr[fighterPlayerNo];
                 float graphicSize = (chargeAmount * hitboxGFXSizeChargeDiff) + hitboxGFXSizeBase;
@@ -105,11 +105,11 @@ namespace rocketBurst
             }
             else
             {
-                if (curled || statusModule->isEnableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Attack))
+                if (curled || statusModule->isEnableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Attack))
                 {
                     currStatusCurlCost = 0x0;
                 }
-                else if (currStatus == Fighter::Status_Fall_Special || currStatus == Fighter::Status_Damage_Fly || currStatus == Fighter::Status_Damage_Fly_Roll)
+                else if (currStatus == Fighter::Status::Fall_Special || currStatus == Fighter::Status::Damage_Fly || currStatus == Fighter::Status::Damage_Fly_Roll)
                 {
                     currStatusCurlCost = 0x1;
                 }
@@ -129,11 +129,11 @@ namespace rocketBurst
                         -meterStockSize * currStatusCurlCost, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
 
                     workManageModule->setInt(0x1, Fighter::Instance_Work_Int_No_Tread_Frame);
-                    statusModule->changeStatus(Fighter::Status_Item_Screw_Fall, moduleAccesser);
-                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Attack);
-                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Special);
-                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Escape);
-                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Jump_Aerial);
+                    statusModule->changeStatus(Fighter::Status::Item_Screw_Fall, moduleAccesser);
+                    statusModule->unableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Attack);
+                    statusModule->unableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Special);
+                    statusModule->unableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Escape);
+                    statusModule->unableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Jump_Aerial);
                     workManageModule->onFlag(curledVar);
                     chargeAmount = 0.0f;
                 }
@@ -152,7 +152,7 @@ namespace rocketBurst
                         float yBoostValue = 0.0f;
                         if (controllerModule->getStickY() >= 0.0f)
                         {
-                            targetStatus = Fighter::Status_Item_Screw_Fall;
+                            targetStatus = Fighter::Status::Item_Screw_Fall;
                             yBoostValue = soValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Jump_Speed_Y, 0);
                             float airJumpMult = soValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Jump_Aerial_Speed_Y, 0);
                             airJumpMult = MAX(airJumpMult, 0.75f);
@@ -160,7 +160,7 @@ namespace rocketBurst
                         }
                         else
                         {
-                            targetStatus = Fighter::Status_Pass;
+                            targetStatus = Fighter::Status::Pass;
                             yBoostValue = -soValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Dive_Speed_Y, 0);
                         }
                         float xBoostValue = soValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Jump_Aerial_Speed_X_Mul, 0);

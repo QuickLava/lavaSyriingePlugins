@@ -85,11 +85,11 @@ namespace mechUtil
     }
     bool isAttackingStatusKind(u32 statusKind)
     {
-        return (statusKind >= Fighter::Status_Attack && statusKind <= Fighter::Status_Attack_Air) || (statusKind >= 0x112 && statusKind != 0x116);
+        return (statusKind >= Fighter::Status::Attack && statusKind <= Fighter::Status::Attack_Air) || (statusKind >= 0x112 && statusKind != 0x116);
     }
     bool isDamageStatusKind(u32 statusKind)
     {
-        return (statusKind >= Fighter::Status_Damage && statusKind <= Fighter::Status_Damage_Fly_Roll);
+        return (statusKind >= Fighter::Status::Damage && statusKind <= Fighter::Status::Damage_Fly_Roll);
     }
     void initDefaultHitboxData(soCollisionAttackData* attackDataIn)
     {

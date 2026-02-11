@@ -20,20 +20,20 @@ namespace lavaIASAOverlay {
     u32 indexBuffer[lid__COUNT];
 
     const u8 groupsToCheck[] = {
-        Fighter::Status_Transition_Group_Chk_Ground_Special,
-        Fighter::Status_Transition_Group_Chk_Ground_Attack,
-        Fighter::Status_Transition_Group_Chk_Ground_Guard,
-        Fighter::Status_Transition_Group_Chk_Ground_Jump,
-        Fighter::Status_Transition_Group_Chk_Air_Special,
-        Fighter::Status_Transition_Group_Chk_Air_Escape,
-        Fighter::Status_Transition_Group_Chk_Air_Attack,
-        Fighter::Status_Transition_Group_Chk_Air_Jump_Aerial,
+        Fighter::Status::Transition::Group_Chk_Ground_Special,
+        Fighter::Status::Transition::Group_Chk_Ground_Attack,
+        Fighter::Status::Transition::Group_Chk_Ground_Guard,
+        Fighter::Status::Transition::Group_Chk_Ground_Jump,
+        Fighter::Status::Transition::Group_Chk_Air_Special,
+        Fighter::Status::Transition::Group_Chk_Air_Escape,
+        Fighter::Status::Transition::Group_Chk_Air_Attack,
+        Fighter::Status::Transition::Group_Chk_Air_Jump_Aerial,
     };
     const u8 hardcodedActionable[] = {
-        Fighter::Status_Down_Wait,
-        Fighter::Status_Cliff_Wait,
-        Fighter::Status_Air_Lasso_Hang,
-        Fighter::Status_Slip_Wait,
+        Fighter::Status::Down_Wait,
+        Fighter::Status::Cliff_Wait,
+        Fighter::Status::Air_Lasso_Hang,
+        Fighter::Status::Slip_Wait,
     };
 
     bool enabledForPlayer(u32 playerNo)
@@ -64,7 +64,7 @@ namespace lavaIASAOverlay {
             // Grab the current status...
             u32 currStatus = statusModule->getStatusKind();
             // ... and if we're in one of the basic grounded movement actions, just skip to avoid tinting on those actions.
-            if (currStatus >= Fighter::Status_Walk && currStatus <= Fighter::Status_Turn_Run_Brake) return;
+            if (currStatus >= Fighter::Status::Walk && currStatus <= Fighter::Status::Turn_Run_Brake) return;
 
             // Initialize our variable for recording if we're actionable.
             bool actionable = 0;
@@ -86,13 +86,13 @@ namespace lavaIASAOverlay {
                 // ... we're going to apply our overlay! Initiate the color just to pure Green.
                 GXColor flashRGBA = { 0x00, 0xFF, 0x00, 0xC0 };
                 // If we're in one of the normal attacking actions...
-                if ((Fighter::Status_Attack <= currStatus && currStatus <= Fighter::Status_Attack_Air) || Fighter::Status_Test_Motion < currStatus)
+                if ((Fighter::Status::Attack <= currStatus && currStatus <= Fighter::Status::Attack_Air) || Fighter::Status::Test_Motion < currStatus)
                 {
                     // ... then max the Red channel, so the color becomes Yellow while actionable out of an attack (eg. in IASA).
                     flashRGBA.r |= 0xFF;
                 }
                 // If alternatively we're in a damage action...
-                else if (Fighter::Status_Damage <= currStatus && currStatus <= Fighter::Status_Down)
+                else if (Fighter::Status::Damage <= currStatus && currStatus <= Fighter::Status::Down)
                 {
                     // ... instead max the Blue channel, so the color becomes Teal while actionable out of knockback.
                     flashRGBA.b |= 0xFF;

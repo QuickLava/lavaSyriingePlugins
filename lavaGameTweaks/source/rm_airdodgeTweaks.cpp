@@ -34,7 +34,7 @@ namespace rmAirdodgeTweaks
             u32 currStatus = statusModule->getStatusKind();
 
             // If Horizontal Wavedashing is enabled, and we're currently Air Dodging...
-            if (mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_HORI_WAVEDASH) && currStatus == Fighter::Status_Escape_Air)
+            if (mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_HORI_WAVEDASH) && currStatus == Fighter::Status::Escape_Air)
             {
                 // ... verify that we're past the we're at least 25% of the way through the animation.
                 if (mechUtil::currAnimProgress(fighterIn) <= 0.25)
@@ -69,7 +69,7 @@ namespace rmAirdodgeTweaks
                 // Grab the flags byte from storage, since we need to be able to track this across multiple frames.
                 u32 dodgeBufferedTemp = perPlayerFlags[pf_DodgeBuffered];
                 // If we're currently in jumpsquat...
-                if (currStatus == Fighter::Status_Jump_Squat)
+                if (currStatus == Fighter::Status::Jump_Squat)
                 {
                     // ... and a guard button (not Z, specifically) was triggered this frame...
                     ipPadButton buttonTrigger = moduleAccesser->m_enumerationStart->m_controllerModule->getTrigger();
@@ -82,7 +82,7 @@ namespace rmAirdodgeTweaks
                     if (mechUtil::currAnimProgress(fighterIn) == 1.0f && dodgeBufferedTemp & playerBit)
                     {
                         // ... transition immediately into airdodge...
-                        statusModule->changeStatusRequest(Fighter::Status_Escape_Air, moduleAccesser);
+                        statusModule->changeStatusRequest(Fighter::Status::Escape_Air, moduleAccesser);
                         // ... and unset this port's buffer flag.
                         dodgeBufferedTemp &= ~playerBit;
                     }
@@ -104,7 +104,7 @@ namespace rmAirdodgeTweaks
                 u32 dodgeSpentTemp = perPlayerFlags[pf_DodgeSpent];
 
                 // If we're currently in air dodge...
-                if (currStatus == Fighter::Status_Escape_Air)
+                if (currStatus == Fighter::Status::Escape_Air)
                 {
                     // ... grab the P+ airdodge momentum timer.
                     int airdodgeTimer = workManageModule->getInt(airdodgeTimerVar);
@@ -134,16 +134,16 @@ namespace rmAirdodgeTweaks
                         soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
                         soMotionChangeParam changeParam = { motionModule->getKind(), motionModule->getFrame(), 1.0f };
                         // Perform the status change...
-                        statusModule->changeStatus(Fighter::Status_Fall_Aerial, moduleAccesser);
+                        statusModule->changeStatus(Fighter::Status::Fall_Aerial, moduleAccesser);
                         // ... then restore the previous animation state.
                         motionModule->changeMotionRequest(&changeParam);
                     }
                 }
                 // Otherwise, if we're in tumble...
-                else if (currStatus == Fighter::Status_Damage_Fall)
+                else if (currStatus == Fighter::Status::Damage_Fall)
                 {
                     // ... enable air dodge!
-                    statusModule->enableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Escape);
+                    statusModule->enableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Escape);
                 }
                 // Lastly, if we're in the air...
                 u32 currSituation = moduleAccesser->m_enumerationStart->m_situationModule->getKind();
@@ -162,7 +162,7 @@ namespace rmAirdodgeTweaks
                         if (dodgeSpentTemp & playerBit)
                         {
                             // ... then enforce that we're not allowed to airdodge by disabling the transition.
-                            statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Escape);
+                            statusModule->unableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Escape);
                         }
                     }
                 }
