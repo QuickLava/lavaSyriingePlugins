@@ -15,10 +15,41 @@
 
 #if SY_COMPAT_TARGET_VER == SY_VER_050
 
+enum stackElement
+{
+    se__PrevStackFrame = 0x00,
+    se__ReservedLinkRegBackup,
+    se_Reg3, se_Reg4, se_Reg5, se_Reg6,
+    se_Reg7, se_Reg8, se_Reg9, se_Reg10,
+    se_Reg11, se_Reg12, se_Reg13, se_Reg14,
+    se_Reg15, se_Reg16, se_Reg17, se_Reg18,
+    se_Reg19, se_Reg20, se_Reg21, se_Reg22,
+    se_Reg23, se_Reg24, se_Reg25, se_Reg26,
+    se_Reg27, se_Reg28, se_Reg29, se_Reg30,
+    se_Reg31,
+    se__ElementCount
+};
+
 #elif SY_COMPAT_TARGET_VER == SY_VER_060
 #include <sy_core_060/include/plugin.h>
 typedef CoreApi* syApiPtr_t;
 extern syApiPtr_t g_API;
+
+enum stackElement
+{
+    se__PrevStackFrame = 0x00,
+    se__ReservedLinkRegBackup,
+    se_Reg0,
+    se_Reg3, se_Reg4, se_Reg5, se_Reg6,
+    se_Reg7, se_Reg8, se_Reg9, se_Reg10,
+    se_Reg11, se_Reg12, se_Reg13, se_Reg14,
+    se_Reg15, se_Reg16, se_Reg17, se_Reg18,
+    se_Reg19, se_Reg20, se_Reg21, se_Reg22,
+    se_Reg23, se_Reg24, se_Reg25, se_Reg26,
+    se_Reg27, se_Reg28, se_Reg29, se_Reg30,
+    se_Reg31,
+    se__ElementCount
+};
 
 // Creates extern "C" block.
 #define SY_COMPAT_EXTERN_C_BLOCK  extern "C" {                       \
@@ -40,6 +71,22 @@ extern syApiPtr_t g_API;
 #include <sy_core_070/include/sy_core.hpp>
 typedef Plugin* syApiPtr_t;
 extern syApiPtr_t g_API;
+
+enum stackElement
+{
+    se__PrevStackFrame = 0x00,
+    se__ReservedLinkRegBackup,
+    se_Reg0,
+    se_Reg3, se_Reg4, se_Reg5, se_Reg6,
+    se_Reg7, se_Reg8, se_Reg9, se_Reg10,
+    se_Reg11, se_Reg12, se_Reg13, se_Reg14,
+    se_Reg15, se_Reg16, se_Reg17, se_Reg18,
+    se_Reg19, se_Reg20, se_Reg21, se_Reg22,
+    se_Reg23, se_Reg24, se_Reg25, se_Reg26,
+    se_Reg27, se_Reg28, se_Reg29, se_Reg30,
+    se_Reg31,
+    se__ElementCount
+};
 
 // Creates extern "C" block.
 #define SY_COMPAT_EXTERN_C_BLOCK extern "C" {                                                   \
@@ -68,8 +115,10 @@ extern syApiPtr_t g_API;
 // Cross-version compatible API wrapper.
 namespace SyringeCompat
 {
+#define STACK_ELEMENT_OFFSET(SyCompat_stackElement) SyCompat_stackElement * 4
+
     /**
-     * @brief Injects a hook at the target address. [via syWrapper.h]
+     * @brief Injects a hook at the target address. [via sy_compat.h]
      * @note Hooks injected via this function WILL automatically return execution to the original function.
      *
      * @param address address to inject our hook at
@@ -77,7 +126,7 @@ namespace SyringeCompat
      */
     void syInlineHook(const u32 address, const void* replacement);
     /**
-     * @brief Injects an inline hook into a dynamically loaded module on load. [via syWrapper.h]
+     * @brief Injects an inline hook into a dynamically loaded module on load. [via sy_compat.h]
      * @note Hooks injected via this function WILL automatically return execution to the original function.
      *
      * @param offset offset inside the module's .text section to insert the hook
@@ -86,7 +135,7 @@ namespace SyringeCompat
      */
     void syInlineHookRel(const u32 offset, const void* replacement, int moduleId);
     /**
-     * @brief Injects a simple hook at the target address. [via syWrapper.h]
+     * @brief Injects a simple hook at the target address. [via sy_compat.h]
      * @note Hooks injected through this function WILL NOT automatically branch back to the original after returning.
      *
      * @param address address to inject the hook at
@@ -94,7 +143,7 @@ namespace SyringeCompat
      */
     void sySimpleHook(const u32 address, const void* replacement);
     /**
-     * @brief Injects a simple hook into a dynamically loaded module on load. [via syWrapper.h]
+     * @brief Injects a simple hook into a dynamically loaded module on load. [via sy_compat.h]
      * @note Hooks injected through this function WILL NOT automatically branch back to the original after returning.
      *
      * @param offset offset inside the module's .text section to insert the hook
@@ -103,7 +152,7 @@ namespace SyringeCompat
      */
     void sySimpleHookRel(const u32 offset, const void* replacement, int moduleId);
     /**
-     * @brief Replaces the function at the target address with the function pointed to by "replacement". [via syWrapper.h]
+     * @brief Replaces the function at the target address with the function pointed to by "replacement". [via sy_compat.h]
      * @note Replacement functions will not automatically call or return to the original function.
      * To call the original function, use the parameter "original"
      *
@@ -113,7 +162,7 @@ namespace SyringeCompat
      */
     void syReplaceFunc(const u32 address, const void* replacement, void** original);
     /**
-     * @brief Replaces a function inside of a dynamically loaded module on load. [via syWrapper.h]
+     * @brief Replaces a function inside of a dynamically loaded module on load. [via sy_compat.h]
      * @note Replacement functions will not automatically call or return to the original function.
      * To call the original function, use the parameter "original"
      *
