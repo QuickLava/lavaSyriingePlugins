@@ -175,13 +175,8 @@ namespace lavaInjectLoader {
         }
     }
 
-    void onModuleLoad(gfModuleInfo* moduleIn)
-    {
-        OSReport_N("%sModule \"%s\" Loaded!\n", outputTag, &moduleIn->m_moduleName);
-    }
     void Init()
     {
-        SyringeCompat::ModuleLoadEvent::Subscribe(onModuleLoad);
         SyringeCompat::syInlineHook(0x800177A8, reinterpret_cast<void*>(prepareGCT));
         SyringeCompat::syInlineHookRel(0x145190, reinterpret_cast<void*>(doFighterInjectLoads), Modules::SORA_MELEE); //0x8084FBA4
     }
