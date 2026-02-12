@@ -123,7 +123,7 @@ namespace rmAirdodgeTweaks
                     {
                         // ... nulify our our gravity, so we get that Rivals-like hang in the air.
                         Vec3f gravityMultiplier(0.0f, 0.0f, 0.0f);
-                        moduleAccesser->m_enumerationStart->m_kineticModule->getEnergy(Fighter::Kinetic_Energy_Id_Gravity)->mulAccel(&gravityMultiplier);
+                        moduleAccesser->m_enumerationStart->m_kineticModule->getEnergy(Fighter::Kinetic::Energy::Id_Gravity)->mulAccel(&gravityMultiplier);
                     }
                     // Otherwise...
                     else

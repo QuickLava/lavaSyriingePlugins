@@ -13,7 +13,7 @@
 #include <so/collision/so_collision_attack_module_impl.h>
 
 #include "logUtils.h"
-#include <syWrapper.h>
+#include <sy_compat.h>
 
 namespace fighterHooks
 {

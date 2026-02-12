@@ -64,7 +64,7 @@ namespace rmWalljumpTweaks
                 if (!situationValid)
                 {
                     // ... then report that we're within the lockout still!
-                    OSReport_N("%sDirection Restriction Active: Situation %d -> %d\N", outputTag, prevWalljumpSituation, currWalljumpSituation);
+                    OSReport_N("%sDirection Restriction Active: Situation %d -> %d\n", outputTag, prevWalljumpSituation, currWalljumpSituation);
                 }
             }
 
@@ -74,14 +74,14 @@ namespace rmWalljumpTweaks
                 // ... we need to also check how many frames it's been since we dropped from ledge.
                 u32 framesSinceLedgeGrab =
                     ftValueAccesser::getConstantInt(moduleAccesser, ftValueAccesser::Common_Param_Int_Cliff_No_Catch_Frame, 0)
-                    - moduleAccesser->m_enumerationStart->m_workManageModule->getInt(Fighter::Instance_Work_Int_Cliff_No_Catch_Frame);
+                    - moduleAccesser->m_enumerationStart->m_workManageModule->getInt(Fighter::Instance::Work::Int_Cliff_No_Catch_Frame);
                 // Our situation is valid if we're out of the lockout window.
                 situationValid = framesSinceLedgeGrab >= 8;
                 // If it's invalid...
                 if (!situationValid)
                 {
                     // ... then report that we're within the lockout stil!
-                    OSReport_N("Lockout Active\N", outputTag);
+                    OSReport_N("Lockout Active\n", outputTag);
                 }
             }
 

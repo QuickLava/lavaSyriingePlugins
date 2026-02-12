@@ -128,7 +128,7 @@ namespace rocketBurst
                     OSReport_N(meterChangeStr, outputTag, fighterHooks::getFighterPlayerNo(fighterIn), "Curl Init",
                         -meterStockSize * currStatusCurlCost, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
 
-                    workManageModule->setInt(0x1, Fighter::Instance_Work_Int_No_Tread_Frame);
+                    workManageModule->setInt(0x1, Fighter::Instance::Work::Int_No_Tread_Frame);
                     statusModule->changeStatus(Fighter::Status::Item_Screw_Fall, moduleAccesser);
                     statusModule->unableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Attack);
                     statusModule->unableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Special);
@@ -145,8 +145,8 @@ namespace rocketBurst
                         || ((pressed.m_mask & mechUtil::allTauntPadMask) == 0x00))
                     {
                         soKineticModule* kineticModule = moduleAccesser->m_enumerationStart->m_kineticModule;
-                        kineticModule->getEnergy(Fighter::Kinetic_Energy_Id_Gravity)->clearSpeed();
-                        kineticModule->getEnergy(Fighter::Kinetic_Energy_Id_Damage)->mulSpeed(&curlKnockbackMul);
+                        kineticModule->getEnergy(Fighter::Kinetic::Energy::Id_Gravity)->clearSpeed();
+                        kineticModule->getEnergy(Fighter::Kinetic::Energy::Id_Damage)->mulSpeed(&curlKnockbackMul);
 
                         u32 targetStatus;
                         float yBoostValue = 0.0f;
@@ -169,7 +169,7 @@ namespace rocketBurst
 
                         statusModule->changeStatus(targetStatus, moduleAccesser);
                         Vec3f boostVec(xBoostValue, yBoostValue, 0.0f);
-                        workManageModule->onFlag(Fighter::Instance_Work_Flag_No_Speed_Operation_Chk);
+                        workManageModule->onFlag(Fighter::Instance::Work::Flag_No_Speed_Operation_Chk);
                         if (!mechUtil::isDamageStatusKind(statusModule->getPrevStatusKind(0)))
                         {
                             kineticModule->clearSpeedAll();

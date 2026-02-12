@@ -116,7 +116,7 @@ namespace slimeCancels
                     targetStopModule->setHitStopFrame(targetHitstop, 0);
                     targetWorkManageModule->onFlag(beenFrozenVar);
 
-                    soKineticEnergy* kbEnergy = currFighter->m_moduleAccesser->getKineticModule().getEnergy(Fighter::Kinetic_Energy_Id_Damage);
+                    soKineticEnergy* kbEnergy = currFighter->m_moduleAccesser->getKineticModule().getEnergy(Fighter::Kinetic::Energy::Id_Damage);
                     kbEnergy->mulSpeed(&onCancelStopKBMult);
                 }
 
@@ -128,7 +128,7 @@ namespace slimeCancels
                 }
                 else
                 {
-                    workManageModule->setInt(0x1, Fighter::Instance_Work_Int_No_Tread_Frame);
+                    workManageModule->setInt(0x1, Fighter::Instance::Work::Int_No_Tread_Frame);
                     statusModule->changeStatusForce(Fighter::Status::Fall_Aerial, fighterIn->m_moduleAccesser);
                 }
 
