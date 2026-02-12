@@ -1,5 +1,5 @@
 #include <cstdlib>
-#include <syWrapper.h>
+#include <sy_compat.h>
 #include <modules.h>
 #include <ft/fighter.h>
 #include <so/so_module_accesser.h>
