@@ -1,8 +1,6 @@
 #pragma once
 
 #include <gf/gf_module.h>
-#include <printf.h>
-#include <sscanf.h>
 #include <stddef.h>
 #include <types.h>
 
