@@ -6,15 +6,22 @@
 #include <sr/sr_common.h>
 #include <gf/gf_module.h>
 #include <cstdlib>
+#include <stdio.h>
 #include "logUtils.h"
 
-#define SY_VER_050 0
-#define SY_VER_060 1
-#define SY_VER_070 2
-#define SY_COMPAT_TARGET_VER SY_VER_070
+#define SY_VER_053 053
+#define SY_VER_055 055
+#define SY_VER_060 060
+#define SY_VER_070 070
+#define SY_COMPAT_TARGET_VER SY_VER_053
 
-#if SY_COMPAT_TARGET_VER == SY_VER_050
-
+#if SY_COMPAT_TARGET_VER <= SY_VER_055
+#if SY_COMPAT_TARGET_VER == SY_VER_053
+#include <sy_core_053/include/plugin.h>
+#endif
+#if SY_COMPAT_TARGET_VER == SY_VER_055
+#include <sy_core_055/include/plugin.h>
+#endif
 enum stackElement
 {
     se__PrevStackFrame = 0x00,
@@ -29,6 +36,20 @@ enum stackElement
     se_Reg31,
     se__ElementCount
 };
+
+// Creates extern "C" block.
+#define SY_COMPAT_EXTERN_C_BLOCK  extern "C" {                       \
+    typedef void (*PFN_voidfunc)();                                  \
+    __attribute__((section(".ctors"))) extern PFN_voidfunc _ctors[]; \
+    __attribute__((section(".ctors"))) extern PFN_voidfunc _dtors[]; \
+    const PluginMeta* _prolog(); void _epilog(); void _unresolved(); }
+// Creates PluginMeta META object.
+#define SY_COMPAT_PLG_META(pluginName, author, version, syVersion) const PluginMeta META = { pluginName, author, Version(version), Version(syVersion) };   
+// Run Global Constructors and (on Syriinge API 0.7.0) runs provided entry function.
+#define SY_COMPAT_PROLOG_FN(entryFn) const PluginMeta* _prolog() \
+{ for (PFN_voidfunc* ctor = _ctors; *ctor; ctor++) { (*ctor)(); } entryFn(); return &META; }
+// On Syriinge API 0.7.0, runs the passed in function. On 0.6.0, does nothing.
+#define SY_COMPAT_MAIN_FN(entryFn) void main(void) { }
 
 #elif SY_COMPAT_TARGET_VER == SY_VER_060
 #include <sy_core_060/include/plugin.h>

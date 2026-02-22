@@ -1,9 +1,41 @@
 #include "sy_compat.h"
 
-syApiPtr_t g_API;
 namespace SyringeCompat
 {
-#if SY_COMPAT_TARGET_VER == SY_VER_060
+#if SY_COMPAT_TARGET_VER <= SY_VER_055
+    void syInlineHook(const u32 address, const void* replacement)
+    {
+        SyringeCore::syInlineHook(address, replacement);
+    }
+    void syInlineHookRel(const u32 offset, const void* replacement, int moduleId)
+    {
+        SyringeCore::syInlineHookRel(offset, replacement, moduleId);
+    }
+    void sySimpleHook(const u32 address, const void* replacement)
+    {
+        SyringeCore::sySimpleHook(address, replacement);
+    }
+    void sySimpleHookRel(const u32 offset, const void* replacement, int moduleId)
+    {
+        SyringeCore::sySimpleHookRel(offset, replacement, moduleId);
+    }
+    void syReplaceFunc(const u32 address, const void* replacement, void** original)
+    {
+        SyringeCore::syReplaceFunc(address, replacement, original);
+    }
+    void syReplaceFuncRel(const u32 offset, const void* replacement, void** original, int moduleId)
+    {
+        SyringeCore::syReplaceFuncRel(offset, replacement, original, moduleId);
+    }
+    namespace ModuleLoadEvent
+    {
+        inline void Subscribe(ModuleLoadCB cb)
+        {
+            SyringeCore::ModuleLoadEvent::Subscribe(cb);
+        }
+    }
+#elif SY_COMPAT_TARGET_VER == SY_VER_060
+    syApiPtr_t g_API;
     void syInlineHook(const u32 address, const void* replacement)
     {
         g_API->syInlineHook(address, replacement);
@@ -37,6 +69,7 @@ namespace SyringeCompat
         }
     }
 #elif SY_COMPAT_TARGET_VER == SY_VER_070
+    syApiPtr_t g_API;
     void syInlineHook(const u32 address, const void* replacement)
     {
         g_API->addHookEx(address, replacement, SyringeCore::OPT_ORIG_PRE | SyringeCore::OPT_SAVE_REGS );

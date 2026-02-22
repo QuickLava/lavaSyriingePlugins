@@ -87,7 +87,7 @@ export HFILES := $(addsuffix .h,$(subst .,_,$(BINFILES)))
 
 # For REL linking
 export LDFILES		:= $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.ld)))
-export MAPFILE		:= $(LIB)/BrawlHeaders/RSBE01.lst $(TOPDIR)/EXTRA.lst
+export MAPFILE		:= $(LIB)/BrawlHeaders/RSBE01.lst $(TOPDIR)/EXTRA.lst $(LIB)/sy_core_053/sy_core.lst $(LIB)/sy_core_055/sy_core.lst
 export LCF			:= $(TOPDIR)/rel.lcf
 
 #---------------------------------------------------------------------------------
@@ -105,6 +105,8 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 			-I$(LIB)/BrawlHeaders/OpenRVL/include/stl \
 			-I$(LIB)/BrawlHeaders/std/Include \
 			-I$(LIB)/BrawlHeaders/utils/include \
+			-I$(LIB)/sy_core_053/include \
+			-I$(LIB)/sy_core_055/include \
 			-I$(LIB)/sy_core_060/include \
 			-I$(LIB)/sy_core_070/include \
 			-I$(LIB)/ \
