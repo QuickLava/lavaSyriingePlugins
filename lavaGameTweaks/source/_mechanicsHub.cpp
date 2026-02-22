@@ -1,11 +1,15 @@
 #include "_mechanicsHub.h"
 
+#define MECH_HUB_FORCE_ENABLE_ALL 1
+
 namespace mechHub
 {
     u32 indexBuffer[lid__COUNT] = {};
 
     char outputTag[] = "[mechHub] ";
     const char addonShortName[] = "MECH_HUB";
+
+#if MECH_HUB_FORCE_ENABLE_ALL == 0
 
     const u32 maxMechanicCount = amid__COUNT + pmid__COUNT;
     u8 mechanicEnabledMasks[maxMechanicCount + 1] = {};
@@ -166,7 +170,6 @@ namespace mechHub
     {
         fighterHooks::ftCallbackMgr::registerCallbackBundle(&callbacks);
     }
-
     bool getMechanicEnabled(u32 playerNo, u32 mechanicID, u8* maskArray)
     {
         return (*mechanicsDisabledMask == 0x00) ? getFlagForPlayer(maskArray[mechanicID], playerNo) : false;
@@ -207,4 +210,13 @@ namespace mechHub
             bl getMechanicEnabled;
         }
     }
+#else
+    bool populate() { return 1; }
+    void registerHooks() { }
+    bool getMechanicEnabled(u32 playerNo, u32 mechanicID, u8* maskArray) { return 1; }
+    bool getActiveMechanicEnabled(u32 playerNo, activeMechanicIDs mechanicID) { return 1; }
+    bool getPassiveMechanicEnabled(u32 playerNo, passiveMechanicIDs mechanicID) { return 1; }
+    bool getActiveMechanicEnabledDiff(u32 playerNo, activeMechanicIDs mechanicID) { return 0; }
+    bool getPassiveMechanicEnabledDiff(u32 playerNo, passiveMechanicIDs mechanicID) { return 0; }
+#endif
 }
