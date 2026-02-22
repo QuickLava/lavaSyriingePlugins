@@ -137,6 +137,11 @@ namespace rmAirdodgeTweaks
                         statusModule->changeStatus(Fighter::Status::Fall_Aerial, moduleAccesser);
                         // ... then restore the previous animation state.
                         motionModule->changeMotionRequest(&changeParam);
+                        // Set backwards and forwards secondary animation indexes to their Fall_Special versions!
+                        // Note: This is normally set in ftStatusUniqProcessFall's initStatus, we need to override it cuz we're faking the anim.
+                        //  Don't need to actually do the tweening ourselves though, since that's handled in the associated execStatus function.
+                        workManageModule->setInt(Fighter::Motion::Fall_Special_B, 0x20000001);
+                        workManageModule->setInt(Fighter::Motion::Fall_Special_F, 0x20000000);
                     }
                 }
                 // Otherwise, if we're in tumble...
