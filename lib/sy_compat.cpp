@@ -1,8 +1,8 @@
 #include "sy_compat.h"
 
+#if SY_COMPAT_TARGET_VER <= SY_VER_055
 namespace SyringeCompat
 {
-#if SY_COMPAT_TARGET_VER <= SY_VER_055
     void syInlineHook(const u32 address, const void* replacement)
     {
         SyringeCore::syInlineHook(address, replacement);
@@ -34,8 +34,11 @@ namespace SyringeCompat
             SyringeCore::ModuleLoadEvent::Subscribe(cb);
         }
     }
+}
 #elif SY_COMPAT_TARGET_VER == SY_VER_060
-    syApiPtr_t g_API;
+CoreApi* g_API;
+namespace SyringeCompat
+{
     void syInlineHook(const u32 address, const void* replacement)
     {
         g_API->syInlineHook(address, replacement);
@@ -68,31 +71,34 @@ namespace SyringeCompat
             g_API->moduleLoadEventSubscribe(cb);
         }
     }
+}
 #elif SY_COMPAT_TARGET_VER == SY_VER_070
-    syApiPtr_t g_API;
+Plugin* g_PLG;
+namespace SyringeCompat
+{
     void syInlineHook(const u32 address, const void* replacement)
     {
-        g_API->addHookEx(address, replacement, SyringeCore::OPT_ORIG_PRE | SyringeCore::OPT_SAVE_REGS );
+        g_PLG->addHookEx(address, replacement, SyringeCore::OPT_ORIG_PRE | SyringeCore::OPT_SAVE_REGS);
     }
     void syInlineHookRel(const u32 offset, const void* replacement, int moduleId)
     {
-        g_API->addHookEx(offset, replacement, SyringeCore::OPT_ORIG_PRE | SyringeCore::OPT_SAVE_REGS, moduleId);
+        g_PLG->addHookEx(offset, replacement, SyringeCore::OPT_ORIG_PRE | SyringeCore::OPT_SAVE_REGS, moduleId);
     }
     void sySimpleHook(const u32 address, const void* replacement)
     {
-        g_API->addHookEx(address, replacement, SyringeCore::OPT_DIRECT);
+        g_PLG->addHookEx(address, replacement, SyringeCore::OPT_DIRECT);
     }
     void sySimpleHookRel(const u32 offset, const void* replacement, int moduleId)
     {
-        g_API->addHookEx(offset, replacement, SyringeCore::OPT_DIRECT, moduleId);
+        g_PLG->addHookEx(offset, replacement, SyringeCore::OPT_DIRECT, moduleId);
     }
     void syReplaceFunc(const u32 address, const void* replacement, void** original)
     {
-        g_API->addHookEx(address, replacement, SyringeCore::OPT_DIRECT)->getTrampoline(original);
+        g_PLG->addHookEx(address, replacement, SyringeCore::OPT_DIRECT)->getTrampoline(original);
     }
     void syReplaceFuncRel(const u32 offset, const void* replacement, void** original, int moduleId)
     {
-        g_API->addHookEx(offset, replacement, SyringeCore::OPT_DIRECT, moduleId)->getTrampoline(original);
+        g_PLG->addHookEx(offset, replacement, SyringeCore::OPT_DIRECT, moduleId)->getTrampoline(original);
     }
 
     namespace ModuleLoadEvent
@@ -106,7 +112,7 @@ namespace SyringeCompat
         {
             if (registeredCallback == NULL)
             {
-                g_API->addEventHandler(Event::ModuleLoad, (SyringeCore::EventHandlerFN)moduleLoadEventHandler);
+                g_PLG->addEventHandler(Event::ModuleLoad, (SyringeCore::EventHandlerFN)moduleLoadEventHandler);
             }
             else
             {
@@ -115,5 +121,5 @@ namespace SyringeCompat
             registeredCallback = cb;
         }
     }
-#endif
 }
+#endif

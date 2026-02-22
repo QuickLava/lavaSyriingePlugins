@@ -52,9 +52,8 @@ enum stackElement
 #define SY_COMPAT_MAIN_FN(entryFn) void main(void) { }
 
 #elif SY_COMPAT_TARGET_VER == SY_VER_060
-#include <sy_core_060/include/plugin.h>
-typedef CoreApi* syApiPtr_t;
-extern syApiPtr_t g_API;
+#include <sy_core_060/include/sy_core.h>
+extern CoreApi* g_API;
 
 enum stackElement
 {
@@ -77,11 +76,11 @@ enum stackElement
     typedef void (*PFN_voidfunc)();                                  \
     __attribute__((section(".ctors"))) extern PFN_voidfunc _ctors[]; \
     __attribute__((section(".ctors"))) extern PFN_voidfunc _dtors[]; \
-    const PluginMeta* _prolog(syApiPtr_t api); void _epilog(); void _unresolved(); }
+    const PluginMeta* _prolog(CoreApi* api); void _epilog(); void _unresolved(); }
 // Creates PluginMeta META object.
 #define SY_COMPAT_PLG_META(pluginName, author, version, syVersion) const PluginMeta META = { pluginName, author, Version(version), Version(syVersion) };   
 // Run Global Constructors and (on Syriinge API 0.7.0) runs provided entry function.
-#define SY_COMPAT_PROLOG_FN(entryFn) const PluginMeta* _prolog(syApiPtr_t api) \
+#define SY_COMPAT_PROLOG_FN(entryFn) const PluginMeta* _prolog(CoreApi* api) \
 { for (PFN_voidfunc* ctor = _ctors; *ctor; ctor++) { (*ctor)(); } g_API = api; entryFn(); return &META; }
 // On Syriinge API 0.7.0, runs the passed in function. On 0.6.0, does nothing.
 #define SY_COMPAT_MAIN_FN(entryFn) void main(void) { }
@@ -90,8 +89,7 @@ enum stackElement
 #include <sy_core_070/include/hook.hpp>
 #include <sy_core_070/include/plugin.hpp>
 #include <sy_core_070/include/sy_core.hpp>
-typedef Plugin* syApiPtr_t;
-extern syApiPtr_t g_API;
+extern Plugin* g_PLG;
 
 enum stackElement
 {
@@ -114,7 +112,7 @@ enum stackElement
     typedef void (*PFN_voidfunc)();                                                             \
     __attribute__((section(".ctors"))) extern PFN_voidfunc _ctors[];                            \
     __attribute__((section(".ctors"))) extern PFN_voidfunc _dtors[];                            \
-    const PluginMeta* _prolog(); void _epilog(); void _unresolved(); void main(syApiPtr_t api); \
+    const PluginMeta* _prolog(); void _epilog(); void _unresolved(); void main(Plugin* plg); \
 }
 // Creates PluginMeta META object.
 #define SY_COMPAT_PLG_META(pluginName, author, version, syVersion) const PluginMeta META = {  \
@@ -125,7 +123,7 @@ enum stackElement
 #define SY_COMPAT_PROLOG_FN(entryFn) const PluginMeta* _prolog() \
 { for (PFN_voidfunc* ctor = _ctors; *ctor; ctor++) { (*ctor)(); } return &META; }
 // On Syriinge API 0.7.0, runs the passed in function. On 0.6.0, does nothing.
-#define SY_COMPAT_MAIN_FN(entryFn) void main(syApiPtr_t api) { g_API = api; entryFn(); }
+#define SY_COMPAT_MAIN_FN(entryFn) void main(Plugin* plg) { g_PLG = plg; entryFn(); }
 #endif
 
 // Runs Global Destructors!
