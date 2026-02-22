@@ -120,8 +120,8 @@ namespace lavaIASAOverlay {
     {
         // Populate Code Menu Buffer
         populate();
-        // 0x8077F150 lands 0x8C bytes into symbol "checkTransition/[soStatusModuleImpl]/so_status_module_imp" @ 0x8077F0C4
-        SyringeCompat::syInlineHookRel(0x7473C, reinterpret_cast<void*>(applyRelevantFlash), Modules::SORA_MELEE);
+        // 0x8077F158 lands 0x94 bytes into symbol "checkTransition/[soStatusModuleImpl]/so_status_module_imp" @ 0x8077F0C4
+        SyringeCompat::syInlineHookRel(0x74744, reinterpret_cast<void*>(applyRelevantFlash), Modules::SORA_MELEE);
     }
 
     void Destroy(){}
