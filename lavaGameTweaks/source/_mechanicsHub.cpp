@@ -1,6 +1,6 @@
 #include "_mechanicsHub.h"
 
-#define MECH_HUB_FORCE_ENABLE_ALL 1
+#define MECH_HUB_FORCE_ENABLE_ALL 0
 
 namespace mechHub
 {
