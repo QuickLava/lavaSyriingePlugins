@@ -78,14 +78,6 @@ namespace rmAirdodgeTweaks
                         // ... then flag that we've buffered an airdodge.
                         dodgeBufferedTemp |= playerBit;
                     }
-                    // Then on the final frame of jumpsquat, if we've buffered an airdodge...
-                    if (mechUtil::currAnimProgress(fighterIn) == 1.0f && dodgeBufferedTemp & playerBit)
-                    {
-                        // ... transition immediately into airdodge...
-                        statusModule->changeStatusRequest(Fighter::Status::Escape_Air, moduleAccesser);
-                        // ... and unset this port's buffer flag.
-                        dodgeBufferedTemp &= ~playerBit;
-                    }
                 }
                 // Otherwise, if we're not in jumpsquat...
                 else
@@ -183,10 +175,31 @@ namespace rmAirdodgeTweaks
         }
     }
 
+    u32 transitionOverrideCallback(Fighter* fighterIn, int transitionTermIDIn, u32 targetActionIn)
+    {
+        u32 result = targetActionIn;
+        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
+        if (fighterPlayerNo < fighterHooks::maxFighterCount && mechHub::getPassiveMechanicEnabled(fighterPlayerNo, mechHub::pmid_SQUAT_DODGE))
+        {
+            // Grab the flags byte from storage...
+            u32 dodgeBufferedTemp = perPlayerFlags[pf_DodgeBuffered];
+            // ... and if we're trying to transition to jump via Misc Group interrupt term, and we did buffer...
+            if (targetActionIn == Fighter::Status::Jump && transitionTermIDIn == -1 && (dodgeBufferedTemp & (1 << fighterPlayerNo)))
+            {
+                // ... override transition to go immediately into airdodge...
+                result = Fighter::Status::Escape_Air;
+                // ... and log that the buffer was triggered!
+                OSReport_N("%sAirdodge Buffer Activated!\n", outputTag);
+            }
+        }
+        return result;
+    }
+
 #pragma c99 on
     fighterHooks::callbackBundle callbacks =
     {
         .m_FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
+        .m_TransitionOverrideCB = (fighterHooks::TransitionTermEventCB)transitionOverrideCallback
     };
 #pragma c99 off
 
