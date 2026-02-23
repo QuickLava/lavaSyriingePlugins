@@ -11,6 +11,10 @@ namespace rmAirdodgeTweaks
     // Distance from which we're allowed to snap to the ground when airdodging.
     const float attachDistance = 5.0f;
     Vec3f searchVector = Vec3f(0.0f, -attachDistance, 0.0f);
+    // Duration of reduced gravity period following airdodge.
+    const int reducedGravityLen = 0x8;
+    // Multiplier on gravity during recovery period of airdodge.
+    Vec3f gravityMultiplier(0.10f, 0.10f, 0.10f);
 
     enum playerFlags
     {
@@ -110,11 +114,10 @@ namespace rmAirdodgeTweaks
                     }
                     // Commit that change to the actual variable so it sticks around into the next frame.
                     workManageModule->setInt(airdodgeTimer, airdodgeTimerVar);
-                    // As long as we're less than 10 frames past the end of the normal phase...
-                    if (airdodgeTimer > -0x0A)
+                    // As long as we're within our reduced gravity period past the end of the normal phase...
+                    if (airdodgeTimer > -reducedGravityLen)
                     {
-                        // ... nulify our our gravity, so we get that Rivals-like hang in the air.
-                        Vec3f gravityMultiplier(0.0f, 0.0f, 0.0f);
+                        // ... scale our our gravity, so we get that Rivals-like hang in the air.
                         moduleAccesser->m_enumerationStart->m_kineticModule->getEnergy(Fighter::Kinetic::Energy::Id_Gravity)->mulAccel(&gravityMultiplier);
                     }
                     // Otherwise...
