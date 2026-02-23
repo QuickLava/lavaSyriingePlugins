@@ -8,7 +8,7 @@ namespace Syringe
 {
     SY_COMPAT_EXTERN_C_BLOCK;
 
-    SY_COMPAT_PLG_META("lavaGameTweaks", "QuickLava", "0.7.5", SYRINGE_VERSION);
+    SY_COMPAT_PLG_META("lavaGameTweaks", "QuickLava", "0.7.6", SYRINGE_VERSION);
 
     SY_COMPAT_PROLOG_FN(lavaGameTweaks::Init);
 
