@@ -23,7 +23,7 @@ namespace rmShieldTweaks
             switch (currStatus)
             {
                 // ... and if we're currently in shield...
-                case Fighter::Status_Guard_On: case Fighter::Status_Guard: case Fighter::Status_Guard_Damage:
+                case Fighter::Status::Guard_On: case Fighter::Status::Guard: case Fighter::Status::Guard_Damage:
                 {
                     // ... fetch the shield's radius...
                     float shieldRadius = ftValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Shield_Radius, 0);
@@ -52,17 +52,17 @@ namespace rmShieldTweaks
             switch (statusModule->getStatusKind())
             {
                 // If they're in the Shield Break Stun state (FuraFura)...
-                case Fighter::Status_FuraFura:
+                case Fighter::Status::FuraFura:
                 {
                     // ... force them into FuraFuraEnd instead!
-                    statusModule->changeStatus(Fighter::Status_FuraFura_End, moduleAccesser);
+                    statusModule->changeStatus(Fighter::Status::FuraFura_End, moduleAccesser);
                     break;
                 }
                 // If they're in FuraFuraEnd though...
-                case Fighter::Status_FuraFura_End:
+                case Fighter::Status::FuraFura_End:
                 {
                     // ... disable their grounded interrupts to force them through the full duration!
-                    for (u32 i = Fighter::Status_Transition_Group_Chk_Ground_Special; i <= Fighter::Status_Transition_Group_Chk_Ground; i++)
+                    for (u32 i = Fighter::Status::Transition::Group_Chk_Ground_Special; i <= Fighter::Status::Transition::Group_Chk_Ground; i++)
                     {
                         statusModule->unableTransitionTermGroup(i);
                     }

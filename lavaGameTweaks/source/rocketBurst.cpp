@@ -82,7 +82,7 @@ namespace rocketBurst
             {
                 framesSinceBurstArr[fighterPlayerNo] = ++framesSinceBurst;
             }
-            if (framesSinceBurst == 0x01 && (currStatus == Fighter::Status_Item_Screw_Fall || currStatus == Fighter::Status_Pass))
+            if (framesSinceBurst == 0x01 && (currStatus == Fighter::Status::Item_Screw_Fall || currStatus == Fighter::Status::Pass))
             {
                 float chargeAmount = chargeArr[fighterPlayerNo];
                 float graphicSize = (chargeAmount * hitboxGFXSizeChargeDiff) + hitboxGFXSizeBase;
@@ -105,11 +105,11 @@ namespace rocketBurst
             }
             else
             {
-                if (curled || statusModule->isEnableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Attack))
+                if (curled || statusModule->isEnableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Attack))
                 {
                     currStatusCurlCost = 0x0;
                 }
-                else if (currStatus == Fighter::Status_Fall_Special || currStatus == Fighter::Status_Damage_Fly || currStatus == Fighter::Status_Damage_Fly_Roll)
+                else if (currStatus == Fighter::Status::Fall_Special || currStatus == Fighter::Status::Damage_Fly || currStatus == Fighter::Status::Damage_Fly_Roll)
                 {
                     currStatusCurlCost = 0x1;
                 }
@@ -128,12 +128,12 @@ namespace rocketBurst
                     OSReport_N(meterChangeStr, outputTag, fighterHooks::getFighterPlayerNo(fighterIn), "Curl Init",
                         -meterStockSize * currStatusCurlCost, targetMeterBundle->getMeterStocks(), targetMeterBundle->getMeterStockRemainder());
 
-                    workManageModule->setInt(0x1, Fighter::Instance_Work_Int_No_Tread_Frame);
-                    statusModule->changeStatus(Fighter::Status_Item_Screw_Fall, moduleAccesser);
-                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Attack);
-                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Special);
-                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Escape);
-                    statusModule->unableTransitionTermGroup(Fighter::Status_Transition_Group_Chk_Air_Jump_Aerial);
+                    workManageModule->setInt(0x1, Fighter::Instance::Work::Int_No_Tread_Frame);
+                    statusModule->changeStatus(Fighter::Status::Item_Screw_Fall, moduleAccesser);
+                    statusModule->unableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Attack);
+                    statusModule->unableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Special);
+                    statusModule->unableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Escape);
+                    statusModule->unableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Jump_Aerial);
                     workManageModule->onFlag(curledVar);
                     chargeAmount = 0.0f;
                 }
@@ -145,14 +145,14 @@ namespace rocketBurst
                         || ((pressed.m_mask & mechUtil::allTauntPadMask) == 0x00))
                     {
                         soKineticModule* kineticModule = moduleAccesser->m_enumerationStart->m_kineticModule;
-                        kineticModule->getEnergy(Fighter::Kinetic_Energy_Id_Gravity)->clearSpeed();
-                        kineticModule->getEnergy(Fighter::Kinetic_Energy_Id_Damage)->mulSpeed(&curlKnockbackMul);
+                        kineticModule->getEnergy(Fighter::Kinetic::Energy::Id_Gravity)->clearSpeed();
+                        kineticModule->getEnergy(Fighter::Kinetic::Energy::Id_Damage)->mulSpeed(&curlKnockbackMul);
 
                         u32 targetStatus;
                         float yBoostValue = 0.0f;
                         if (controllerModule->getStickY() >= 0.0f)
                         {
-                            targetStatus = Fighter::Status_Item_Screw_Fall;
+                            targetStatus = Fighter::Status::Item_Screw_Fall;
                             yBoostValue = soValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Jump_Speed_Y, 0);
                             float airJumpMult = soValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Jump_Aerial_Speed_Y, 0);
                             airJumpMult = MAX(airJumpMult, 0.75f);
@@ -160,7 +160,7 @@ namespace rocketBurst
                         }
                         else
                         {
-                            targetStatus = Fighter::Status_Pass;
+                            targetStatus = Fighter::Status::Pass;
                             yBoostValue = -soValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Dive_Speed_Y, 0);
                         }
                         float xBoostValue = soValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Customize_Param_Float_Jump_Aerial_Speed_X_Mul, 0);
@@ -169,7 +169,7 @@ namespace rocketBurst
 
                         statusModule->changeStatus(targetStatus, moduleAccesser);
                         Vec3f boostVec(xBoostValue, yBoostValue, 0.0f);
-                        workManageModule->onFlag(Fighter::Instance_Work_Flag_No_Speed_Operation_Chk);
+                        workManageModule->onFlag(Fighter::Instance::Work::Flag_No_Speed_Operation_Chk);
                         if (!mechUtil::isDamageStatusKind(statusModule->getPrevStatusKind(0)))
                         {
                             kineticModule->clearSpeedAll();

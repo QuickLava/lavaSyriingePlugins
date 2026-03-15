@@ -54,22 +54,22 @@ namespace finalSmashMeter
     asm void disableSmashBallDropHook()
     {
         nofralloc
-        mflr r31;                     // Backup LR in a non-volatile register!
-                                      // Call main function body!
-        mr r3, r27;                   // Copy Fighter* into r3...
-        mr r4, r26;                   // ... and the calc'd comparison value into r4,
-        bl disableSmashBallDrop;      // ... and call!
-        cmplwi r3, 0x01;              // Check if we returned 0x1...
-        bne+ allowDrop;               // ... and if not, we're allowed to drop the Smash ball, so skip the following.
-        lmw r3, R3_STACK_BAK_OFF(r1); // Otherwise though, skip the drop! Restore our backups from the Trampoline stackframe...
-        lwz r1, 0x00(r1);             // ... then deallocate the stack frame.
-        lis r12, 0x8084;              // \ 
-        ori r12, r12, 0x16FC;         // | 
-        mtctr r12;                    // | And finally, jump past the item creation section.
-        bctr;                         // /
+        mflr r31;                                   // Backup LR in a non-volatile register!
+                                                    // Call main function body!
+        mr r3, r27;                                 // Copy Fighter* into r3...
+        mr r4, r26;                                 // ... and the calc'd comparison value into r4,
+        bl disableSmashBallDrop;                    // ... and call!
+        cmplwi r3, 0x01;                            // Check if we returned 0x1...
+        bne+ allowDrop;                             // ... and if not, we're allowed to drop the Smash ball, so skip the following.
+        lmw r3, STACK_ELEMENT_OFFSET(se_Reg03)(r1); // Otherwise though, skip the drop! Restore our backups from the Trampoline stackframe...
+        lwz r1, 0x00(r1);                           // ... then deallocate the stack frame.
+        lis r12, 0x8084;                            // \ 
+        ori r12, r12, 0x16FC;                       // | 
+        mtctr r12;                                  // | And finally, jump past the item creation section.
+        bctr;                                       // /
     allowDrop:
-        mtlr r31;                     // Restore LR...
-        blr;                          // ... and return!
+        mtlr r31;                                   // Restore LR...
+        blr;                                        // ... and return!
     }
 
 #pragma c99 on

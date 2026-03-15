@@ -20,11 +20,11 @@ namespace focusAttacks
     void enableDashCancel(soStatusModuleImpl* statusModuleIn)
     {
         soTransitionModule* transitionModule = statusModuleIn->m_transitionModule;
-        transitionModule->enableTermGroup(Fighter::Status_Transition_Group_Chk_Ground);
-        transitionModule->unableTermAll(Fighter::Status_Transition_Group_Chk_Ground);
-        transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Dash, Fighter::Status_Transition_Group_Chk_Ground);
-        transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Turn_Dash, Fighter::Status_Transition_Group_Chk_Ground);
-        transitionModule->unableTermGroup(Fighter::Status_Transition_Group_Chk_Ground_Escape);
+        transitionModule->enableTermGroup(Fighter::Status::Transition::Group_Chk_Ground);
+        transitionModule->unableTermAll(Fighter::Status::Transition::Group_Chk_Ground);
+        transitionModule->enableTerm(Fighter::Status::Transition::Term_Cont_Dash, Fighter::Status::Transition::Group_Chk_Ground);
+        transitionModule->enableTerm(Fighter::Status::Transition::Term_Cont_Turn_Dash, Fighter::Status::Transition::Group_Chk_Ground);
+        transitionModule->unableTermGroup(Fighter::Status::Transition::Group_Chk_Ground_Escape);
     }
     smashAttackState classifySmashAttackState(u32 statusIn)
     {
@@ -32,9 +32,9 @@ namespace focusAttacks
 
         switch (statusIn)
         {
-            case Fighter::Status_Attack_Hi4_Start: case Fighter::Status_Attack_S4_Start: case Fighter::Status_Attack_Lw4_Start: { result = sas_START; break; }
-            case Fighter::Status_Attack_Hi4_Hold: case Fighter::Status_Attack_S4_Hold: case Fighter::Status_Attack_Lw4_Hold: { result = sas_CHARGE; break; }
-            case Fighter::Status_Attack_Hi4: case Fighter::Status_Attack_S4: case Fighter::Status_Attack_Lw4: { result = sas_ATTACK; break; }
+            case Fighter::Status::Attack_Hi4_Start: case Fighter::Status::Attack_S4_Start: case Fighter::Status::Attack_Lw4_Start: { result = sas_START; break; }
+            case Fighter::Status::Attack_Hi4_Hold: case Fighter::Status::Attack_S4_Hold: case Fighter::Status::Attack_Lw4_Hold: { result = sas_CHARGE; break; }
+            case Fighter::Status::Attack_Hi4: case Fighter::Status::Attack_S4: case Fighter::Status::Attack_Lw4: { result = sas_ATTACK; break; }
         }
 
         return result;
@@ -54,7 +54,7 @@ namespace focusAttacks
                 soStatusModule* statusModule = moduleEnum->m_statusModule;
                 if (moduleEnum->m_situationModule->getKind() == 0 && damage >= 5.0f)
                 {
-                    statusModule->changeStatus(Fighter::Status_Down_Spot, target->m_moduleAccesser);
+                    statusModule->changeStatus(Fighter::Status::Down_Spot, target->m_moduleAccesser);
                     moduleEnum->m_damageModule->sleep(1);
                     moduleEnum->m_damageModule->addDamage(damage, 0);
                     moduleEnum->m_collisionHitModule->setCheckCatch(1, 0);
@@ -99,7 +99,7 @@ namespace focusAttacks
             smashAttackState smashState = classifySmashAttackState(currStatus);
             if (smashState == sas_NONE)
             {
-                if (currStatus == Fighter::Status_Down_Spot)
+                if (currStatus == Fighter::Status::Down_Spot)
                 {
                     if (workManageModule->isFlag(crumpled))
                     {

@@ -46,8 +46,8 @@ LD 			:= $(TOOLS)/MWCC4_2/mwldeppc.exe
 ELF2REL		:= $(TOOLS)/elf2rel.exe
 
 
-CCFLAGS		:= -Cpp_exceptions off -c -proc gekko -nostdinc -O4,s -inline auto -fp hard -u _prolog -u _epilog -u _unresolved -enum int -sdata 0 -sdata2 0 -func_align 4
-CXXFLAGS	:= -lang=c++ $(CCFLAGS)
+CCFLAGS		:= -lang=c99 -Cpp_exceptions off -c -proc gekko -nostdinc -O4,s -inline auto -fp hard -u _prolog -u _epilog -u _unresolved -enum int -sdata 0 -sdata2 0 -func_align 4
+CXXFLAGS	:= -lang=c++ -cwd include $(CCFLAGS)
 LDFLAGS		:= -lcf $(LCF) -r1 -fp hard -m _prolog -g -strip_partial
 
 #---------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ export HFILES := $(addsuffix .h,$(subst .,_,$(BINFILES)))
 
 # For REL linking
 export LDFILES		:= $(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.ld)))
-export MAPFILE		:= $(LIB)/BrawlHeaders/RSBE01.lst $(LIB)/sy_core/sy_core.lst $(TOPDIR)/EXTRA.lst
+export MAPFILE		:= $(LIB)/BrawlHeaders/RSBE01.lst $(TOPDIR)/EXTRA.lst $(LIB)/sy_core_053/sy_core.lst $(LIB)/sy_core_055/sy_core.lst
 export LCF			:= $(TOPDIR)/rel.lcf
 
 #---------------------------------------------------------------------------------
@@ -105,7 +105,6 @@ export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 			-I$(LIB)/BrawlHeaders/OpenRVL/include/stl \
 			-I$(LIB)/BrawlHeaders/std/Include \
 			-I$(LIB)/BrawlHeaders/utils/include \
-			-I$(LIB)/sy_core/include \
 			-I$(LIB)/ \
 
 #---------------------------------------------------------------------------------

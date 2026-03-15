@@ -116,7 +116,7 @@ namespace slimeCancels
                     targetStopModule->setHitStopFrame(targetHitstop, 0);
                     targetWorkManageModule->onFlag(beenFrozenVar);
 
-                    soKineticEnergy* kbEnergy = currFighter->m_moduleAccesser->getKineticModule().getEnergy(Fighter::Kinetic_Energy_Id_Damage);
+                    soKineticEnergy* kbEnergy = currFighter->m_moduleAccesser->getKineticModule().getEnergy(Fighter::Kinetic::Energy::Id_Damage);
                     kbEnergy->mulSpeed(&onCancelStopKBMult);
                 }
 
@@ -124,12 +124,12 @@ namespace slimeCancels
                 controllerPtr->m_trigger &= ~mechUtil::allTauntPadMask;
                 if (moduleEnum->m_situationModule->getKind() == 0x00)
                 {
-                    statusModule->changeStatusForce(Fighter::Status_Wait, fighterIn->m_moduleAccesser);
+                    statusModule->changeStatusForce(Fighter::Status::Wait, fighterIn->m_moduleAccesser);
                 }
                 else
                 {
-                    workManageModule->setInt(0x1, Fighter::Instance_Work_Int_No_Tread_Frame);
-                    statusModule->changeStatusForce(Fighter::Status_Fall_Aerial, fighterIn->m_moduleAccesser);
+                    workManageModule->setInt(0x1, Fighter::Instance::Work::Int_No_Tread_Frame);
+                    statusModule->changeStatusForce(Fighter::Status::Fall_Aerial, fighterIn->m_moduleAccesser);
                 }
 
                 OSReport_N(meterChangeStr, outputTag, fighterHooks::getFighterPlayerNo(fighterIn), "Slime Cancel", 

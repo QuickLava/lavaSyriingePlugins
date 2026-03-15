@@ -1,5 +1,5 @@
+#include <sy_compat.h>
 #include <os/OSError.h>
-#include <syWrapper.h>
 #include <OS/OSCache.h>
 #include <revolution/FA.h>
 #include <gf/gf_scene.h>

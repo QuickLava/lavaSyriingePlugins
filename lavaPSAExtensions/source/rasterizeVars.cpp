@@ -1,4 +1,4 @@
-#include <syWrapper.h>
+#include <sy_compat.h>
 #include <modules.h>
 #include <ac/ac_anim_cmd_impl.h>
 #include <so/anim/so_anim_cmd.h>

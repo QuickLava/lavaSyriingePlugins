@@ -54,7 +54,14 @@ namespace transitionListener
                                 {
                                     case AnimCmd_Arg_Type_Variable:
                                     {
-                                        OSReport_N("%04d", data);
+                                        if (data & 0xFFFF0000)
+                                        {
+                                            OSReport_N("%08X", data);
+                                        }
+                                        else
+                                        {
+                                            OSReport_N("%04d", data);
+                                        }
                                         break;
                                     }
                                     case AnimCmd_Arg_Type_Requirement:

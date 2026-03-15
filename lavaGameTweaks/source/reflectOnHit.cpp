@@ -54,23 +54,23 @@ namespace reflectOnHit
     asm void disableArticleAndItemClankHook()
     {
         nofralloc
-            mflr r31;                 // Backup LR in a non-volatile register!
-                                      // Call main function body!
-        lwz r3, 0x8(r4);              // param1 is Attacker StageObject*
-        mr r4, r5;                    // param2 is Target StageObject*
-        bl validateClankBody;         // Call!
+            mflr r31;                               // Backup LR in a non-volatile register!
+                                                    // Call main function body!
+        lwz r3, 0x8(r4);                            // param1 is Attacker StageObject*
+        mr r4, r5;                                  // param2 is Target StageObject*
+        bl validateClankBody;                       // Call!
 
-        mtlr r31;                     // Restore Trampoline LR!
-        cmplwi r3, 0x01;              // Compare the return value to 1...
-        beq skipLRHack;               // ... and if it's 1 we'll continue our function like normal!
-                                      // Otherwise, we're gonna return from the function early!
-        lmw r4, R4_STACK_BAK_OFF(r1); // Restore all but r3, so we can pass back our return value!
-        lwz r1, 0x00(r1);             // Deallocate Trampoline stack frame!
-        lwz r1, 0x00(r1);             // Deallocate Pre-Trampoline stack frame!
-        lwz r0, 0x04(r1);             // Grab Pre-Trampoline LR...
-        mtlr r0;                      // ... and write it to LR so we return there instead!
+        mtlr r31;                                   // Restore Trampoline LR!
+        cmplwi r3, 0x01;                            // Compare the return value to 1...
+        beq skipLRHack;                             // ... and if it's 1 we'll continue our function like normal!
+                                                    // Otherwise, we're gonna return from the function early!
+        lmw r4, STACK_ELEMENT_OFFSET(se_Reg04)(r1); // Restore all but r3, so we can pass back our return value!
+        lwz r1, 0x00(r1);                           // Deallocate Trampoline stack frame!
+        lwz r1, 0x00(r1);                           // Deallocate Pre-Trampoline stack frame!
+        lwz r0, 0x04(r1);                           // Grab Pre-Trampoline LR...
+        mtlr r0;                                    // ... and write it to LR so we return there instead!
     skipLRHack:
-        blr;                          // Return, either to Trampoline or to Pre-Trampoline!
+        blr;                                        // Return, either to Trampoline or to Pre-Trampoline!
     }
 
     void forceProjectileReflect(StageObject* objectIn)

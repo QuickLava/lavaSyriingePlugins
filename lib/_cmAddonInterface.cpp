@@ -1,5 +1,5 @@
 #include <string.h>
-#include <syWrapper.h>
+#include <sy_compat.h>
 #include <revolution/FA.h>
 #include "_cmAddonInterface.h"
 
@@ -23,8 +23,8 @@ namespace codeMenu
             {
                 u32 expectedLength = entryCount * 4;
                 result = FAFread(buffer, 1, expectedLength, streamHandlePtr) == expectedLength;
+                FAFclose(streamHandlePtr);
             }
-            FAFclose(streamHandlePtr);
         }
 
         return result;

@@ -39,7 +39,7 @@ namespace rmParries
             switch (currStatus)
             {
                 // If we've got shield up, then we need to check for parry input.
-                case Fighter::Status_Guard_On: case Fighter::Status_Guard:
+                case Fighter::Status::Guard_On: case Fighter::Status::Guard:
                 {
                     // Fetch the controller module...
                     soControllerModule* controllerModule = moduleAccesser->m_enumerationStart->m_controllerModule;
@@ -48,12 +48,12 @@ namespace rmParries
                     {
                         // ... then set the flag which indicates we've buffered a parry, and trigger a change to Guard Off, where we'll do parry logic!
                         perPlayerFlags[pf_ParryBuffered] |= (1 << fighterPlayerNo);
-                        statusModule->changeStatusRequest(Fighter::Status_Guard_Off, moduleAccesser);
+                        statusModule->changeStatusRequest(Fighter::Status::Guard_Off, moduleAccesser);
                     }
                     break;
                 }
                 // If instead we're already in GuardOff...
-                case Fighter::Status_Guard_Off:
+                case Fighter::Status::Guard_Off:
                 {
                     // ... and we're in the action because we're performing a parry...
                     if (workManageModule->isFlag(parryActiveBit))
@@ -133,7 +133,7 @@ namespace rmParries
             switch (statusModule->getStatusKind())
             {
                 // If we're in GuardOff...
-                case Fighter::Status_Guard_Off:
+                case Fighter::Status::Guard_Off:
                 {
                     // ... check if we arrived here with a parry buffered. If so...
                     u32 parryBufferedTemp = perPlayerFlags[pf_ParryBuffered];
@@ -168,26 +168,26 @@ namespace rmParries
                         // Also set RA-Basic[5] to functionally disengage the cancel loop in Fighter.pac to again avoid enabling any cancels.
                         workManageModule->setInt(0xFF, 0x20000005);
                         // Lastly, explicitly disable jumping out of the parry.
-                        statusModule->unableTransitionTerm(Fighter::Status_Transition_Term_Cont_Jump_Squat, 0);
-                        statusModule->unableTransitionTerm(Fighter::Status_Transition_Term_Cont_Jump_Squat_Button, 0);
+                        statusModule->unableTransitionTerm(Fighter::Status::Transition::Term_Cont_Jump_Squat, 0);
+                        statusModule->unableTransitionTerm(Fighter::Status::Transition::Term_Cont_Jump_Squat_Button, 0);
                     }
                     // Store back the edited flag byte to enforce any changes from this function call.
                     perPlayerFlags[pf_ParryBuffered] = parryBufferedTemp;
                     break;
                 }
                 // If we're entering FuraFura...
-                case Fighter::Status_FuraFura:
+                case Fighter::Status::FuraFura:
                 {
                     // ... and arrives there *because* they were parried...
                     if (parrySufferedTemp & playerBit)
                     {
                         // ... jump straight to FuraFuraEnd.
-                        statusModule->changeStatus(Fighter::Status_FuraFura_End, moduleAccesser);
+                        statusModule->changeStatus(Fighter::Status::FuraFura_End, moduleAccesser);
                     }
                     break;
                 }
                 // Additionally, FuraFura_End is the state we use for opponent parry lag; if a fighter enters that state...
-                case Fighter::Status_FuraFura_End:
+                case Fighter::Status::FuraFura_End:
                 {
                     // ... and arrives there *because* they were parried...
                     if (parrySufferedTemp & playerBit)
@@ -195,7 +195,7 @@ namespace rmParries
                         // Turn off the flag and store it back!
                         perPlayerFlags[pf_ParrySuffered] = parrySufferedTemp & ~playerBit;
                         // Additionally, disable all of their relevant ground interrupts.
-                        for (u32 i = Fighter::Status_Transition_Group_Chk_Ground_Special; i <= Fighter::Status_Transition_Group_Chk_Ground; i++)
+                        for (u32 i = Fighter::Status::Transition::Group_Chk_Ground_Special; i <= Fighter::Status::Transition::Group_Chk_Ground; i++)
                         {
                             statusModule->unableTransitionTermGroup(i);
                         }
@@ -206,7 +206,7 @@ namespace rmParries
                     // Note: we intentionally left parrySufferedTemp unmodified cuz we need it to trigger when we flow into the below case!
                 }
                 // If we're in any of the intermediate states experienced after getting parried in the air...
-                case Fighter::Status_Shield_Break_Fall: case Fighter::Status_Shield_Break_Down: case Fighter::Status_FuraFura_Stand:
+                case Fighter::Status::Shield_Break_Fall: case Fighter::Status::Shield_Break_Down: case Fighter::Status::FuraFura_Stand:
                 {
                     // ... and we arrived there *because* we were parried...
                     if (parrySufferedTemp & playerBit)
@@ -227,13 +227,13 @@ namespace rmParries
                         soTransitionModule* transitionModule = statusModule->m_transitionModule;
                         // ... then check if to get to the current action we used a Ground Special transition, and also pressed shield this frame.
                         soTransitionInfo* previousTransition = transitionModule->getLastTransitionInfo();
-                        if (previousTransition->m_groupId == Fighter::Status_Transition_Group_Chk_Ground_Special
+                        if (previousTransition->m_groupId == Fighter::Status::Transition::Group_Chk_Ground_Special
                             && moduleAccesser->m_enumerationStart->m_controllerModule->getTrigger().m_guard)
                         {
                             // If so, that means pressed Shield + Special on the same frame, which is our parry input!
                             // Also check if the previous state generally allows us to Special Cancel (to screen out things like magic series cancels).
                             u32 prevStatus = statusModule->getPrevStatusKind(0);
-                            if (prevStatus <= Fighter::Status_Landing_Fall_Special)
+                            if (prevStatus <= Fighter::Status::Landing_Fall_Special)
                             {
                                 // If that holds true, then log that a parry input occurred!
                                 soSituationModule* situationModule = moduleAccesser->m_enumerationStart->m_situationModule;
@@ -247,7 +247,7 @@ namespace rmParries
                                 situationModule->update();
                                 OSReport_N(", Situation Post:%d\n", situationModule->getKind());
                                 // ... and finally trigger the change!
-                                statusModule->changeStatusRequest(Fighter::Status_Guard_Off, moduleAccesser);
+                                statusModule->changeStatusRequest(Fighter::Status::Guard_Off, moduleAccesser);
                             }
                         }
                     }
@@ -271,7 +271,7 @@ namespace rmParries
             // Check if the target has the parry activity flag set, and is in GuardOff.
             soWorkManageModule* tr_workManageModule = tr_moduleAccesser->m_enumerationStart->m_workManageModule;
             if (tr_workManageModule->isFlag(parryActiveBit)
-                && tr_moduleAccesser->m_enumerationStart->m_statusModule->getStatusKind() == Fighter::Status_Guard_Off)
+                && tr_moduleAccesser->m_enumerationStart->m_statusModule->getStatusKind() == Fighter::Status::Guard_Off)
             {
                 // If they are, signal that they've successfully parried!
                 tr_workManageModule->onFlag(parrySuccessBit);
@@ -285,13 +285,13 @@ namespace rmParries
                 if (at_situation == Situation_Ground && attackKind >= fighterHooks::ak_ATTACK_DASH)
                 {
                     // ... set target state to FuraFuraEnd.
-                    endState = Fighter::Status_FuraFura_End;
+                    endState = Fighter::Status::FuraFura_End;
                 }
                 // Otherwise, if they're in the air...
                 else if (at_situation == Situation_Air)
                 {
                     // ... set target state to Shield Break Fall, so they lose actionability and transition into FuraFura on landing.
-                    endState = Fighter::Status_Shield_Break_Fall;
+                    endState = Fighter::Status::Shield_Break_Fall;
                 }
                 // Lastly, flag that the attacker has *been* parried...
                 perPlayerFlags[pf_ParrySuffered] |= (1 << fighterHooks::getFighterPlayerNo(attacker));

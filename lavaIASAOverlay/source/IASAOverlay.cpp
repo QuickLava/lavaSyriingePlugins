@@ -1,28 +1,47 @@
 #include <modules.h>
-#include <syWrapper.h>
+#include <sy_compat.h>
 #include <logUtils.h>
 #include <ft/ft_manager.h>
+#include <_cmAddonInterface.h>
 #include "IASAOverlay.h"
 
 namespace lavaIASAOverlay {
+    const char outputTag[] = "[IASAOverlay] ";
+    const char addonShortName[] = "IASAOVER";
+    enum _lineIDs
+    {
+        lid_WORKING_SPACE = 0,
+        lid_ENABLED_P1,
+        lid_ENABLED_P2,
+        lid_ENABLED_P3,
+        lid_ENABLED_P4,
+        lid__COUNT
+    };
+    u32 indexBuffer[lid__COUNT];
 
     const u8 groupsToCheck[] = {
-        Fighter::Status_Transition_Group_Chk_Ground_Special,
-        Fighter::Status_Transition_Group_Chk_Ground_Attack,
-        Fighter::Status_Transition_Group_Chk_Ground_Guard,
-        Fighter::Status_Transition_Group_Chk_Ground_Jump,
-        Fighter::Status_Transition_Group_Chk_Air_Special,
-        Fighter::Status_Transition_Group_Chk_Air_Escape,
-        Fighter::Status_Transition_Group_Chk_Air_Attack,
-        Fighter::Status_Transition_Group_Chk_Air_Jump_Aerial,
+        Fighter::Status::Transition::Group_Chk_Ground_Special,
+        Fighter::Status::Transition::Group_Chk_Ground_Attack,
+        Fighter::Status::Transition::Group_Chk_Ground_Guard,
+        Fighter::Status::Transition::Group_Chk_Ground_Jump,
+        Fighter::Status::Transition::Group_Chk_Air_Special,
+        Fighter::Status::Transition::Group_Chk_Air_Escape,
+        Fighter::Status::Transition::Group_Chk_Air_Attack,
+        Fighter::Status::Transition::Group_Chk_Air_Jump_Aerial,
     };
     const u8 hardcodedActionable[] = {
-        Fighter::Status_Down_Wait,
-        Fighter::Status_Cliff_Wait,
-        Fighter::Status_Air_Lasso_Hang,
-        Fighter::Status_Slip_Wait,
+        Fighter::Status::Down_Wait,
+        Fighter::Status::Cliff_Wait,
+        Fighter::Status::Air_Lasso_Hang,
+        Fighter::Status::Slip_Wait,
     };
 
+    bool enabledForPlayer(u32 playerNo)
+    {
+        const codeMenu::cmSelectionLine** enabledLines = (const codeMenu::cmSelectionLine**)indexBuffer + 1;
+        const codeMenu::cmSelectionLine* targetLine = enabledLines[playerNo];
+        return (targetLine != NULL) ? targetLine->m_value : 1;
+    }
     void applyRelevantFlash()
     {
         // Use the function's moduleAccesser parameter to attempt to fetch the Fighter*...
@@ -37,7 +56,7 @@ namespace lavaIASAOverlay {
 
         // Otherwise, check if the fighter is in a valid port...
         u32 fighterPlayerNo = g_ftManager->getPlayerNo(fighterIn->m_entryId);
-        if (fighterPlayerNo < 0x8)
+        if (fighterPlayerNo < 0x4 && enabledForPlayer(fighterPlayerNo))
         {
             // ... and if so, grab the Fighter's status module.
             soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleAccesser->m_enumerationStart->m_statusModule;
@@ -45,7 +64,7 @@ namespace lavaIASAOverlay {
             // Grab the current status...
             u32 currStatus = statusModule->getStatusKind();
             // ... and if we're in one of the basic grounded movement actions, just skip to avoid tinting on those actions.
-            if (currStatus >= Fighter::Status_Walk && currStatus <= Fighter::Status_Turn_Run_Brake) return;
+            if (currStatus >= Fighter::Status::Walk && currStatus <= Fighter::Status::Turn_Run_Brake) return;
 
             // Initialize our variable for recording if we're actionable.
             bool actionable = 0;
@@ -67,13 +86,13 @@ namespace lavaIASAOverlay {
                 // ... we're going to apply our overlay! Initiate the color just to pure Green.
                 GXColor flashRGBA = { 0x00, 0xFF, 0x00, 0xC0 };
                 // If we're in one of the normal attacking actions...
-                if ((Fighter::Status_Attack <= currStatus && currStatus <= Fighter::Status_Attack_Air) || Fighter::Status_Test_Motion < currStatus)
+                if ((Fighter::Status::Attack <= currStatus && currStatus <= Fighter::Status::Attack_Air) || Fighter::Status::Test_Motion < currStatus)
                 {
                     // ... then max the Red channel, so the color becomes Yellow while actionable out of an attack (eg. in IASA).
                     flashRGBA.r |= 0xFF;
                 }
                 // If alternatively we're in a damage action...
-                else if (Fighter::Status_Damage <= currStatus && currStatus <= Fighter::Status_Down)
+                else if (Fighter::Status::Damage <= currStatus && currStatus <= Fighter::Status::Down)
                 {
                     // ... instead max the Blue channel, so the color becomes Teal while actionable out of knockback.
                     flashRGBA.b |= 0xFF;
@@ -84,10 +103,25 @@ namespace lavaIASAOverlay {
         }
     }
 
+    bool populate()
+    {
+        bool result = codeMenu::loadCodeMenuAddonLOCsToBuffer(addonShortName, indexBuffer, lid__COUNT);
+        if (result)
+        {
+            OSReport_N("%sSuccessfully Loaded Addon Index File to Buffer 0x%08X!\n", outputTag, indexBuffer);
+        }
+        else
+        {
+            OSReport_N("%sFailed to Load Addon Index File to Buffer!\n", outputTag);
+        }
+        return result;
+    }
     void Init()
     {
-        // 0x8077F150 lands 0x8C bytes into symbol "checkTransition/[soStatusModuleImpl]/so_status_module_imp" @ 0x8077F0C4
-        SyringeCompat::syInlineHookRel(0x7473C, reinterpret_cast<void*>(applyRelevantFlash), Modules::SORA_MELEE);
+        // Populate Code Menu Buffer
+        populate();
+        // 0x8077F158 lands 0x94 bytes into symbol "checkTransition/[soStatusModuleImpl]/so_status_module_imp" @ 0x8077F0C4
+        SyringeCompat::syInlineHookRel(0x74744, reinterpret_cast<void*>(applyRelevantFlash), Modules::SORA_MELEE);
     }
 
     void Destroy(){}
