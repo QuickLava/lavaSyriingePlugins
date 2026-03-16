@@ -27,23 +27,23 @@ namespace puDACDS
             u32 playerBit = 1 << fighterPlayerNo;
             u32 prevUpdateActionWasDashAttackTemp = prevUpdateActionWasDashAttack;
 
-            if (currStatus == Fighter::Status_Attack_Dash)
+            if (currStatus == Fighter::Status::Attack_Dash)
             {
                 soTransitionModule* transitionModule = statusModule->m_transitionModule;
                 if (currFrame <= inputWindowFrameLength || moduleAccesser->m_enumerationStart->m_collisionAttackModule->isInflictStatus())
                 {
-                    transitionModule->enableTermGroup(Fighter::Status_Transition_Group_Chk_Ground_Attack);
-                    transitionModule->unableTermAll(Fighter::Status_Transition_Group_Chk_Ground_Attack);
-                    transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Hi4_Start, Fighter::Status_Transition_Group_Chk_Ground_Attack);
-                    transitionModule->enableTerm(Fighter::Status_Transition_Term_Cont_Attack_Lw4_Start, Fighter::Status_Transition_Group_Chk_Ground_Attack);
+                    transitionModule->enableTermGroup(Fighter::Status::Transition::Group_Chk_Ground_Attack);
+                    transitionModule->unableTermAll(Fighter::Status::Transition::Group_Chk_Ground_Attack);
+                    transitionModule->enableTerm(Fighter::Status::Transition::Term_Cont_Attack_Hi4_Start, Fighter::Status::Transition::Group_Chk_Ground_Attack);
+                    transitionModule->enableTerm(Fighter::Status::Transition::Term_Cont_Attack_Lw4_Start, Fighter::Status::Transition::Group_Chk_Ground_Attack);
                 }
                 else
                 {
-                    transitionModule->unableTermGroup(Fighter::Status_Transition_Group_Chk_Ground_Attack);
+                    transitionModule->unableTermGroup(Fighter::Status::Transition::Group_Chk_Ground_Attack);
                 }
             }
             else if (!workManageModule->isFlag(dacusFlagVar) && (prevUpdateActionWasDashAttackTemp & playerBit)
-                && (prevStatus == Fighter::Status_Attack_Dash && (currStatus == Fighter::Status_Attack_Hi4_Start || currStatus == Fighter::Status_Attack_Lw4_Start)))
+                && (prevStatus == Fighter::Status::Attack_Dash && (currStatus == Fighter::Status::Attack_Hi4_Start || currStatus == Fighter::Status::Attack_Lw4_Start)))
             {
                 workManageModule->onFlag(dacusFlagVar);
                 Vec3f newSpeed(workManageModule->getFloat(momentumVar), 0.0f, 0.0f);
@@ -52,11 +52,41 @@ namespace puDACDS
             }
 
             prevUpdateActionWasDashAttackTemp &= ~playerBit;
-            if (currStatus == Fighter::Status_Attack_Dash && (workManageModule->isFlag(dacusFlagVar) || currFrame < inputWindowFrameLength))
+            if (currStatus == Fighter::Status::Attack_Dash && (workManageModule->isFlag(dacusFlagVar) || currFrame < inputWindowFrameLength))
             {
                 prevUpdateActionWasDashAttackTemp |= playerBit;
             }
             prevUpdateActionWasDashAttack = prevUpdateActionWasDashAttackTemp;
+        }
+    }
+    void onStatusChangeCallback(Fighter* fighterIn)
+    {
+        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
+        if (fighterPlayerNo < fighterHooks::maxFighterCount)
+        {
+            soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
+            soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleAccesser->m_enumerationStart->m_statusModule;
+
+            // If we're entering Airdodge...
+            u32 currStatus = statusModule->getStatusKind();
+            if (currStatus == Fighter::Status::Escape_Air)
+            {
+                // ... speed it up a bit!
+                soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
+                float rate = motionModule->getRate();
+                float totalDuration = moduleAccesser->m_enumerationStart->m_workManageModule->getFloat(0x21000011);
+                if (totalDuration > 0.01f)
+                {
+                    rate = motionModule->getEndFrame() / totalDuration;
+                }
+                float speedMul = moduleAccesser->m_enumerationStart->m_workManageModule->getFloat(0x21000010);
+                if (speedMul > 0.01f)
+                {
+                    rate *= speedMul;
+                }
+                motionModule->setRate(rate);
+                OSReport_N("%sAirdodge Speed Modifier: Modified Rate == %.2f, Length == %.1f\n", outputTag, rate, motionModule->getEndFrame() / rate);
+            }
         }
     }
 
@@ -64,6 +94,7 @@ namespace puDACDS
     fighterHooks::callbackBundle callbacks =
     {
         .m_FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
+        .m_FighterOnStatusChangeCB = (fighterHooks::FighterOnStatusChangeCB)onStatusChangeCallback,
     };
 #pragma c99 off
 
