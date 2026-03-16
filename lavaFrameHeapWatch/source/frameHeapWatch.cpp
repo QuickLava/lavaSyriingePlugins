@@ -10,6 +10,7 @@
 #include <logUtils.h>
 #include <snd/snd_id.h>
 #include <snd/snd_system.h>
+#include <FA/FAFstat.h>
 
 namespace lavaFrameHeapWatch {
     const char outputTag[] = "[frameHeapWatch] ";
@@ -36,26 +37,11 @@ namespace lavaFrameHeapWatch {
         0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
         0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF, 0xFFFFFFFF,
     };
-    u32 highestRecordedFreeSize[0xC] = {
-        0x00000000, 0x00000000, 0x00000000, 0x00000000,
-        0x00000000, 0x00000000, 0x00000000, 0x00000000,
-        0x00000000, 0x00000000, 0x00000000, 0x00000000,
-    };
 
-    void recordInitialSizes()
-    {
-        SoundHeap* soundHeapArr = g_sndSystem->m_sndHeapSys->m_heapArr;
-        for (u32 i = 0; i < 0xC; i++)
-        {
-            SoundHeap* currHeap = soundHeapArr + i;
-            if (currHeap->m_frameHeap.m_heapPtr != NULL)
-            {
-                highestRecordedFreeSize[i] = currHeap->m_frameHeap.GetFreeSize();
-            }
-        }
-    }
     void summarizeFrameHeaps()
     {
+        using namespace nw4r::snd;
+        sndHeapSys* heapSys = g_sndSystem->m_sndHeapSys;
         SoundHeap* soundHeapArr = g_sndSystem->m_sndHeapSys->m_heapArr;
         for (u32 i = 0; i < 0xC; i++)
         {
@@ -63,42 +49,36 @@ namespace lavaFrameHeapWatch {
             u32 currLevel = 0xFF;
             u32 freeSize = 0xFFFFFFFF;
             u32 lowestFreeSize = lowestRecordedFreeSize[i];
-            u32 highestFreeSize = highestRecordedFreeSize[i];
+            u32 maxFreeSize = heapSys->m_heapMaxSizeArr[i];
             u32 freeSizeDiff = freeSize;
-            if (currHeap->m_frameHeap.m_heapPtr != NULL)
+            if (currHeap->IsValid() != NULL)
             {
-                currLevel = currHeap->m_frameHeap.GetCurrentLevel();
-                freeSize = currHeap->m_frameHeap.GetFreeSize();
+                currLevel = currHeap->GetCurrentLevel();
+                freeSize = currHeap->GetFreeSize();
                 if (lowestFreeSize > freeSize)
                 {
                     lowestFreeSize = freeSize;
                     lowestRecordedFreeSize[i] = freeSize;
                 }
-                if (highestFreeSize < freeSize)
-                {
-                    highestFreeSize = freeSize;
-                    highestRecordedFreeSize[i] = freeSize;
-                }
             }
             OSReport_N("%sSummary: FrameHeap[%02X]: Free: %08X, MinFree: %08X, MaxFree: %08X, CurrLevel: %02X\n",
-                outputTag, i, freeSize, lowestFreeSize, highestFreeSize, currLevel);
+                outputTag, i, freeSize, lowestFreeSize, maxFreeSize, currLevel);
         }
     }
     void printFrameHeapAlloc()
     {
+        using namespace nw4r::snd;
         register u32* destination;
-        register FrameHeap* frameHeap;
         register SoundHeap* soundHeap;
         register u32 size;
         asm
         {
             mr destination, r3;
-            mr frameHeap, r27;
-            subi soundHeap, frameHeap, 0x1C;
+            subi soundHeap, r27, 0x1C;
             mr size, r28;
         }
-        u32 freeSpace = frameHeap->GetFreeSize();
-        u32 current = frameHeap->GetCurrentLevel();
+        u32 freeSpace = soundHeap->GetFreeSize();
+        u32 current = soundHeap->GetCurrentLevel();
 
         SoundHeap* soundHeapArr = g_sndSystem->m_sndHeapSys->m_heapArr;
         u32 soundHeapID = soundHeap - soundHeapArr;
@@ -113,14 +93,13 @@ namespace lavaFrameHeapWatch {
 
     void printFrameSaveState()
     {
-        register FrameHeap* frameHeap;
+        using namespace nw4r::snd;
         register SoundHeap* soundHeap;
         asm
         {
-            mr frameHeap, r31;
-            subi soundHeap, frameHeap, 0x1C;
+            subi soundHeap, r31, 0x1C;
         }
-        u32 freeSize = frameHeap->GetFreeSize();
+        u32 freeSize = soundHeap->GetFreeSize();
 
         SoundHeap* soundHeapArr = g_sndSystem->m_sndHeapSys->m_heapArr;
         u32 soundHeapID = soundHeap - soundHeapArr;
@@ -130,11 +109,12 @@ namespace lavaFrameHeapWatch {
         }
 
         OSReport_N("%sSaveState: FrameHeap[%02X] Raised to Level: %02X, FreeSize: %08X\n",
-            outputTag, soundHeapID, frameHeap->GetCurrentLevel(), freeSize);
+            outputTag, soundHeapID, soundHeap->GetCurrentLevel(), freeSize);
         summarizeFrameHeaps();
     }
     void printFrameLoadState()
     {
+        using namespace nw4r::snd;
         register SoundHeap* soundHeap;
         register u32 targetHeapLevel;
         asm
@@ -146,7 +126,7 @@ namespace lavaFrameHeapWatch {
         u32 soundHeapID = soundHeap - soundHeapArr;
 
         OSReport_N("%sLoadState: FrameHeap[%02X] Cleared to Level: %02X, FreeSize: %08X\n", 
-            outputTag, soundHeapID, soundHeap->m_frameHeap.GetCurrentLevel(), soundHeap->m_frameHeap.GetFreeSize());
+            outputTag, soundHeapID, soundHeap->GetCurrentLevel(), soundHeap->GetFreeSize());
         summarizeFrameHeaps();
     }
 
@@ -303,15 +283,107 @@ namespace lavaFrameHeapWatch {
             *(u32*)(textAddr + 0x43D8) = 0x38A00001; // op li r5, 0x01 @ $806BF92C, Load Narration_CharaCall in FH1
             *(u32*)(textAddr + 0x43EC) = 0x38A00001; // op li r5, 0x01 @ $806BF940, Load Select in FH1
             OSReport_N("%sApplied bank loading adjustments!\n", outputTag);
-            return;
+        }
+    }
+
+    u32 (*_loadSoundGroup)(sndSystem*, u32, u32, u32);
+    u32 loadSoundGroup(sndSystem* sndSystem, u32 groupIndex, u32 heapID, u32 isRequest)
+    {
+        using namespace nw4r::snd::detail;
+        char pathBuf[0x60];
+
+        if (!sndSystem->isSoundGroupLoaded(static_cast<SndGroupID>(groupIndex)))
+        {
+            const SoundArchiveFile::Info* infoSection = sndSystem->m_dvdSoundArchive.mFileReader.mInfo;
+            SoundArchiveFile::FileTable* fileArr = Util::GetDataRefAddress0(infoSection->fileTableRef, infoSection);
+            SoundArchiveFile::GroupTable* groupArr = Util::GetDataRefAddress0(infoSection->groupTableRef, infoSection);
+
+            SoundArchiveFile::GroupInfo* targetGroup = Util::GetDataRefAddress0(groupArr->items[(groupIndex < groupArr->count) ? groupIndex : (groupArr->count - 1)], infoSection);
+
+            sprintf(pathBuf, "%spf/sfx/%03X.sawnd", MOD_PATCH_DIR, groupIndex);
+            FAHandle* sawndStrmHandle = FAFopen(pathBuf, "r");
+            if (sawndStrmHandle != NULL)
+            {
+                FAStat fileStats; FAFstat(pathBuf, &fileStats);
+                OSReport_N("%s\"%s\" successfully loaded!\n", outputTag, pathBuf);
+                FAFread(pathBuf, 1, 1, sawndStrmHandle);
+                if (*pathBuf == 0x2)
+                {
+                    FAFread(pathBuf, 1, 0x8, sawndStrmHandle);
+                    u32 temp = *(u32*)pathBuf;
+                    if ((temp - 0x7) == groupIndex)
+                    {
+                        OSReport_N("%sInitial Header: Header Off: %08X, Size: %06X, Data Off: %08X, Size: %06X\n", outputTag,
+                            targetGroup->offset, targetGroup->size, targetGroup->waveDataOffset, targetGroup->waveDataSize);
+                        temp = ((u32*)pathBuf)[1];
+                        targetGroup->waveDataSize = temp;
+
+                        SoundArchiveFile::GroupItemTable* entryArr = Util::GetDataRefAddress0(targetGroup->itemTableRef, infoSection);
+                        u32 fileCount = entryArr->count;
+                        for (u32 i = 0x0; i < fileCount; i++)
+                        {
+                            SoundArchiveFile::GroupItemInfo* currEntry = Util::GetDataRefAddress0(entryArr->items[i], infoSection);
+                            OSReport_N("%s  Initial File 0x%03X:  H.Off: %08X, Size: %06X, D.Off: %08X, Size: %06X\n", outputTag, currEntry->fileId,
+                                currEntry->offset, currEntry->size, currEntry->waveDataOffset, currEntry->waveDataSize);
+                            FAFread(pathBuf, 1, 0x4, sawndStrmHandle);
+                            temp = ((u32*)pathBuf)[0];
+                            if (temp != currEntry->fileId)
+                            {
+                                OSReport_N("%s  Warning: Incoming File ID (0x%03X) != Stored File ID (0x%03X)!\n", outputTag, temp, currEntry->fileId);
+                            }
+                            FAFread(&currEntry->waveDataOffset, 1, 0x8, sawndStrmHandle);
+                        }
+                        u32 headerLengthAcc = 0x00;
+                        for (u32 i = 0x0; i < fileCount; i++)
+                        {
+                            SoundArchiveFile::GroupItemInfo* currEntry = Util::GetDataRefAddress0(entryArr->items[i], infoSection);
+                            currEntry->offset = headerLengthAcc;
+                            FAFread(pathBuf, 1, 0x10, sawndStrmHandle);
+                            temp = ((u32*)pathBuf)[2];
+                            currEntry->size = temp;
+                            FAFseek(sawndStrmHandle, temp - 0x10, 1);
+                            headerLengthAcc += temp;
+                            OSReport_N("%s  Patched File 0x%03X:  H.Off: %08X, Size: %06X, D.Off: %08X, Size: %06X\n", outputTag, currEntry->fileId,
+                                currEntry->offset, currEntry->size, currEntry->waveDataOffset, currEntry->waveDataSize);
+                        }
+                        targetGroup->size = headerLengthAcc;
+                        targetGroup->waveDataOffset = targetGroup->offset + headerLengthAcc;
+                        OSReport_N("%sPatched Header: Header Off: %08X, Size: %06X, Data Off: %08X, Size: %06X\n", outputTag,
+                            targetGroup->offset, targetGroup->size, targetGroup->waveDataOffset, targetGroup->waveDataSize);
+                    }
+                }
+                FAFclose(sawndStrmHandle);
+            }
+        }
+
+        return _loadSoundGroup(sndSystem, groupIndex, heapID, isRequest);
+    }
+
+    void reportFailedLoad()
+    {
+        register u32 heapID;
+        register u32 groupID;
+        register u32 heapSize;
+        register u32 groupSize;
+        register sndHeapSys* heapSys;
+        asm
+        {
+            mr heapID, r31;
+            mr groupID, r27;
+            mr heapSize, r3;
+            mr groupSize, r30;
+            mr heapSys, r29;
+        }
+
+        u32 heapCurrSize = heapSys->m_heapCurrSizeArr[heapID];
+        if ((groupSize + heapCurrSize) > heapSize)
+        {
+            OSReport_N("%sGroup Load Failed: %03X (%06X bytes) -> FH%02X (%X of %X used)\n", outputTag, groupID, groupSize, heapID, heapCurrSize, heapSize);
         }
     }
 
     void Init()
     {
-        // Record Initial Heap Sizes
-        recordInitialSizes();
-
         // Patch bank loading configuration.
         SyringeCompat::ModuleLoadEvent::Subscribe(applyHeapPatches);
 
@@ -327,6 +399,12 @@ namespace lavaFrameHeapWatch {
 
         // 0x8002D628 lands 0x7C bytes into symbol "setNextScene/[gfSceneManager]/gf_scene.o" @ 0x8002D5AC
         SyringeCompat::syInlineHook(0x8002D628, reinterpret_cast<void*>(onSceneChange));
+
+        // 0x80073B68 lands 0x00 bytes into symbol "sndSystem::loadSoundGroup" @ 0x80073B68
+        SyringeCompat::syReplaceFunc(0x80073B68, reinterpret_cast<void*>(loadSoundGroup), reinterpret_cast<void**>(&_loadSoundGroup));
+
+        // 0x8007A5CC lands 0x2A8 bytes into symbol "getUseHeapId/[sndHeapSys]/snd_heapsys.o" @ 0x8007A324
+        SyringeCompat::syInlineHook(0x8007A5B8, reinterpret_cast<void*>(reportFailedLoad));
     }
 
     void Destroy()
