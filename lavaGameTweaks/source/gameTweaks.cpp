@@ -1,19 +1,20 @@
 #include "fighterHooks.h"
-#include "magicSeries.h"
-#include "meleeGameSetFreeze.h"
-#include "reflectOnHit.h"
-#include "airdodgeCancels.h"
-#include "slimeCancels.h"
-#include "rocketBurst.h"
-#include "finalSmashMeter.h"
-#include "focusAttacks.h"
-#include "rm_babyDashes.h"
-#include "rm_airdodgeTweaks.h"
-#include "rm_walljumpTweaks.h"
-#include "rm_tiltCancels.h"
-#include "rm_shieldTweaks.h"
-#include "rm_parries.h"
-#include "rm_hitfalling.h"
+//#include "magicSeries.h"
+//#include "meleeGameSetFreeze.h"
+//#include "reflectOnHit.h"
+//#include "airdodgeCancels.h"
+//#include "slimeCancels.h"
+//#include "rocketBurst.h"
+//#include "finalSmashMeter.h"
+//#include "focusAttacks.h"
+//#include "rm_babyDashes.h"
+//#include "rm_airdodgeTweaks.h"
+//#include "rm_walljumpTweaks.h"
+//#include "rm_tiltCancels.h"
+//#include "rm_shieldTweaks.h"
+//#include "rm_parries.h"
+//#include "rm_hitfalling.h"
+#include "leapLord.h"
 //#include "transitionListener.h"
 #include "_mechanicsHub.h"
 
@@ -23,21 +24,22 @@ namespace lavaGameTweaks
     void Init()
     {
         fighterHooks::registerFighterHooks();
-        mechHub::populate();
-        mechHub::registerHooks();
-        airdodgeCancels::registerHooks();
-        slimeCancels::registerHooks();
-        magicSeries::registerHooks();
-        rocketBurst::registerHooks();
-        finalSmashMeter::registerHooks();
-        focusAttacks::registerHooks();
-        rmBabyDashes::registerHooks();
-        rmAirdodgeTweaks::registerHooks();    
-        rmWalljumpTweaks::registerHooks();
-        rmTiltCancels::registerHooks();
-        rmShieldTweaks::registerHooks();
-        rmParries::registerHooks();
-        rmHitfalling::registerHooks();
+        //mechHub::populate();
+        //mechHub::registerHooks();
+        //airdodgeCancels::registerHooks();
+        //slimeCancels::registerHooks();
+        //magicSeries::registerHooks();
+        //rocketBurst::registerHooks();
+        //finalSmashMeter::registerHooks();
+        //focusAttacks::registerHooks();
+        //rmBabyDashes::registerHooks();
+        //rmAirdodgeTweaks::registerHooks();    
+        //rmWalljumpTweaks::registerHooks();
+        //rmTiltCancels::registerHooks();
+        //rmShieldTweaks::registerHooks();
+        //rmParries::registerHooks();
+        //rmHitfalling::registerHooks();
+        leapLord::registerHooks();
         //transitionListener::registerHooks();
 
         //meleeFreeze::registerHooks();
