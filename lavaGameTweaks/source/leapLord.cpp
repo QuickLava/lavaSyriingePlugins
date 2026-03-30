@@ -10,13 +10,15 @@ namespace leapLord
     const float maxChargeLen = 40.0f;
     const float chargePerFrame = (maxChargeMul - minChargeMul) / maxChargeLen;
 
+    Vec3f momentumReflectVec(-1.0f, 0.0f, 0.0f);
+    soInstanceAttribute momentumReflectAttr = 1;
+
     const u16 chargeableStatuses[] = 
     { 
-        Fighter::Status::Jump_Squat, Fighter::Status::Wall_Jump, Fighter::Status::Tread_Jump, 
+        Fighter::Status::Jump_Squat, Fighter::Status::Tread_Jump, 
         Fighter::Status::Cliff_Jump1, Fighter::Status::Cliff_Jump2, Fighter::Status::Cliff_Jump3, 
     };
     const u32 chargeableStatusCount = sizeof(chargeableStatuses) / sizeof(u16);
-
     bool isChargeableStatus(u32 statusIn)
     {
         for (u32 i = 0; i < chargeableStatusCount; i++)
@@ -29,6 +31,8 @@ namespace leapLord
         return 0;
     }
 
+    u8 reflectLockoutTimer[fighterHooks::maxFighterCount] = {};
+
     void onUpdateCallback(Fighter* fighterIn)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
@@ -36,6 +40,8 @@ namespace leapLord
         {
             soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
             soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleAccesser->m_enumerationStart->m_statusModule;
+
+            u8 currReflectTimer = reflectLockoutTimer[fighterPlayerNo];
 
             u32 currStatus = statusModule->getStatusKind();
             if (isChargeableStatus(currStatus))
@@ -47,14 +53,6 @@ namespace leapLord
                     case Fighter::Status::Jump_Squat: 
                     { 
                         if (transitionTermID == Fighter::Status::Transition::Term_Cont_Jump_Squat_Button)
-                        {
-                            promptedByButton = 1;
-                        }
-                        break;
-                    }
-                    case Fighter::Status::Wall_Jump:
-                    {
-                        if (transitionTermID == Fighter::Status::Transition::Term_Passive_Wall_Jump_Button)
                         {
                             promptedByButton = 1;
                         }
@@ -95,6 +93,19 @@ namespace leapLord
                     chargeAmount[fighterPlayerNo] += chargePerFrame;
                 }
             }
+            else if (moduleAccesser->m_enumerationStart->m_situationModule->getKind() == Situation_Air)
+            {
+                soGroundModule* groundModule = moduleAccesser->m_enumerationStart->m_groundModule;
+                if (currReflectTimer == 0 && groundModule->isTouch(0b110, 0))
+                {
+                    currReflectTimer = 4;
+                    moduleAccesser->m_enumerationStart->m_soundModule->playSE(snd_se_common_kick_hit_s, 1, 1, 0);
+                    moduleAccesser->m_enumerationStart->m_kineticModule->reflectSpeed(&momentumReflectVec, &momentumReflectAttr);
+                }
+            }
+
+            currReflectTimer = (currReflectTimer > 0) ? currReflectTimer - 1 : 0;
+            reflectLockoutTimer[fighterPlayerNo] = currReflectTimer;
         }
     }
     void onStatusChangeCallback(Fighter* fighterIn)
@@ -115,32 +126,19 @@ namespace leapLord
         }
     }
 
-    void* _doParamOverride;
-    asm void doParamOverride()
+    struct paramInfoBuffer
     {
-         cmplwi r5, 3012;
-         beq- Jump_Speed_X_Max;
-         cmplwi r5, 3029;
-         bne+ Jump_Speed_Y;
-     Jump_Speed_X_Max:
-         addi r5, r0, 3015;
-         b Finish;
-     Jump_Speed_Y:
-         cmplwi r5, 3016;
-         bne+ Tread_Jump_Speed_Y_Mul;
-         addi r5, r0, 3013;
-         b Finish;
-     Tread_Jump_Speed_Y_Mul:
-         cmplwi r5, 3020;
-         bne+ Finish;
-         addi r5, r0, 3019;
-     Finish:
-         lis r11, _doParamOverride@ha;
-         lwz r11, _doParamOverride@l(r11);
-         mtlr r11;
-    }
-    double applyParamModifiers(soModuleAccesser* moduleAccesserIn, u32 paramID)
-    {   
+        soModuleAccesser* m_moduleAccesser;
+        ftValueAccesser::ParamFloat m_paramID;
+        double m_currValue;
+    };
+
+    double doParamModifications(paramInfoBuffer& paramInfo)
+    {
+        double result = paramInfo.m_currValue;
+        soModuleAccesser* moduleAccesserIn = paramInfo.m_moduleAccesser;
+        ftValueAccesser::ParamFloat paramIn = paramInfo.m_paramID;
+
         if (moduleAccesserIn->m_stageObject->m_taskCategory == gfTask::Category_Fighter)
         {
             Fighter* fighterIn = (Fighter*)moduleAccesserIn->m_stageObject;
@@ -155,8 +153,7 @@ namespace leapLord
                 u32 currStatus = statusModule->getStatusKind();
                 u32 currSituation = situationModule->getKind();
 
-
-                switch (paramID)
+                switch (paramIn)
                 {
                     case ftValueAccesser::Customize_Param_Float_Jump_Speed_Y:
                     case ftValueAccesser::Customize_Param_Float_Tread_Jump_Speed_Y_Mul:
@@ -167,33 +164,52 @@ namespace leapLord
                         {
                             currCharge = (currCharge < 0.5f) ? 0.5f : currCharge;
                         }
-                        valueIn *= currCharge;
+                        result *= currCharge;
                         break;
                     }
+                    case ftValueAccesser::Customize_Param_Float_Air_Accel_X_Add:
                     case ftValueAccesser::Customize_Param_Float_Air_Accel_X_Mul:
                     case ftValueAccesser::Customize_Param_Float_Air_Brake_X:
                     {
-                        if (currStatus > Fighter::Status::Test_Motion && currSituation != Situation_Ground)
+                        if (currStatus != Fighter::Status::Attack_Air && currStatus <= Fighter::Status::Test_Motion)
                         {
-                            valueIn = 0.0f;
+                            result = 0.0f;
                         }
                         break;
                     }
                 }
             }
         }
-        
-        return valueIn;
+
+        return result;
     }
-    asm void _applyParamModifiers()
-    {
-        nofralloc
-        mflr r31;                                       // Backup LR in a non-volatile register!
-        mr r3, r29;
-        mr r4, r30;
-        bl applyParamModifiers;
-        mtlr r31;
-        blr;
+    double(*_getConstantFloatCore)(soValueAccesser*, soModuleAccesser*, ftValueAccesser::ParamFloat, u32);
+    double getConstantFloatCore(soValueAccesser* valueAccesserIn, soModuleAccesser* moduleAccesserIn, ftValueAccesser::ParamFloat paramIn, u32 param_3)
+    {   
+        paramInfoBuffer paramInfo;
+        switch (paramIn)
+        {
+            case ftValueAccesser::Customize_Param_Float_Mini_Jump_Speed_Y:
+            {
+                paramIn = ftValueAccesser::Customize_Param_Float_Jump_Speed_Y;
+                break;
+            }
+            case ftValueAccesser::Customize_Param_Float_Tread_Mini_Jump_Speed_Y_Mul:
+            {
+                paramIn = ftValueAccesser::Customize_Param_Float_Tread_Jump_Speed_Y_Mul;
+                break;
+            }
+            case ftValueAccesser::Customize_Param_Float_Jump_Speed_X:
+            case ftValueAccesser::Customize_Param_Float_Air_Speed_X_Stable:
+            {
+                paramIn = ftValueAccesser::Customize_Param_Float_Jump_Speed_X_Max;
+                break;
+            }
+        }
+        paramInfo.m_paramID = paramIn;
+        paramInfo.m_moduleAccesser = moduleAccesserIn;
+        paramInfo .m_currValue = _getConstantFloatCore(valueAccesserIn, moduleAccesserIn, paramIn, param_3);
+        return doParamModifications(paramInfo);
     }
 
 #pragma c99 on
@@ -207,7 +223,6 @@ namespace leapLord
     void registerHooks()
     {
         fighterHooks::ftCallbackMgr::registerCallbackBundle(&callbacks);
-        SyringeCompat::syReplaceFuncRel(0x8C314, reinterpret_cast<void*>(doParamOverride), &_doParamOverride, Modules::SORA_MELEE);
-        SyringeCompat::syInlineHookRel(0x14B26C, reinterpret_cast<void*>(_applyParamModifiers), Modules::SORA_MELEE);
+        SyringeCompat::syReplaceFuncRel(0x14B0BC, reinterpret_cast<void*>(getConstantFloatCore), reinterpret_cast<void**>(&_getConstantFloatCore), Modules::SORA_MELEE);
     }
 }
