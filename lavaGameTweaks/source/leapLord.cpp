@@ -148,6 +148,19 @@ namespace leapLord
                     }
                 }
             }
+            else
+            {
+                switch (transitionTermIDIn)
+                {
+                    case Fighter::Status::Transition::Term_Cont_Dash:
+                    case Fighter::Status::Transition::Term_Cont_Turn_Dash:
+                    case Fighter::Status::Transition::Term_Cont_Turn_Dash_Dash:
+                    {
+                        result = 0xFFFFFFFF;
+                        break;
+                    }
+                }
+            }
         }
         return result;
     }
@@ -243,6 +256,10 @@ namespace leapLord
         paramInfo.m_moduleAccesser = moduleAccesserIn;
         switch (paramIn)
         {
+            case ftValueAccesser::Customize_Param_Float_Walk_Accel_Add:
+            {
+                paramIn = ftValueAccesser::Customize_Param_Float_Walk_Speed_Max;
+            }
             case ftValueAccesser::Customize_Param_Float_Jump_Speed_Y:
             {
                 soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleAccesserIn->m_enumerationStart->m_statusModule;
