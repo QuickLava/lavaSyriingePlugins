@@ -227,6 +227,14 @@ namespace leapLord
                         result *= currCharge;
                         break;
                     }
+                    case ftValueAccesser::Customize_Param_Float_Ground_Brake:
+                    {
+                        if (currStatus == Fighter::Status::Walk || currStatus == Fighter::Status::Walk_Brake || currStatus == Fighter::Status::Turn)
+                        {
+                            result *= 10.0f;
+                        }
+                        break;
+                    }
                     case ftValueAccesser::Customize_Param_Float_Air_Accel_X_Add:
                     case ftValueAccesser::Customize_Param_Float_Air_Accel_X_Mul:
                     case ftValueAccesser::Customize_Param_Float_Air_Brake_X:
