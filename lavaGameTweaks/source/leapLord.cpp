@@ -94,19 +94,33 @@ namespace leapLord
             }
             else if (moduleAccesser->m_enumerationStart->m_situationModule->getKind() == Situation_Air)
             {
-                soGroundModule* groundModule = moduleAccesser->m_enumerationStart->m_groundModule;
                 if (currReflectTimer == 0)
                 {
+                    soGroundModule* groundModule = moduleAccesser->m_enumerationStart->m_groundModule;
+
                     Vec3f reflectVec(0.0f, 0.0f, 0.0f);
-                    if (groundModule->isTouch(0b0110, 0))
+                    float currXSpeed = ftValueAccesser::getVariableFloat(moduleAccesser, ftValueAccesser::Var_Float_Kinetic_Sum_Speed_X, 0);
+                    u32 touchFlags = groundModule->getTouchFlag(0);
+                    if (touchFlags & 0b001)
                     {
-                        reflectVec.m_x = -1.0f;
                         currReflectTimer = 4;
-                    }
-                    else if (groundModule->isTouch(0b0001, 0))
-                    {
                         reflectVec.m_y = -1.0f;
-                        currReflectTimer = 4;
+                    }
+                    if (touchFlags & 0b010)
+                    {
+                        if (currXSpeed <= -0.5f)
+                        {
+                            currReflectTimer = 4;
+                            reflectVec.m_x = -1.0f;
+                        }
+                    }
+                    else if (touchFlags & 0b100)
+                    {
+                        if (currXSpeed >= 0.5f)
+                        {
+                            currReflectTimer = 4;
+                            reflectVec.m_x = -1.0f;
+                        }
                     }
                     if (currReflectTimer != 0)
                     {
