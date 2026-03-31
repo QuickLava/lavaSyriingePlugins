@@ -10,7 +10,6 @@ namespace leapLord
     const float maxChargeLen = 40.0f;
     const float chargePerFrame = (maxChargeMul - minChargeMul) / maxChargeLen;
 
-    Vec3f momentumReflectVec(-1.0f, 0.0f, 0.0f);
     soInstanceAttribute momentumReflectAttr = 1;
 
     const u16 chargeableStatuses[] = 
@@ -96,11 +95,24 @@ namespace leapLord
             else if (moduleAccesser->m_enumerationStart->m_situationModule->getKind() == Situation_Air)
             {
                 soGroundModule* groundModule = moduleAccesser->m_enumerationStart->m_groundModule;
-                if (currReflectTimer == 0 && groundModule->isTouch(0b110, 0))
+                if (currReflectTimer == 0)
                 {
-                    currReflectTimer = 4;
-                    moduleAccesser->m_enumerationStart->m_soundModule->playSE(snd_se_common_kick_hit_s, 1, 1, 0);
-                    moduleAccesser->m_enumerationStart->m_kineticModule->reflectSpeed(&momentumReflectVec, &momentumReflectAttr);
+                    Vec3f reflectVec(0.0f, 0.0f, 0.0f);
+                    if (groundModule->isTouch(0b0110, 0))
+                    {
+                        reflectVec.m_x = -1.0f;
+                        currReflectTimer = 4;
+                    }
+                    else if (groundModule->isTouch(0b0001, 0))
+                    {
+                        reflectVec.m_y = -1.0f;
+                        currReflectTimer = 4;
+                    }
+                    if (currReflectTimer != 0)
+                    {
+                        moduleAccesser->m_enumerationStart->m_soundModule->playSE(snd_se_common_kick_hit_s, 1, 1, 0);
+                        moduleAccesser->m_enumerationStart->m_kineticModule->reflectSpeed(&reflectVec, &momentumReflectAttr);
+                    }
                 }
             }
 
@@ -122,6 +134,10 @@ namespace leapLord
                 chargeAmount[fighterPlayerNo] = minChargeMul;
                 soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
                 motionModule->setRate(motionModule->getEndFrame() / maxChargeLen);
+            }
+            if (moduleAccesser->m_enumerationStart->m_situationModule->getKind() == Situation_Air)
+            {
+                statusModule->unableTransitionTerm(Fighter::Status::Transition::Term_Stop_Ceil, 0);
             }
         }
     }
