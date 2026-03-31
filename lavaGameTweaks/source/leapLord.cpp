@@ -141,6 +141,7 @@ namespace leapLord
         {
             soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
             soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleAccesser->m_enumerationStart->m_statusModule;
+            soSituationModule* situationModule = moduleAccesser->m_enumerationStart->m_situationModule;
 
             u32 currStatus = statusModule->getStatusKind();
             if (isChargeableStatus(currStatus))
@@ -154,8 +155,12 @@ namespace leapLord
                 soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
                 motionModule->setRate(motionModule->getEndFrame() / maxChargeLen);
             }
-            if (moduleAccesser->m_enumerationStart->m_situationModule->getKind() == Situation_Air)
+            if (situationModule->getKind() == Situation_Air)
             {
+                if (situationModule->getPrevKind() != Situation_Air)
+                {
+                    reflectLockoutTimer[fighterPlayerNo] = 4;
+                }
                 statusModule->unableTransitionTerm(Fighter::Status::Transition::Term_Stop_Ceil, 0);
                 statusModule->unableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Wall_Jump);
             }
