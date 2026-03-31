@@ -94,7 +94,8 @@ namespace leapLord
             }
             else if (moduleAccesser->m_enumerationStart->m_situationModule->getKind() == Situation_Air)
             {
-                if (currReflectTimer == 0)
+                if (currReflectTimer == 0
+                    && moduleAccesser->m_enumerationStart->m_workManageModule->getInt(Fighter::Instance::Work::Int_Cliff_No_Catch_Frame) <= 0)
                 {
                     soGroundModule* groundModule = moduleAccesser->m_enumerationStart->m_groundModule;
 
@@ -141,7 +142,6 @@ namespace leapLord
         {
             soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
             soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleAccesser->m_enumerationStart->m_statusModule;
-            soSituationModule* situationModule = moduleAccesser->m_enumerationStart->m_situationModule;
 
             u32 currStatus = statusModule->getStatusKind();
             if (isChargeableStatus(currStatus))
@@ -155,12 +155,8 @@ namespace leapLord
                 soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
                 motionModule->setRate(motionModule->getEndFrame() / maxChargeLen);
             }
-            if (situationModule->getKind() == Situation_Air)
+            if (moduleAccesser->m_enumerationStart->m_situationModule->getKind() == Situation_Air)
             {
-                if (situationModule->getPrevKind() != Situation_Air)
-                {
-                    reflectLockoutTimer[fighterPlayerNo] = 4;
-                }
                 statusModule->unableTransitionTerm(Fighter::Status::Transition::Term_Stop_Ceil, 0);
                 statusModule->unableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Wall_Jump);
             }
@@ -189,21 +185,20 @@ namespace leapLord
                 float currCharge = chargeAmount[fighterPlayerNo];
 
                 soStatusModule* statusModule = moduleAccesserIn->m_enumerationStart->m_statusModule;
-                soSituationModule* situationModule = moduleAccesserIn->m_enumerationStart->m_situationModule;
 
                 u32 currStatus = statusModule->getStatusKind();
-                u32 currSituation = situationModule->getKind();
 
                 switch (paramIn)
                 {
                     case ftValueAccesser::Customize_Param_Float_Jump_Speed_Y:
+                    case ftValueAccesser::Customize_Param_Float_Mini_Jump_Speed_Y:
                     case ftValueAccesser::Customize_Param_Float_Tread_Jump_Speed_Y_Mul:
+                    case ftValueAccesser::Customize_Param_Float_Tread_Mini_Jump_Speed_Y_Mul:
                     case ftValueAccesser::Customize_Param_Float_Cliff_Jump_Speed_Y:
-                    case ftValueAccesser::Customize_Param_Float_Passive_Wall_Jump_Speed_Y:
                     {
-                        if (currSituation != Situation_Ground)
+                        if (currStatus != Fighter::Status::Jump)
                         {
-                            currCharge = (currCharge < 0.5f) ? 0.5f : currCharge;
+                            currCharge = (currCharge < 1.0f) ? 1.0f : currCharge;
                         }
                         result *= currCharge;
                         break;
@@ -212,11 +207,16 @@ namespace leapLord
                     case ftValueAccesser::Customize_Param_Float_Air_Accel_X_Mul:
                     case ftValueAccesser::Customize_Param_Float_Air_Brake_X:
                     {
-                        if (currStatus != Fighter::Status::Attack_Air && currStatus <= Fighter::Status::Test_Motion)
+                        if (currStatus <= Fighter::Status::Test_Motion
+                            && currStatus != Fighter::Status::Attack_Air && currStatus != Fighter::Status::Fall_Special)
                         {
                             result = 0.0f;
                         }
                         break;
+                    }
+                    case ftValueAccesser::Customize_Param_Float_Jump_Aerial_Speed_X_Mul:
+                    {
+                        result = 1.0f;
                     }
                 }
             }
@@ -228,6 +228,7 @@ namespace leapLord
     double getConstantFloatCore(soValueAccesser* valueAccesserIn, soModuleAccesser* moduleAccesserIn, ftValueAccesser::ParamFloat paramIn, u32 param_3)
     {   
         paramInfoBuffer paramInfo;
+        paramInfo.m_paramID = paramIn;
         switch (paramIn)
         {
             case ftValueAccesser::Customize_Param_Float_Mini_Jump_Speed_Y:
@@ -243,13 +244,12 @@ namespace leapLord
             case ftValueAccesser::Customize_Param_Float_Jump_Speed_X:
             case ftValueAccesser::Customize_Param_Float_Air_Speed_X_Stable:
             {
-                paramIn = ftValueAccesser::Customize_Param_Float_Jump_Speed_X_Max;
+                paramIn = ftValueAccesser::Customize_Param_Float_Dash_Speed;
                 break;
             }
         }
-        paramInfo.m_paramID = paramIn;
         paramInfo.m_moduleAccesser = moduleAccesserIn;
-        paramInfo .m_currValue = _getConstantFloatCore(valueAccesserIn, moduleAccesserIn, paramIn, param_3);
+        paramInfo.m_currValue = _getConstantFloatCore(valueAccesserIn, moduleAccesserIn, paramIn, param_3);
         return doParamModifications(paramInfo);
     }
 
