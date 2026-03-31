@@ -5,7 +5,7 @@ namespace leapLord
     char outputTag[] = "[leapLord] ";
 
     float chargeAmount[fighterHooks::maxFighterCount];
-    const float minChargeMul = 0.25f;
+    const float minChargeMul = 0.00f;
     const float maxChargeMul = 1.50f;
     const float maxChargeLen = 40.0f;
     const float chargePerFrame = (maxChargeMul - minChargeMul) / maxChargeLen;
@@ -14,8 +14,7 @@ namespace leapLord
 
     const u16 chargeableStatuses[] = 
     { 
-        Fighter::Status::Jump_Squat, Fighter::Status::Tread_Jump, 
-        Fighter::Status::Cliff_Jump1, Fighter::Status::Cliff_Jump2, Fighter::Status::Cliff_Jump3, 
+        Fighter::Status::Jump_Squat, Fighter::Status::Cliff_Jump1, Fighter::Status::Cliff_Jump2, Fighter::Status::Cliff_Jump3, 
     };
     const u32 chargeableStatusCount = sizeof(chargeableStatuses) / sizeof(u16);
     bool isChargeableStatus(u32 statusIn)
@@ -43,56 +42,7 @@ namespace leapLord
             u8 currReflectTimer = reflectLockoutTimer[fighterPlayerNo];
 
             u32 currStatus = statusModule->getStatusKind();
-            if (isChargeableStatus(currStatus))
-            {
-                bool promptedByButton = 0;
-                int transitionTermID = statusModule->m_transitionModule->getLastTransitionInfo()->m_unitId;
-                switch (currStatus)
-                {
-                    case Fighter::Status::Jump_Squat: 
-                    { 
-                        if (transitionTermID == Fighter::Status::Transition::Term_Cont_Jump_Squat_Button)
-                        {
-                            promptedByButton = 1;
-                        }
-                        break;
-                    }
-                    case Fighter::Status::Tread_Jump:
-                    {
-                        if (transitionTermID == Fighter::Status::Transition::Term_Cont_Tread_Jump_Button)
-                        {
-                            promptedByButton = 1;
-                        }
-                        break;
-                    }
-                    case Fighter::Status::Cliff_Jump1:
-                    case Fighter::Status::Cliff_Jump2:
-                    case Fighter::Status::Cliff_Jump3:
-                    {
-                        if (transitionTermID == Fighter::Status::Transition::Term_Cont_Cliff_Jump_Button)
-                        {
-                            promptedByButton = 1;
-                        }
-                        break;
-                    }
-                }
-
-                soControllerModule* controllerModule = moduleAccesser->m_enumerationStart->m_controllerModule;
-                ipPadButton padReleased = controllerModule->getRelease();
-
-                if ((promptedByButton && (padReleased.m_mask & ipPadButton::MASK_JUMP))
-                    || (!promptedByButton 
-                        && controllerModule->getStickY() < ftValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Common_Param_Float_Jump_Stick_Y, 0)))
-                {
-                    soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
-                    motionModule->setRate(10.0f);
-                }
-                else
-                {
-                    chargeAmount[fighterPlayerNo] += chargePerFrame;
-                }
-            }
-            else if (moduleAccesser->m_enumerationStart->m_situationModule->getKind() == Situation_Air)
+            if (moduleAccesser->m_enumerationStart->m_situationModule->getKind() == Situation_Air)
             {
                 if (currReflectTimer == 0
                     && moduleAccesser->m_enumerationStart->m_workManageModule->getInt(Fighter::Instance::Work::Int_Cliff_No_Catch_Frame) <= 0)
@@ -135,6 +85,64 @@ namespace leapLord
             reflectLockoutTimer[fighterPlayerNo] = currReflectTimer;
         }
     }
+
+    u32 transitionOverrideCallback(Fighter* fighterIn, int transitionTermIDIn, u32 targetActionIn)
+    {
+        u32 result = targetActionIn;
+        u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
+        if (fighterPlayerNo < fighterHooks::maxFighterCount)
+        {
+            soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
+            soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleAccesser->m_enumerationStart->m_statusModule;
+            u32 currStatus = statusModule->getStatusKind();
+            int lastTransitionUnitID = statusModule->m_transitionModule->getLastTransitionInfo()->m_unitId;
+
+            int promptedByButton = 0;
+            switch (currStatus)
+            {
+                case Fighter::Status::Jump_Squat:
+                {
+                    if (lastTransitionUnitID == Fighter::Status::Transition::Term_Cont_Jump_Squat_Button)
+                    {
+                        promptedByButton = 1;
+                    }
+                    break;
+                }
+                case Fighter::Status::Cliff_Jump1:
+                case Fighter::Status::Cliff_Jump2:
+                case Fighter::Status::Cliff_Jump3:
+                {
+                    if (lastTransitionUnitID == Fighter::Status::Transition::Term_Cont_Cliff_Jump_Button)
+                    {
+                        promptedByButton = 1;
+                    }
+                    break;
+                }
+                default:
+                {
+                    promptedByButton = -1;
+                    break;
+                }
+            }
+            if (promptedByButton != -1)
+            {
+                soControllerModule* controllerModule = moduleAccesser->m_enumerationStart->m_controllerModule;
+                bool doCharge = (promptedByButton == 1) ? 
+                    controllerModule->getButton().m_mask & ipPadButton::MASK_JUMP :
+                    controllerModule->getStickY() >= ftValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Common_Param_Float_Jump_Stick_Y, 0);
+                float currCharge = chargeAmount[fighterPlayerNo];
+                if (doCharge && (currCharge < maxChargeMul))
+                {
+                    result = 0xFFFFFFFF;
+                    currCharge += chargePerFrame;
+                    chargeAmount[fighterPlayerNo] = currCharge;
+                    OSReport_N("%sP%d Charge Incremented to %.02f\n", outputTag, fighterPlayerNo, chargeAmount[fighterPlayerNo]);
+                }
+            }
+        }
+        return result;
+    }
+
     void onStatusChangeCallback(Fighter* fighterIn)
     {
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
@@ -144,16 +152,10 @@ namespace leapLord
             soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleAccesser->m_enumerationStart->m_statusModule;
 
             u32 currStatus = statusModule->getStatusKind();
-            if (isChargeableStatus(currStatus))
+            if (currStatus == Fighter::Status::Jump_Squat)
             {
-                if (currStatus == Fighter::Status::Jump_Squat)
-                {
-                    moduleAccesser->m_enumerationStart->m_kineticModule->clearSpeedAll();
-                }
-
                 chargeAmount[fighterPlayerNo] = minChargeMul;
-                soMotionModule* motionModule = moduleAccesser->m_enumerationStart->m_motionModule;
-                motionModule->setRate(motionModule->getEndFrame() / maxChargeLen);
+                moduleAccesser->m_enumerationStart->m_kineticModule->clearSpeedAll();
             }
             if (moduleAccesser->m_enumerationStart->m_situationModule->getKind() == Situation_Air)
             {
@@ -182,24 +184,21 @@ namespace leapLord
             u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
             if (fighterPlayerNo < fighterHooks::maxFighterCount)
             {
-                float currCharge = chargeAmount[fighterPlayerNo];
-
                 soStatusModule* statusModule = moduleAccesserIn->m_enumerationStart->m_statusModule;
-
                 u32 currStatus = statusModule->getStatusKind();
-
                 switch (paramIn)
                 {
                     case ftValueAccesser::Customize_Param_Float_Jump_Speed_Y:
                     case ftValueAccesser::Customize_Param_Float_Mini_Jump_Speed_Y:
-                    case ftValueAccesser::Customize_Param_Float_Tread_Jump_Speed_Y_Mul:
-                    case ftValueAccesser::Customize_Param_Float_Tread_Mini_Jump_Speed_Y_Mul:
                     case ftValueAccesser::Customize_Param_Float_Cliff_Jump_Speed_Y:
                     {
+                        float currCharge = chargeAmount[fighterPlayerNo];
                         if (currStatus != Fighter::Status::Jump)
                         {
-                            currCharge = (currCharge < 1.0f) ? 1.0f : currCharge;
+                            currCharge /= 2.0f;
                         }
+                        currCharge += 1.0f;
+                        OSReport_N("%sApplied P%d Charge (%.02f)\n", outputTag, fighterPlayerNo, currCharge);
                         result *= currCharge;
                         break;
                     }
@@ -229,16 +228,16 @@ namespace leapLord
     {   
         paramInfoBuffer paramInfo;
         paramInfo.m_paramID = paramIn;
+        paramInfo.m_moduleAccesser = moduleAccesserIn;
         switch (paramIn)
         {
-            case ftValueAccesser::Customize_Param_Float_Mini_Jump_Speed_Y:
+            case ftValueAccesser::Customize_Param_Float_Jump_Speed_Y:
             {
-                paramIn = ftValueAccesser::Customize_Param_Float_Jump_Speed_Y;
-                break;
-            }
-            case ftValueAccesser::Customize_Param_Float_Tread_Mini_Jump_Speed_Y_Mul:
-            {
-                paramIn = ftValueAccesser::Customize_Param_Float_Tread_Jump_Speed_Y_Mul;
+                soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleAccesserIn->m_enumerationStart->m_statusModule;
+                if (statusModule->m_statusKind == Fighter::Status::Jump)
+                {
+                    paramIn = ftValueAccesser::Customize_Param_Float_Mini_Jump_Speed_Y;
+                }
                 break;
             }
             case ftValueAccesser::Customize_Param_Float_Jump_Speed_X:
@@ -248,7 +247,6 @@ namespace leapLord
                 break;
             }
         }
-        paramInfo.m_moduleAccesser = moduleAccesserIn;
         paramInfo.m_currValue = _getConstantFloatCore(valueAccesserIn, moduleAccesserIn, paramIn, param_3);
         return doParamModifications(paramInfo);
     }
@@ -257,6 +255,7 @@ namespace leapLord
     fighterHooks::callbackBundle callbacks =
     {
         .m_FighterOnUpdateCB = (fighterHooks::FighterOnUpdateCB)onUpdateCallback,
+        .m_TransitionOverrideCB = (fighterHooks::TransitionTermEventCB)transitionOverrideCallback,
         .m_FighterOnStatusChangeCB = (fighterHooks::FighterOnStatusChangeCB)onStatusChangeCallback,
     };
 #pragma c99 off
