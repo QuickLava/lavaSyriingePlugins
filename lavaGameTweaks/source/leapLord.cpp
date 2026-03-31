@@ -4,6 +4,9 @@ namespace leapLord
 {
     char outputTag[] = "[leapLord] ";
 
+    const u32 airDodgeBufferLeniency = 2;
+    const u32 smashAttackFlickLeniency = 3;
+    const u32 defaultReflectTimerLockout = 4;
     float chargeAmount[fighterHooks::maxFighterCount];
     const float minChargeMul = 0.00f;
     const float maxChargeMul = 1.50f;
@@ -14,7 +17,7 @@ namespace leapLord
 
     const u16 chargeableStatuses[] = 
     { 
-        Fighter::Status::Jump_Squat, Fighter::Status::Cliff_Jump1, Fighter::Status::Cliff_Jump2, Fighter::Status::Cliff_Jump3, 
+        Fighter::Status::Jump_Squat, Fighter::Status::Cliff_Jump1, 
     };
     const u32 chargeableStatusCount = sizeof(chargeableStatuses) / sizeof(u16);
     bool isChargeableStatus(u32 statusIn)
@@ -54,14 +57,14 @@ namespace leapLord
                     u32 touchFlags = groundModule->getTouchFlag(0);
                     if (touchFlags & 0b001)
                     {
-                        currReflectTimer = 4;
+                        currReflectTimer = defaultReflectTimerLockout;
                         reflectVec.m_y = -1.0f;
                     }
                     if (touchFlags & 0b010)
                     {
                         if (currXSpeed <= -0.5f)
                         {
-                            currReflectTimer = 4;
+                            currReflectTimer = defaultReflectTimerLockout;
                             reflectVec.m_x = -1.0f;
                         }
                     }
@@ -69,7 +72,7 @@ namespace leapLord
                     {
                         if (currXSpeed >= 0.5f)
                         {
-                            currReflectTimer = 4;
+                            currReflectTimer = defaultReflectTimerLockout;
                             reflectVec.m_x = -1.0f;
                         }
                     }
@@ -103,15 +106,20 @@ namespace leapLord
             {
                 case Fighter::Status::Jump_Squat:
                 {
-                    if (lastTransitionUnitID == Fighter::Status::Transition::Term_Cont_Jump_Squat_Button)
+                    if (targetActionIn == Fighter::Status::Jump)
                     {
-                        promptedByButton = 1;
+                        if (lastTransitionUnitID == Fighter::Status::Transition::Term_Cont_Jump_Squat_Button)
+                        {
+                            promptedByButton = 1;
+                        }
+                    }
+                    else
+                    {
+                        promptedByButton = -1;
                     }
                     break;
                 }
                 case Fighter::Status::Cliff_Jump1:
-                case Fighter::Status::Cliff_Jump2:
-                case Fighter::Status::Cliff_Jump3:
                 {
                     if (lastTransitionUnitID == Fighter::Status::Transition::Term_Cont_Cliff_Jump_Button)
                     {
@@ -142,7 +150,7 @@ namespace leapLord
                 {
                     u8 framesSinceGuardPress = controllerModule->getTriggerCount(soController::Pad_Button_Guard);
                     u8 framesSinceAttackPress = controllerModule->getTriggerCount(soController::Pad_Button_Attack);
-                    if (framesSinceGuardPress != framesSinceAttackPress && framesSinceGuardPress <= 2)
+                    if (framesSinceGuardPress != framesSinceAttackPress && framesSinceGuardPress <= airDodgeBufferLeniency)
                     {
                         result = Fighter::Status::Escape_Air;
                     }
@@ -161,7 +169,7 @@ namespace leapLord
                     }
                     case Fighter::Status::Transition::Term_Cont_Attack_S3:
                     {
-                        if (controllerModule->getFlickX() <= 3)
+                        if (controllerModule->getFlickX() <= smashAttackFlickLeniency)
                         {
                             result = Fighter::Status::Attack_S4_Start;
                         }
