@@ -94,6 +94,7 @@ namespace leapLord
         {
             soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
             soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleAccesser->m_enumerationStart->m_statusModule;
+            soControllerModule* controllerModule = moduleAccesser->m_enumerationStart->m_controllerModule;
             u32 currStatus = statusModule->getStatusKind();
             int lastTransitionUnitID = statusModule->m_transitionModule->getLastTransitionInfo()->m_unitId;
 
@@ -126,7 +127,6 @@ namespace leapLord
             }
             if (promptedByButton != -1)
             {
-                soControllerModule* controllerModule = moduleAccesser->m_enumerationStart->m_controllerModule;
                 bool doCharge = (promptedByButton == 1) ? 
                     controllerModule->getButton().m_mask & ipPadButton::MASK_JUMP :
                     controllerModule->getStickY() >= ftValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Common_Param_Float_Jump_Stick_Y, 0);
@@ -157,6 +157,14 @@ namespace leapLord
                     case Fighter::Status::Transition::Term_Cont_Turn_Dash_Dash:
                     {
                         result = 0xFFFFFFFF;
+                        break;
+                    }
+                    case Fighter::Status::Transition::Term_Cont_Attack_S3:
+                    {
+                        if (controllerModule->getFlickX() <= 3)
+                        {
+                            result = Fighter::Status::Attack_S4_Start;
+                        }
                         break;
                     }
                 }
