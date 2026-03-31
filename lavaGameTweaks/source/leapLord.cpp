@@ -163,13 +163,16 @@ namespace leapLord
             u32 currStatus = statusModule->getStatusKind();
             if (currStatus == Fighter::Status::Jump_Squat)
             {
-                chargeAmount[fighterPlayerNo] = minChargeMul;
                 moduleAccesser->m_enumerationStart->m_kineticModule->clearSpeedAll();
             }
             if (moduleAccesser->m_enumerationStart->m_situationModule->getKind() == Situation_Air)
             {
                 statusModule->unableTransitionTerm(Fighter::Status::Transition::Term_Stop_Ceil, 0);
                 statusModule->unableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Wall_Jump);
+            }
+            else
+            {
+                chargeAmount[fighterPlayerNo] = minChargeMul;
             }
         }
     }
