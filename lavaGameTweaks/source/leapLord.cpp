@@ -138,6 +138,15 @@ namespace leapLord
                     chargeAmount[fighterPlayerNo] = currCharge;
                     OSReport_N("%sP%d Charge Incremented to %.02f\n", outputTag, fighterPlayerNo, chargeAmount[fighterPlayerNo]);
                 }
+                else if (currCharge > minChargeMul)
+                {
+                    u8 framesSinceGuardPress = controllerModule->getTriggerCount(soController::Pad_Button_Guard);
+                    u8 framesSinceAttackPress = controllerModule->getTriggerCount(soController::Pad_Button_Attack);
+                    if (framesSinceGuardPress != framesSinceAttackPress && framesSinceGuardPress <= 2)
+                    {
+                        result = Fighter::Status::Escape_Air;
+                    }
+                }
             }
         }
         return result;
