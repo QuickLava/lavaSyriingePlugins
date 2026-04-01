@@ -162,11 +162,12 @@ namespace leapLord
                     *((Vec2f*)&currPos) = moduleAccesser->m_enumerationStart->m_groundModule->getDownPos(0);
                     if (currCharge >= maxChargeMul)
                     {
-                        controllerModule->setRumble(2, 56, 1, -1);
+                        controllerModule->setRumble(0x17, 0, 0, -1);
                         effectModule->req(ef_ptc_common_landing_smoke, &currPos, &mechUtil::zeroVec, 1.0f, mechUtil::sbid_TransN, 0);
                     }
                     else if (currCharge >= midChargeMul)
                     {
+                        controllerModule->setRumble(0xE, 0, 0, -1);
                         effectModule->req(ef_ptc_common_landing_smoke_s, &currPos, &mechUtil::zeroVec, 1.0f, mechUtil::sbid_TransN, 0);
                     }
                     if (currCharge > minChargeMul)
@@ -213,7 +214,7 @@ namespace leapLord
             soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
             soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleAccesser->m_enumerationStart->m_statusModule;
 
-            if (statusModule->getStatusKind() == Fighter::Status::Jump_Squat)
+            if (isChargeableStatus(statusModule->getStatusKind()))
             {
                 moduleAccesser->m_enumerationStart->m_kineticModule->clearSpeedAll();
             }
