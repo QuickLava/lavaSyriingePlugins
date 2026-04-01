@@ -7,10 +7,13 @@ namespace leapLord
     const u32 airDodgeBufferLeniency = 2;
     const u32 smashAttackFlickLeniency = 3;
     const u32 defaultReflectTimerLockout = 4;
+    const u32 chargeEfCommonID = 0x19;
     float chargeAmount[fighterHooks::maxFighterCount];
     const float minChargeMul = 0.00f;
     const float maxChargeMul = 1.50f;
-    const float maxChargeLen = 40.0f;
+    const float midChargeMul = (maxChargeMul + minChargeMul) / 2.0f;
+    const float lowChargeMul = (maxChargeMul + minChargeMul + minChargeMul) / 3.0f;
+    const float maxChargeLen = 45.0f;
     const float chargePerFrame = (maxChargeMul - minChargeMul) / maxChargeLen;
 
     soInstanceAttribute momentumReflectAttr = 1;
@@ -135,6 +138,7 @@ namespace leapLord
             }
             if (promptedByButton != -1)
             {
+                soEffectModule* effectModule = moduleAccesser->m_enumerationStart->m_effectModule;
                 bool doCharge = (promptedByButton == 1) ? 
                     controllerModule->getButton().m_mask & ipPadButton::MASK_JUMP :
                     controllerModule->getStickY() >= ftValueAccesser::getConstantFloat(moduleAccesser, ftValueAccesser::Common_Param_Float_Jump_Stick_Y, 0);
@@ -142,17 +146,37 @@ namespace leapLord
                 if (doCharge && (currCharge < maxChargeMul))
                 {
                     result = 0xFFFFFFFF;
+                    bool crossedLowCharge = currCharge < lowChargeMul;
                     currCharge += chargePerFrame;
+                    crossedLowCharge &= currCharge >= lowChargeMul;
+                    if (crossedLowCharge)
+                    {
+                        effectModule->reqCommon(1.0f, chargeEfCommonID);
+                    }
                     chargeAmount[fighterPlayerNo] = currCharge;
                     OSReport_N("%sP%d Charge Incremented to %.02f\n", outputTag, fighterPlayerNo, chargeAmount[fighterPlayerNo]);
                 }
-                else if (currCharge > minChargeMul)
+                else
                 {
-                    u8 framesSinceGuardPress = controllerModule->getTriggerCount(soController::Pad_Button_Guard);
-                    u8 framesSinceAttackPress = controllerModule->getTriggerCount(soController::Pad_Button_Attack);
-                    if (framesSinceGuardPress != framesSinceAttackPress && framesSinceGuardPress <= airDodgeBufferLeniency)
+                    Vec3f currPos(0.0f, 0.0f, 0.0f);
+                    *((Vec2f*)&currPos) = moduleAccesser->m_enumerationStart->m_groundModule->getDownPos(0);
+                    if (currCharge >= maxChargeMul)
                     {
-                        result = Fighter::Status::Escape_Air;
+                        controllerModule->setRumble(2, 56, 1, -1);
+                        effectModule->req(ef_ptc_common_landing_smoke, &currPos, &mechUtil::zeroVec, 1.0f, mechUtil::sbid_TransN, 0);
+                    }
+                    else if (currCharge >= midChargeMul)
+                    {
+                        effectModule->req(ef_ptc_common_landing_smoke_s, &currPos, &mechUtil::zeroVec, 1.0f, mechUtil::sbid_TransN, 0);
+                    }
+                    if (currCharge > minChargeMul)
+                    {
+                        u8 framesSinceGuardPress = controllerModule->getTriggerCount(soController::Pad_Button_Guard);
+                        u8 framesSinceAttackPress = controllerModule->getTriggerCount(soController::Pad_Button_Attack);
+                        if (framesSinceGuardPress != framesSinceAttackPress && framesSinceGuardPress <= airDodgeBufferLeniency)
+                        {
+                            result = Fighter::Status::Escape_Air;
+                        }
                     }
                 }
             }
@@ -189,10 +213,13 @@ namespace leapLord
             soModuleAccesser* moduleAccesser = fighterIn->m_moduleAccesser;
             soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleAccesser->m_enumerationStart->m_statusModule;
 
-            u32 currStatus = statusModule->getStatusKind();
-            if (currStatus == Fighter::Status::Jump_Squat)
+            if (statusModule->getStatusKind() == Fighter::Status::Jump_Squat)
             {
                 moduleAccesser->m_enumerationStart->m_kineticModule->clearSpeedAll();
+            }
+            else if (statusModule->getPrevStatusKind(0) == Fighter::Status::Jump_Squat)
+            {
+                moduleAccesser->m_enumerationStart->m_effectModule->removeCommon(chargeEfCommonID);
             }
             if (moduleAccesser->m_enumerationStart->m_situationModule->getKind() == Situation_Air)
             {
