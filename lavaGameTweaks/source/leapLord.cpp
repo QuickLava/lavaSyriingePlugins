@@ -282,8 +282,11 @@ namespace leapLord
                     case ftValueAccesser::Customize_Param_Float_Air_Accel_X_Mul:
                     case ftValueAccesser::Customize_Param_Float_Air_Brake_X:
                     {
-                        if (currStatus <= Fighter::Status::Test_Motion
-                            && currStatus != Fighter::Status::Attack_Air && currStatus != Fighter::Status::Fall_Special)
+                        if (currStatus == Fighter::Status::Attack_Air)
+                        {
+                            result *= 0.25f;
+                        }
+                        else if (currStatus <= Fighter::Status::Test_Motion && currStatus != Fighter::Status::Fall_Special)
                         {
                             result = 0.0f;
                         }
@@ -307,6 +310,7 @@ namespace leapLord
         paramInfo.m_moduleAccesser = moduleAccesserIn;
         switch (paramIn)
         {
+            case ftValueAccesser::Customize_Param_Float_Walk_Accel_Mul:
             case ftValueAccesser::Customize_Param_Float_Walk_Accel_Add:
             {
                 paramIn = ftValueAccesser::Customize_Param_Float_Walk_Speed_Max;
@@ -321,7 +325,6 @@ namespace leapLord
                 break;
             }
             case ftValueAccesser::Customize_Param_Float_Jump_Speed_X:
-            case ftValueAccesser::Customize_Param_Float_Air_Speed_X_Stable:
             {
                 paramIn = ftValueAccesser::Customize_Param_Float_Dash_Speed;
                 break;
