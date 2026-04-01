@@ -188,6 +188,8 @@ namespace leapLord
                     case Fighter::Status::Transition::Term_Cont_Dash:
                     case Fighter::Status::Transition::Term_Cont_Turn_Dash:
                     case Fighter::Status::Transition::Term_Cont_Turn_Dash_Dash:
+                    case Fighter::Status::Transition::Term_Cont_Jump_Aerial:
+                    case Fighter::Status::Transition::Term_Cont_Jump_Aerial_Button:
                     {
                         result = 0xFFFFFFFF;
                         break;
@@ -283,11 +285,7 @@ namespace leapLord
                     case ftValueAccesser::Customize_Param_Float_Air_Accel_X_Mul:
                     case ftValueAccesser::Customize_Param_Float_Air_Brake_X:
                     {
-                        if (currStatus == Fighter::Status::Attack_Air)
-                        {
-                            result *= 0.25f;
-                        }
-                        else if (currStatus <= Fighter::Status::Test_Motion && currStatus != Fighter::Status::Fall_Special)
+                        if (currStatus <= Fighter::Status::Test_Motion && currStatus != Fighter::Status::Fall_Special)
                         {
                             result = 0.0f;
                         }
@@ -296,6 +294,7 @@ namespace leapLord
                     case ftValueAccesser::Customize_Param_Float_Jump_Aerial_Speed_X_Mul:
                     {
                         result = 1.0f;
+                        break;
                     }
                 }
             }
@@ -326,6 +325,7 @@ namespace leapLord
                 break;
             }
             case ftValueAccesser::Customize_Param_Float_Jump_Speed_X:
+            case ftValueAccesser::Customize_Param_Float_Air_Speed_X_Stable:
             {
                 paramIn = ftValueAccesser::Customize_Param_Float_Dash_Speed;
                 break;
