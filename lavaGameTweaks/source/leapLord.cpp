@@ -193,6 +193,15 @@ namespace leapLord
                         result = 0xFFFFFFFF;
                         break;
                     }
+                    case Fighter::Status::Wait:
+                    {
+                        if (transitionTermIDIn == Fighter::Status::Transition::Term_Landing_Light)
+                        {
+                            result = Fighter::Status::Landing;
+                        }
+                        break;
+                    }
+                    case Fighter::Status::Attack_S3:
                     {
                         if (controllerModule->getFlickX() <= smashAttackFlickLeniency)
                         {
@@ -273,9 +282,9 @@ namespace leapLord
                     }
                     case ftValueAccesser::Customize_Param_Float_Ground_Brake:
                     {
-                        if (currStatus == Fighter::Status::Walk || currStatus == Fighter::Status::Walk_Brake || currStatus == Fighter::Status::Turn)
+                        if (currStatus != Fighter::Status::Wait && currStatus != Fighter::Status::Landing_Fall_Special)
                         {
-                            result *= 10.0f;
+                            moduleAccesserIn->m_enumerationStart->m_kineticModule->clearSpeedAll();
                         }
                         break;
                     }
