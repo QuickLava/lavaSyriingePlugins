@@ -183,18 +183,16 @@ namespace leapLord
             }
             else
             {
-                switch (transitionTermIDIn)
+                switch (targetActionIn)
                 {
-                    case Fighter::Status::Transition::Term_Cont_Dash:
-                    case Fighter::Status::Transition::Term_Cont_Turn_Dash:
-                    case Fighter::Status::Transition::Term_Cont_Turn_Dash_Dash:
-                    case Fighter::Status::Transition::Term_Cont_Jump_Aerial:
-                    case Fighter::Status::Transition::Term_Cont_Jump_Aerial_Button:
+                    case Fighter::Status::Dash:
+                    case Fighter::Status::Turn_Dash:
+                    case Fighter::Status::Jump_Aerial:
+                    case Fighter::Status::Fly:
                     {
                         result = 0xFFFFFFFF;
                         break;
                     }
-                    case Fighter::Status::Transition::Term_Cont_Attack_S3:
                     {
                         if (controllerModule->getFlickX() <= smashAttackFlickLeniency)
                         {
