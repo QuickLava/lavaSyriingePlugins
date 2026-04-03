@@ -30,8 +30,8 @@ namespace mechUtil
     extern Vec3f gfxFaceScreenRotVec;
     extern Vec3f gfxFlattenSclVec;
     const u32 allTauntPadMask =
-        INPUT_PAD_BUTTON_MASK_APPEAL_HI | INPUT_PAD_BUTTON_MASK_APPEAL_S | INPUT_PAD_BUTTON_MASK_APPEAL_LW |
-        INPUT_PAD_BUTTON_MASK_APPEAL_S_L | INPUT_PAD_BUTTON_MASK_APPEAL_S_R;
+        ipPadButton::MASK_APPEAL_HI | ipPadButton::MASK_APPEAL_S | ipPadButton::MASK_APPEAL_LW |
+        ipPadButton::MASK_APPEAL_S_L | ipPadButton::MASK_APPEAL_S_R;
 
     enum meterGainAnnouncerCond
     {
