@@ -10,6 +10,7 @@
 #include <logUtils.h>
 #include <snd/snd_id.h>
 #include <snd/snd_system.h>
+#include <nw4r/snd/snd_WsdFile.h>
 #include <FA/FAFstat.h>
 
 namespace lavaFrameHeapWatch {
@@ -295,7 +296,6 @@ namespace lavaFrameHeapWatch {
         if (!sndSystem->isSoundGroupLoaded(static_cast<SndGroupID>(groupIndex)))
         {
             const SoundArchiveFile::Info* infoSection = sndSystem->m_dvdSoundArchive.mFileReader.mInfo;
-            SoundArchiveFile::FileTable* fileArr = Util::GetDataRefAddress0(infoSection->fileTableRef, infoSection);
             SoundArchiveFile::GroupTable* groupArr = Util::GetDataRefAddress0(infoSection->groupTableRef, infoSection);
 
             SoundArchiveFile::GroupInfo* targetGroup = Util::GetDataRefAddress0(groupArr->items[(groupIndex < groupArr->count) ? groupIndex : (groupArr->count - 1)], infoSection);
@@ -359,6 +359,29 @@ namespace lavaFrameHeapWatch {
         return _loadSoundGroup(sndSystem, groupIndex, heapID, isRequest);
     }
 
+    u32(*_ReadSoundInfo)(nw4r::snd::detail::SoundArchiveFileReader*, u32, nw4r::snd::SoundArchive::SoundInfo*);
+    u32 ReadSoundInfo(nw4r::snd::detail::SoundArchiveFileReader* reader, u32 soundID, nw4r::snd::SoundArchive::SoundInfo* soundInfoOut)
+    {
+        using namespace nw4r::snd;
+        using namespace nw4r::snd::detail;
+        u32 result = _ReadSoundInfo(reader, soundID, soundInfoOut);
+        if (result && reader->GetSoundType(soundID) == nw4r::snd::SOUND_TYPE_WAVE)
+        {
+            SoundArchive::WaveSoundInfo waveSoundInfo;
+            if (reader->ReadWaveSoundInfo(soundID, &waveSoundInfo))
+            {
+                WaveSoundNoteInfo noteData;
+                WsdFileReader rwsdReader(g_sndSystem->m_archivePlayer.detail_GetFileAddress(soundInfoOut->fileId));
+                if (rwsdReader.ReadWaveSoundNoteInfo(&noteData, waveSoundInfo.subNo, 0) && noteData.volume != 0x7F)
+                {
+                    OSReport_N("%sOverwrote Volume! Sound 0x%04X, %02X -> %02X! \n", outputTag, soundID, soundInfoOut->volume, noteData.volume);
+                    soundInfoOut->volume = noteData.volume;
+                }
+            }
+        }
+        return result;
+    }
+
     void reportFailedLoad()
     {
         register u32 heapID;
@@ -405,6 +428,9 @@ namespace lavaFrameHeapWatch {
 
         // 0x8007A5CC lands 0x2A8 bytes into symbol "getUseHeapId/[sndHeapSys]/snd_heapsys.o" @ 0x8007A324
         SyringeCompat::syInlineHook(0x8007A5B8, reinterpret_cast<void*>(reportFailedLoad));
+
+        // 0x801C7384 lands 0x00 bytes into symbol "ReadSoundInfo/[nw4r3snd6detail22SoundArchiveFileReaderCFU" @ 0x801C7384
+        SyringeCompat::syReplaceFunc(0x801C7384, reinterpret_cast<void*>(ReadSoundInfo), reinterpret_cast<void**>(&_ReadSoundInfo));
     }
 
     void Destroy()
