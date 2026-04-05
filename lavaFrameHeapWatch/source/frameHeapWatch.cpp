@@ -386,22 +386,21 @@ namespace lavaFrameHeapWatch {
     {
         register u32 heapID;
         register u32 groupID;
-        register u32 heapSize;
         register u32 groupSize;
         register sndHeapSys* heapSys;
         asm
         {
             mr heapID, r31;
             mr groupID, r27;
-            mr heapSize, r3;
             mr groupSize, r30;
             mr heapSys, r29;
         }
 
+        u32 heapMaxSize = heapSys->m_heapMaxSizeArr[heapID];
         u32 heapCurrSize = heapSys->m_heapCurrSizeArr[heapID];
-        if ((groupSize + heapCurrSize) > heapSize)
+        if ((groupSize + heapCurrSize) > heapMaxSize)
         {
-            OSReport_N("%sGroup Load Failed: %03X (%06X bytes) -> FH%02X (%X of %X used)\n", outputTag, groupID, groupSize, heapID, heapCurrSize, heapSize);
+            OSReport_N("%sGroup Load Failed: %03X (%06X bytes) -> FH%02X (%X of %X used)\n", outputTag, groupID, groupSize, heapID, heapCurrSize, heapMaxSize);
         }
     }
 
@@ -410,27 +409,27 @@ namespace lavaFrameHeapWatch {
         // Patch bank loading configuration.
         SyringeCompat::ModuleLoadEvent::Subscribe(applyHeapPatches);
 
+        // 0x80073C34 lands 0x374 bytes into symbol "update/[sndSystem]/snd_system.o" @ 0x800738C0
+        SyringeCompat::syInlineHook(0x80073C34, reinterpret_cast<void*>(backupGroupHeapID));
+        // 0x80073C4C lands 0x38C bytes into symbol "update/[sndSystem]/snd_system.o" @ 0x800738C0
+        SyringeCompat::syInlineHook(0x80073C4C, reinterpret_cast<void*>(backupGroupHeapID));
+        // 0x8002D628 lands 0x7C bytes into symbol "setNextScene/[gfSceneManager]/gf_scene.o" @ 0x8002D5AC
+        SyringeCompat::syInlineHook(0x8002D628, reinterpret_cast<void*>(onSceneChange));
+        // 0x80073B68 lands 0x00 bytes into symbol "sndSystem::loadSoundGroup" @ 0x80073B68
+        SyringeCompat::syReplaceFunc(0x80073B68, reinterpret_cast<void*>(loadSoundGroup), reinterpret_cast<void**>(&_loadSoundGroup));
+        // 0x801C7384 lands 0x00 bytes into symbol "ReadSoundInfo/[nw4r3snd6detail22SoundArchiveFileReaderCFU" @ 0x801C7384
+        SyringeCompat::syReplaceFunc(0x801C7384, reinterpret_cast<void*>(ReadSoundInfo), reinterpret_cast<void**>(&_ReadSoundInfo));
+
+#if __LOG_UTILS_ALLOW_LOGGING
         // 0x801BFBDC lands 0x54 bytes into symbol "Alloc/[nw4r3snd6detail9FrameHeapFUlPFPvUlPv_vPv]/snd_Fram" @ 0x801BFB88
         SyringeCompat::syInlineHook(0x801BFBDC, reinterpret_cast<void*>(printFrameHeapAlloc));
         // 0x801BFCBC lands 0x90 bytes into symbol "SaveState/[nw4r3snd6detail9FrameHeapFv]/snd_FrameHeap.o" @ 0x801BFC2C
         SyringeCompat::syInlineHook(0x801BFCBC, reinterpret_cast<void*>(printFrameSaveState));
         // 0x801CAA80 lands 0x58 bytes into symbol "LoadState/[nw4r3snd9SoundHeapFi]/snd_SoundHeap.o" @ 0x801CAA28
         SyringeCompat::syInlineHook(0x801CAA80, reinterpret_cast<void*>(printFrameLoadState));
-
-        // 0x80073C1C lands 0x35C bytes into symbol "update/[sndSystem]/snd_system.o" @ 0x800738C0
-        SyringeCompat::syInlineHook(0x80073C1C, reinterpret_cast<void*>(backupGroupHeapID));
-
-        // 0x8002D628 lands 0x7C bytes into symbol "setNextScene/[gfSceneManager]/gf_scene.o" @ 0x8002D5AC
-        SyringeCompat::syInlineHook(0x8002D628, reinterpret_cast<void*>(onSceneChange));
-
-        // 0x80073B68 lands 0x00 bytes into symbol "sndSystem::loadSoundGroup" @ 0x80073B68
-        SyringeCompat::syReplaceFunc(0x80073B68, reinterpret_cast<void*>(loadSoundGroup), reinterpret_cast<void**>(&_loadSoundGroup));
-
-        // 0x8007A5CC lands 0x2A8 bytes into symbol "getUseHeapId/[sndHeapSys]/snd_heapsys.o" @ 0x8007A324
-        SyringeCompat::syInlineHook(0x8007A5B8, reinterpret_cast<void*>(reportFailedLoad));
-
-        // 0x801C7384 lands 0x00 bytes into symbol "ReadSoundInfo/[nw4r3snd6detail22SoundArchiveFileReaderCFU" @ 0x801C7384
-        SyringeCompat::syReplaceFunc(0x801C7384, reinterpret_cast<void*>(ReadSoundInfo), reinterpret_cast<void**>(&_ReadSoundInfo));
+        // 0x8007A5AC lands 0x288 bytes into symbol "getUseHeapId/[sndHeapSys]/snd_heapsys.o" @ 0x8007A324
+        SyringeCompat::syInlineHook(0x8007A5AC, reinterpret_cast<void*>(reportFailedLoad));
+#endif
     }
 
     void Destroy()
