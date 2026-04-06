@@ -371,11 +371,19 @@ namespace lavaFrameHeapWatch {
             if (reader->ReadWaveSoundInfo(soundID, &waveSoundInfo))
             {
                 WaveSoundNoteInfo noteData;
-                WsdFileReader rwsdReader(g_sndSystem->m_archivePlayer.detail_GetFileAddress(soundInfoOut->fileId));
-                if (rwsdReader.ReadWaveSoundNoteInfo(&noteData, waveSoundInfo.subNo, 0) && noteData.volume != 0x7F)
+                const void* fileAddress = g_sndSystem->m_archivePlayer.detail_GetFileAddress(soundInfoOut->fileId);
+                if (fileAddress != NULL)
                 {
-                    OSReport_N("%sOverwrote Volume! Sound 0x%04X, %02X -> %02X! \n", outputTag, soundID, soundInfoOut->volume, noteData.volume);
-                    soundInfoOut->volume = noteData.volume;
+                    WsdFileReader rwsdReader(fileAddress);
+                    if (rwsdReader.ReadWaveSoundNoteInfo(&noteData, waveSoundInfo.subNo, 0) && noteData.volume != 0x7F)
+                    {
+                        OSReport_N("%sOverwrote Volume! Sound 0x%04X, %02X -> %02X! \n", outputTag, soundID, soundInfoOut->volume, noteData.volume);
+                        soundInfoOut->volume = noteData.volume;
+                    }
+                }
+                else
+                {
+                    OSReport_N("%sFile 0x%03X (containing Sound 0x%04X) not loaded!\n", outputTag, soundInfoOut->fileId, soundID);
                 }
             }
         }
