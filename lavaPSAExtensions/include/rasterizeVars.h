@@ -66,6 +66,7 @@ namespace rasterizeVars
             scg_MOTION,
             scg_POSTURE,
             scg_COLLISION,
+            scg_SOUND,
             scg_KINETIC,
             scg_EFFECT,
             scg_COLOR_BLEND,
@@ -78,6 +79,7 @@ namespace rasterizeVars
         static const cmdWhitelistEntry m_allowedCommands_Motion[];
         static const cmdWhitelistEntry m_allowedCommands_Posture[];
         static const cmdWhitelistEntry m_allowedCommands_Collision[];
+        static const cmdWhitelistEntry m_allowedCommands_Sound[];
         static const cmdWhitelistEntry m_allowedCommands_Kinetic[];
         static const cmdWhitelistEntry m_allowedCommands_Effect[];
         static const cmdWhitelistEntry m_allowedCommands_ColorBlend[];

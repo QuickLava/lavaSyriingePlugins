@@ -230,6 +230,21 @@ namespace rasterizeVars
         { 0x2B, tli_000001111111000 },                 // [062B0D00] Thrown Collision
         { 0x2C, tli_000001111111000 },                 // [062C0F00] Special Collateral Collision
     };
+    // Group 0x0A: soSoundModule
+    const cmdWhitelistEntry cmdWhitelist::m_allowedCommands_Sound[] =
+    {
+        { 0x00, tli_0 },                               // [0A000100] Play Sound Effect (1, 0, 0)
+        { 0x01, tli_0 },                               // [0A010100] Play Footstep Sound Effect
+        { 0x02, tli_0 },                               // [0A020100] Play Sound Effect (Transient)
+        { 0x03, tli_0 },                               // [0A030100] Stop Sound Effect
+        { 0x04, tli_0 },                               // [0A040100] Set Play Hit SE Flag
+        { 0x05, tli_0 },                               // [0A050100] Play Sound Effect (1, 1, 0)
+        { 0x07, tli_0 },                               // [0A070100] Set Landing Sound ID
+        { 0x09, tli_0 },                               // [0A090100] Play Sound Effect + Material Landing Sound Effect
+        { 0x0A, tli_0 },                               // [0A0A0100] Play Sound Effect + Material Impact Sound Effect
+        { 0x0C, tli_0 },                               // [0A0C0100] Play Sound Effect (No 3D)
+        { 0x0D, tli_00555 },                           // [0A0D0200] Stop Sound Effect Handle
+    };
     // Group 0x0E: soKineticModule
     const cmdWhitelistEntry cmdWhitelist::m_allowedCommands_Kinetic[] =
     {
@@ -274,6 +289,7 @@ namespace rasterizeVars
         [cmdWhitelist::scg_MOTION] = {cmid_MOTION, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Motion)},
         [cmdWhitelist::scg_POSTURE] = {cmid_POSTURE, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Posture)},
         [cmdWhitelist::scg_COLLISION] = {cmid_COLLISION, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Collision)},
+        [cmdWhitelist::scg_SOUND] = {cmid_SOUND, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Sound)},
         [cmdWhitelist::scg_KINETIC] = {cmid_KINETIC, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Kinetic)},
         [cmdWhitelist::scg_EFFECT] = {cmid_EFFECT, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Effect)},
         [cmdWhitelist::scg_COLOR_BLEND] = {cmid_COLOR_BLEND, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_ColorBlend)},
