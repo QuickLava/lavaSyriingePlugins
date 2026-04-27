@@ -67,6 +67,7 @@ namespace rasterizeVars
         tli_000011,
         tli_0,
         tli_1133,
+        tli_031,
         tli_COUNT
     };
 #pragma c99 on
@@ -150,6 +151,9 @@ namespace rasterizeVars
         [tli_1133] = {
             at_FLT, at_FLT, at_BOL, at_BOL
         },
+        [tli_031] = {
+            at_INT, at_BOL, at_FLT
+        },
     };
 #pragma c99 off
 
@@ -193,6 +197,9 @@ namespace rasterizeVars
     // Group 0x04: soMotionModule
     const cmdWhitelistEntry cmdWhitelist::m_allowedCommands_Motion[] =
     {
+        { 0x00, tli_031 },                             // [04000200] Change Subaction
+        { 0x04, tli_01 },                              // [04040200] Mirror of soStatusModule Enable Transition Term
+        { 0x05, tli_01 },                              // [04050200] Mirror of soStatusModule Disable Transition Term
         { 0x0E, tli_01 },                              // [040E0200] Set Bone Motion Override Animation Frame
         { 0x0F, tli_01 },                              // [040F0200] Set Bone Motion Override Frame Speed Modifier
     };
