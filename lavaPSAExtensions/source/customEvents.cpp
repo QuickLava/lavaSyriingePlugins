@@ -96,15 +96,15 @@ namespace customEvents
     };
 
     typedef u32(*notifyEventAnimCmdFnPtr)(void*, acAnimCmdImpl*, soModuleAccesser*);
+
     notifyEventAnimCmdFnPtr _sound_notifyEventAnimCmd;
     u32 sound_notifyEventAnimCmd(soSoundModuleImpl* moduleIn, acAnimCmdImpl* commandIn, soModuleAccesser* accesserIn)
     {
         u32 result = 0;
         u32 cmdType = commandIn->cmdAddr->type;
+        u32 argCount = commandIn->cmdAddr->argNum;
         soAnimCmdArgList argList = commandIn->getArgList();
         argList.m_moduleAccesser = accesserIn;
-        argList.getValueIndex(0);
-        u32 argCount = argList.m_argList.size();
         switch (cmdType)
         {
             // Set SE Pitch  [0x0A0E0200]
@@ -138,20 +138,112 @@ namespace customEvents
                 }
                 break;
             }
-            // If not one of our custom IDs...
-            default: 
-            { 
-                // ... then pass it through to the native function and use its return value as our result.
-                result = _sound_notifyEventAnimCmd((void*)moduleIn, commandIn, accesserIn);
+        }
+        // If we haven't successfully resolved the command ourselves...
+        if (result == 0)
+        {
+            // ... then pass it through to the native function and use its return value as our result.
+            result = _sound_notifyEventAnimCmd((void*)moduleIn, commandIn, accesserIn);
+        }
+        return result;
+    }
+    notifyEventAnimCmdFnPtr _workManage_notifyEventAnimCmd;
+    u32 workManage_notifyEventAnimCmd(soWorkManageModuleImpl* moduleIn, acAnimCmdImpl* commandIn, soModuleAccesser* accesserIn)
+    {
+        u32 result = 0;
+        u32 cmdType = commandIn->cmdAddr->type;
+        u32 argCount = commandIn->cmdAddr->argNum;
+        soAnimCmdArgList argList = commandIn->getArgList();
+        argList.m_moduleAccesser = accesserIn;
+        switch (cmdType)
+        {
+            // Basic Variable Manipulation Functions
+            case 0x01: case 0x02: case 0x0D: case 0x0E:
+            {
+                // Provided we have at least 3 arguments, continue.
+                if (argCount < 3) break;
+
+                // Initialize error value to 0.
+                argList.m_errorOnValueFetch = 0;
+                // The first argument will always be whatever our modifier is.
+                int modifierValue = argList.getInt(0);
+                // The second argument will always hold the value we apply our modifer to.
+                int recipientValue = argList.getInt(1);
+                // If no errors occurred while grabbing the values for our operation, continue!
+                if (argList.m_errorOnValueFetch != 0) break;
+
+                // This will hold our resulting value (which we'll initialize to our recipient's value).
+                int resultValue = recipientValue;
+                switch (cmdType)
+                {
+                    case 0x01: { resultValue = recipientValue + modifierValue; break; }
+                    case 0x02: { resultValue = recipientValue - modifierValue; break; }
+                    case 0x0D: { resultValue = recipientValue * modifierValue; break; }
+                    case 0x0E: { if (modifierValue != 0x00) { resultValue = recipientValue / modifierValue; } break; }
+                }
+
+                // This will hold our destination variable's ID, which will be the third argument!
+                u32 destinationVariableIdx = argList.getValueIndex(2);
+                // If grabbing that variable ID was successful, continue.
+                if (argList.m_errorOnValueFetch != 0) break;
+                
+                // Apply the result value...
+                moduleIn->setInt(resultValue, destinationVariableIdx);
+                // ... and signal that we've successfully handled the command!
+                result = 1;
                 break;
             }
+            // Float Variable Manipulation Functions
+            case 0x07: case 0x08: case 0x0F: case 0x10:
+            {
+                // Provided we have at least 3 arguments, continue.
+                if (argCount < 3) break;
+
+                // Initialize error value to 0.
+                argList.m_errorOnValueFetch = 0;
+                // The first argument will always be whatever our modifier is.
+                double modifierValue = argList.getFloat(0);
+                // The second argument will always hold the value we apply our modifer to.
+                double recipientValue = argList.getFloat(1);
+                // If no errors occurred while grabbing the values for our operation, continue!
+                if (argList.m_errorOnValueFetch != 0) break;
+
+                // This will hold our resulting value (which we'll initialize to our recipient's value).
+                double resultValue = recipientValue;
+                switch (cmdType)
+                {
+                    case 0x07: { resultValue = recipientValue + modifierValue; break; }
+                    case 0x08: { resultValue = recipientValue - modifierValue; break; }
+                    case 0x0F: { resultValue = recipientValue * modifierValue; break; }
+                    case 0x10: { if (modifierValue != 0.0f) { resultValue = recipientValue / modifierValue; } break; }
+                }
+
+                // This will hold our destination variable's ID, which will be the third argument, enabling commands of the form VarA = VarB + VarC!
+                u32 destinationVariableIdx = argList.getValueIndex(2);
+                // If grabbing that variable ID was successful, continue.
+                if (argList.m_errorOnValueFetch != 0) break;
+
+                // Apply the result value...
+                moduleIn->setFloat(resultValue, destinationVariableIdx);
+                // ... and signal that we've successfully handled the command!
+                result = 1;
+                break;
+            }
+        }
+        // If we haven't successfully resolved the command ourselves...
+        if (result == 0)
+        {
+            // ... then pass it through to the native function and use its return value as our result.
+            result = _workManage_notifyEventAnimCmd((void*)moduleIn, commandIn, accesserIn);
         }
         return result;
     }
 
     void registerHooks()
     {
-        // Sound Module Events
+        // Sound Module (0xA) Events
         SyringeCompat::syReplaceFuncRel(0x56C5C, reinterpret_cast<void*>(sound_notifyEventAnimCmd), reinterpret_cast<void**>(&_sound_notifyEventAnimCmd), Modules::SORA_MELEE);
+        // WorkManage Module (0x12) Events
+        SyringeCompat::syReplaceFuncRel(0xA23B4, reinterpret_cast<void*>(workManage_notifyEventAnimCmd), reinterpret_cast<void**>(&_workManage_notifyEventAnimCmd), Modules::SORA_MELEE);
     }
 }
