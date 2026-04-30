@@ -8,7 +8,7 @@ namespace Syringe
 {
     SY_COMPAT_EXTERN_C_BLOCK;
 
-    SY_COMPAT_PLG_META("lavaPSAExtensions", "QuickLava", "0.1.0", SYRINGE_VERSION);
+    SY_COMPAT_PLG_META("lavaPSAExtensions", "QuickLava", "0.2.0", SYRINGE_VERSION);
 
     SY_COMPAT_PROLOG_FN(lavaPSAExtensions::Init);
 
