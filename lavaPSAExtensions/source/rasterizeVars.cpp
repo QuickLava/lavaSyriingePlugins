@@ -243,7 +243,6 @@ namespace rasterizeVars
         { 0x09, tli_0 },                               // [0A090100] Play Sound Effect + Material Landing Sound Effect
         { 0x0A, tli_0 },                               // [0A0A0100] Play Sound Effect + Material Impact Sound Effect
         { 0x0C, tli_0 },                               // [0A0C0100] Play Sound Effect (No 3D)
-        { 0x0D, tli_00555 },                           // [0A0D0200] Stop Sound Effect Handle
     };
     // Group 0x0E: soKineticModule
     const cmdWhitelistEntry cmdWhitelist::m_allowedCommands_Kinetic[] =
@@ -280,19 +279,19 @@ namespace rasterizeVars
     };
 #pragma c99 on
 #define COUNT_OF(x) ((sizeof(x)/sizeof(0[x])) / ((size_t)(!(sizeof(x) % sizeof(0[x])))))
-#define COUNT_OF_ALIGNED(x) COUNT_OF(x) + (COUNT_OF(x) % 2)
+//#define COUNT_OF_ALIGNED(x) COUNT_OF(x) + (COUNT_OF(x) % 2)
     const cmdWhitelistCmdGroup cmdWhitelist::m_commandGroups[] =
     {
-        [cmdWhitelist::scg_SYSTEM] = {cmid_SYSTEM, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_System)},
-        [cmdWhitelist::scg_STATUS] = {cmid_STATUS, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Status)},
-        [cmdWhitelist::scg_MODEL] = {cmid_MODEL, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Model)},
-        [cmdWhitelist::scg_MOTION] = {cmid_MOTION, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Motion)},
-        [cmdWhitelist::scg_POSTURE] = {cmid_POSTURE, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Posture)},
-        [cmdWhitelist::scg_COLLISION] = {cmid_COLLISION, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Collision)},
-        [cmdWhitelist::scg_SOUND] = {cmid_SOUND, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Sound)},
-        [cmdWhitelist::scg_KINETIC] = {cmid_KINETIC, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Kinetic)},
-        [cmdWhitelist::scg_EFFECT] = {cmid_EFFECT, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_Effect)},
-        [cmdWhitelist::scg_COLOR_BLEND] = {cmid_COLOR_BLEND, COUNT_OF_ALIGNED(cmdWhitelist::m_allowedCommands_ColorBlend)},
+        [cmdWhitelist::scg_SYSTEM] = {cmid_SYSTEM, COUNT_OF(cmdWhitelist::m_allowedCommands_System)},
+        [cmdWhitelist::scg_STATUS] = {cmid_STATUS, COUNT_OF(cmdWhitelist::m_allowedCommands_Status)},
+        [cmdWhitelist::scg_MODEL] = {cmid_MODEL, COUNT_OF(cmdWhitelist::m_allowedCommands_Model)},
+        [cmdWhitelist::scg_MOTION] = {cmid_MOTION, COUNT_OF(cmdWhitelist::m_allowedCommands_Motion)},
+        [cmdWhitelist::scg_POSTURE] = {cmid_POSTURE, COUNT_OF(cmdWhitelist::m_allowedCommands_Posture)},
+        [cmdWhitelist::scg_COLLISION] = {cmid_COLLISION, COUNT_OF(cmdWhitelist::m_allowedCommands_Collision)},
+        [cmdWhitelist::scg_SOUND] = {cmid_SOUND, COUNT_OF(cmdWhitelist::m_allowedCommands_Sound)},
+        [cmdWhitelist::scg_KINETIC] = {cmid_KINETIC, COUNT_OF(cmdWhitelist::m_allowedCommands_Kinetic)},
+        [cmdWhitelist::scg_EFFECT] = {cmid_EFFECT, COUNT_OF(cmdWhitelist::m_allowedCommands_Effect)},
+        [cmdWhitelist::scg_COLOR_BLEND] = {cmid_COLOR_BLEND, COUNT_OF(cmdWhitelist::m_allowedCommands_ColorBlend)},
     };
     const u32 commandGroupCount = COUNT_OF(cmdWhitelist::m_commandGroups);
 #pragma c99 off
@@ -358,8 +357,8 @@ namespace rasterizeVars
             argType currArgType = targetFlagBank->getArgType(i);
             if ((currArgType != at_NULL) && currArg->m_varType == AnimCmd_Arg_Type_Variable)
             {
-                char varMemType = (currArg->m_rawValue >> 0x1E) & 0x3;
-                char varDataType = (currArg->m_rawValue >> 0x1C) & 0x3;
+                char varMemType = (currArg->m_rawValue >> 0x1C) & 0xF;
+                char varDataType = (currArg->m_rawValue >> 0x18) & 0xF;
                 if (currArgType == at_BOL)
                 {
                     currBufArg->m_varType = AnimCmd_Arg_Type_Bool;
