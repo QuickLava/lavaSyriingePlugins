@@ -8,6 +8,7 @@
 #include "aerialInterrupts.h"
 #include "rasterizeVars.h"
 #include "customVariables.h"
+#include "customEvents.h"
 
 namespace lavaPSAExtensions {
 
@@ -19,6 +20,7 @@ namespace lavaPSAExtensions {
         aerialInterrupts::registerHooks();
         rasterizeVars::registerHooks();
         customVars::registerHooks();
+        customEvents::registerHooks();
     }
 
     void Destroy()
