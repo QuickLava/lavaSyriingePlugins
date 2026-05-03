@@ -36,7 +36,8 @@ namespace aerialInterrupts
                 statusModule->enableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Landing);
 
                 // If however we're moving upwards...
-                float currentSpeedY = moduleEnum->m_workManageModule->getFloat(soValueAccesser::Var_Float_Kinetic_Sum_Speed_Y);
+                soKineticEnergy::AttributeFlag flags; flags.m_mask = 0xFFFF;
+                float currentSpeedY = moduleEnum->m_kineticModule->getSumSpeed(flags).m_y;
                 if (currentSpeedY > 0.0f)
                 {
                     // ... and our ECB is moving downwards...
