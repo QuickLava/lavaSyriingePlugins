@@ -158,6 +158,10 @@ namespace customEvents
         switch (cmdType)
         {
             // Basic Variable Manipulation Functions
+            // [12010300] Add Basic Variable
+            // [12020300] Subtract Basic Variable
+            // [120D0300] Multiply Basic Variable
+            // [120E0300] Divide Basic Variable
             case 0x01: case 0x02: case 0x0D: case 0x0E:
             {
                 // Provided we have at least 3 arguments, continue.
@@ -183,17 +187,21 @@ namespace customEvents
                 }
 
                 // This will hold our destination variable's ID, which will be the third argument!
-                u32 destinationVariableIdx = argList.getValueIndex(2);
+                u32 destinationVarIdx = argList.getValueIndex(2);
                 // If grabbing that variable ID was successful, continue.
                 if (argList.m_errorOnValueFetch != 0) break;
                 
                 // Apply the result value...
-                moduleIn->setInt(resultValue, destinationVariableIdx);
+                moduleIn->setInt(resultValue, destinationVarIdx);
                 // ... and signal that we've successfully handled the command!
                 result = 1;
                 break;
             }
             // Float Variable Manipulation Functions
+            // [12070300] Add Float Variable
+            // [12080300] Subtract Float Variable
+            // [120F0300] Multiply Float Variable
+            // [12100300] Divide Float Variable
             case 0x07: case 0x08: case 0x0F: case 0x10:
             {
                 // Provided we have at least 3 arguments, continue.
@@ -219,14 +227,118 @@ namespace customEvents
                 }
 
                 // This will hold our destination variable's ID, which will be the third argument, enabling commands of the form VarA = VarB + VarC!
-                u32 destinationVariableIdx = argList.getValueIndex(2);
+                u32 destinationVarIdx = argList.getValueIndex(2);
                 // If grabbing that variable ID was successful, continue.
                 if (argList.m_errorOnValueFetch != 0) break;
 
                 // Apply the result value...
-                moduleIn->setFloat(resultValue, destinationVariableIdx);
+                moduleIn->setFloat(resultValue, destinationVarIdx);
                 // ... and signal that we've successfully handled the command!
                 result = 1;
+                break;
+            }
+            // Basic Aggregate Operations Functions
+            // [12200300] Get Minimum Basic Value
+            // [12210300] Get Maximum Basic Value
+            // [12220300] Get Total Basic Value
+            // [12230300] Get Average Basic Value
+            case 0x20: case 0x21: case 0x22: case 0x23:
+            {
+                // If we've got less than 2 arguments, we can just exit, there's nothing for us to do.
+                if (argCount < 2) break;
+
+                // First, we'll grab the variable ID we'll be writing to.
+                u32 destinationVarIdx = argList.getValueIndex(0);
+                // If that argument wasn't a variable for some reason, then exit.
+                if (argList.m_errorOnValueFetch != 0) break;
+
+                // Initiate variables for the values we're tracking.
+                int currMax = INT_MIN;
+                int currMin = INT_MAX;
+                int totalValue = 0;
+                // Then, starting with the second argument, iterate through every argument...
+                for (u32 i = 1; i < argCount; i++)
+                {
+                    // ... and fetch its value.
+                    int currValue = argList.getInt(i);
+                    // If the current value is bigger than the current maximum...
+                    if (currMax < currValue)
+                    {
+                        // ... overwrite it as the maximum.
+                        currMax = currValue;
+                    }
+                    // If the current value is smaller than the current minimum...
+                    if (currMin > currValue)
+                    {
+                        // ... then overwrite it as the minimum.
+                        currMin = currValue;
+                    }
+                    // Lastly, add current value to total.
+                    totalValue += currValue;
+                }
+                // Calculate our result value, based on the operation we're doing.
+                int result = 0;
+                switch (cmdType)
+                {
+                    case 0x20: { result = currMin; break; }
+                    case 0x21: { result = currMax; break; }
+                    case 0x22: { result = totalValue; break; }
+                    case 0x23: { result = totalValue / argCount; break; }
+                }
+                // Store the result in the destination variable!
+                moduleIn->setInt(result, destinationVarIdx);
+                break;
+            }
+            // Float Aggregate Operations Functions
+            // [12240300] Get Lowest Float Value
+            // [12250300] Get Highest Float Value
+            // [12260300] Get Total Float Value
+            // [12270300] Get Average Float Value
+            case 0x24: case 0x25: case 0x26: case 0x27:
+            {
+                // If we've got less than 2 arguments, we can just exit, there's nothing for us to do.
+                if (argCount < 2) break;
+
+                // First, we'll grab the variable ID we'll be writing to.
+                u32 destinationVarIdx = argList.getValueIndex(0);
+                // If that argument wasn't a variable for some reason, then exit.
+                if (argList.m_errorOnValueFetch != 0) break;
+
+                // Initiate variables for the values we're tracking.
+                float currMax = FLT_MIN;
+                float currMin = FLT_MAX;
+                float totalValue = 0;
+                // Then, starting with the second argument, iterate through every argument...
+                for (u32 i = 1; i < argCount; i++)
+                {
+                    // ... and fetch its value.
+                    float currValue = argList.getFloat(i);
+                    // If the current value is bigger than the current maximum...
+                    if (currMax < currValue)
+                    {
+                        // ... overwrite it as the maximum.
+                        currMax = currValue;
+                    }
+                    // If the current value is smaller than the current minimum...
+                    if (currMin > currValue)
+                    {
+                        // ... then overwrite it as the minimum.
+                        currMin = currValue;
+                    }
+                    // Lastly, add current value to total.
+                    totalValue += currValue;
+                }
+                // Calculate our result value, based on the operation we're doing.
+                float result = 0;
+                switch (cmdType)
+                {
+                    case 0x24: { result = currMin; break; }
+                    case 0x25: { result = currMax; break; }
+                    case 0x26: { result = totalValue; break; }
+                    case 0x27: { result = totalValue / argCount; break; }
+                }
+                // Store the result in the destination variable!
+                moduleIn->setFloat(result, destinationVarIdx);
                 break;
             }
         }
