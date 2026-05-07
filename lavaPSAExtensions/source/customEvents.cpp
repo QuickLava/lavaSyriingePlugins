@@ -2,6 +2,7 @@
 #include <modules.h>
 #include <ft/fighter.h>
 #include <gf/gf_archive.h>
+#include <so/anim/so_anim_cmd_arg_list.h>
 #include "customEvents.h"
 
 namespace customEvents
