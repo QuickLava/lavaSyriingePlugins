@@ -13,7 +13,7 @@ namespace mechUtil
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
         if (fighterPlayerNo < fighterHooks::maxFighterCount)
         {
-            soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
+            const soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
             fighterMeters::meterBundle* targetMeterBundle = fighterMeters::playerMeters + fighterPlayerNo;
 
             result = targetMeterBundle->addMeter(meterIn);

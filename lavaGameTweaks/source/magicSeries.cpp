@@ -13,7 +13,7 @@ namespace magicSeries
         {
             OSReport_N("%sAttack Detected!\n", outputTag);
 
-            soModuleEnumeration* moduleEnum = &attacker->m_moduleAccesser->m_moduleEnumeration;
+            const soModuleEnumeration* moduleEnum = &attacker->m_moduleAccesser->m_moduleEnumeration;
             int currStatus = moduleEnum->m_statusModule->getStatusKind();
             soTransitionModule* transitionModule = ((soStatusModuleImpl*)moduleEnum->m_statusModule)->m_transitionModule;
             switch (currStatus)

@@ -50,7 +50,7 @@ namespace slimeCancels
                 targetMeterBundle->setMeterConfig(meterConf, 1);
             }
 
-            soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
+            const soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
             soStatusModule* statusModule = moduleEnum->m_statusModule;
             soSituationModule* situationModule = moduleEnum->m_situationModule;
             soWorkManageModule* workManageModule = moduleEnum->m_workManageModule;

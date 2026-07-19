@@ -122,7 +122,7 @@ namespace rmWalljumpTweaks
         if (currWalljumpSituation != wt_NONE
             && moduleAccesser->m_enumerationStart->m_statusModule->isEnableTransitionTermGroup(Fighter::Status::Transition::Group_Chk_Air_Wall_Jump))
         {
-            soModuleEnumeration* moduleEnum = moduleAccesser->m_enumerationStart;
+            const soModuleEnumeration* moduleEnum = moduleAccesser->m_enumerationStart;
             // Set finalDir based on the direction reported by the validation function.
             float finalDir = (currWalljumpSituation == wt_RIGHT) ? 1.0f : -1.0f;
             // Finally get the absolute x position of the control stick.

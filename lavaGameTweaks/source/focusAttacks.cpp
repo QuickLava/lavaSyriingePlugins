@@ -50,7 +50,7 @@ namespace focusAttacks
             {
                 u32 targetStatus;
                 OSReport_N("%s", outputTag);
-                soModuleEnumeration* moduleEnum = target->m_moduleAccesser->m_enumerationStart;
+                const soModuleEnumeration* moduleEnum = target->m_moduleAccesser->m_enumerationStart;
                 soStatusModule* statusModule = moduleEnum->m_statusModule;
                 if (moduleEnum->m_situationModule->getKind() == 0 && damage >= 5.0f)
                 {
@@ -88,7 +88,7 @@ namespace focusAttacks
         u32 fighterPlayerNo = fighterHooks::getFighterPlayerNo(fighterIn);
         if (fighterPlayerNo < fighterHooks::maxFighterCount)
         {
-            soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
+            const soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
             soWorkManageModule* workManageModule = moduleEnum->m_workManageModule;
             soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleEnum->m_statusModule;
 

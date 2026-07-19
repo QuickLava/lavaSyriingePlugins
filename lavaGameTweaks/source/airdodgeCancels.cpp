@@ -56,7 +56,7 @@ namespace airdodgeCancels
                 OSReport_N("%sMeter Reset Handled\n", outputTag);
             }
 
-            soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
+            const soModuleEnumeration* moduleEnum = fighterIn->m_moduleAccesser->m_enumerationStart;
             soWorkManageModule* workManageModule = moduleEnum->m_workManageModule;
             soStatusModuleImpl* statusModule = (soStatusModuleImpl*)moduleEnum->m_statusModule;
             soTransitionModule* transitionModule = statusModule->m_transitionModule;
