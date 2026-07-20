@@ -104,8 +104,7 @@ namespace customEvents
         u32 result = 0;
         u32 cmdType = commandIn->cmdAddr->type;
         u32 argCount = commandIn->cmdAddr->argNum;
-        soAnimCmdArgList argList = commandIn->getArgList();
-        argList.m_moduleAccesser = accesserIn;
+        soAnimCmdArgList argList(accesserIn, commandIn->getArgList());
         switch (cmdType)
         {
             // Set SE Pitch  [0x0A0E0200]
@@ -154,8 +153,7 @@ namespace customEvents
         u32 result = 0;
         u32 cmdType = commandIn->cmdAddr->type;
         u32 argCount = commandIn->cmdAddr->argNum;
-        soAnimCmdArgList argList = commandIn->getArgList();
-        argList.m_moduleAccesser = accesserIn;
+        soAnimCmdArgList argList(accesserIn, commandIn->getArgList());
         switch (cmdType)
         {
             // Basic Variable Manipulation Functions
@@ -306,11 +304,11 @@ namespace customEvents
                 if (argList.m_errorOnValueFetch != 0) break;
 
                 // Initiate variables for the values we're tracking.
-                float currMax = FLT_MIN;
-                float currMin = FLT_MAX;
-                float totalValue = 0;
+                float currMax = argList.getFloat(0);
+                float currMin = currMax;
+                float totalValue = currMax;
                 // Then, starting with the second argument, iterate through every argument...
-                for (u32 i = 1; i < argCount; i++)
+                for (u32 i = 2; i < argCount; i++)
                 {
                     // ... and fetch its value.
                     float currValue = argList.getFloat(i);
