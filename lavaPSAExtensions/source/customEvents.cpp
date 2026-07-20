@@ -115,14 +115,14 @@ namespace customEvents
                 if (argCount > 0)
                 {
                     // ... fetch the handle ID as an integer.
-                    u32 seHandleID = getAsInt(argList, 0);
+                    u32 seHandleID = argList.getInt(0);
                     // Initialize our modifier to 1.0f, which we'll use if no modifier argument was supplied.
                     double modifier = 1.0f;
                     // If one was supplied though...
                     if (argCount > 1)
                     {
                         // ... grab it as a float!
-                        modifier = getAsFloat(argList, 1);
+                        modifier = argList.getFloat(1);
                     }
                     // Apply the modifier to the SE instance.
                     if (cmdType == 0xE)
