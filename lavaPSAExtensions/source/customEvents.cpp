@@ -9,64 +9,26 @@ namespace customEvents
 {
     const char outputTag[] = "[customEvents] ";
 
-    // Returns the specified argument as an integer, resolving variables and casting types as necessary.
-    // If the specified argument doesn't exist, or is not of Integer, Float, Boolean, or Variable type, m_errorOnValueFetch is set to 1.
-    int getAsInt(soAnimCmdArgList& list, u32 index)
-    {
-        int result = 0;
-
-        if (index < list.m_argList.size())
-        {
-            const acCmdArgConv& targetArg = list.m_argList.at(index);
-            int rawValue = targetArg.data;
-            switch (targetArg.argType)
-            {
-                case AnimCmd_Arg_Type_Int: case AnimCmd_Arg_Type_Bool: { result = rawValue; break; }
-                case AnimCmd_Arg_Type_Scalar: { result = rawValue / 60000; break; }
-                case AnimCmd_Arg_Type_Variable:
-                {
-                    u32 varMemKind = (rawValue >> 0x1C) & 0xF;
-                    u32 varDataType = (rawValue >> 0x18) & 0xF;
-                    if (varDataType != 2 || varMemKind == 0)
-                    {
-                        result = soValueAccesser::getValueInt(list.m_moduleAccesser, rawValue, 0);
-                    }
-                    else
-                    {
-                        result = list.m_moduleAccesser->getWorkManageModule().isFlag(rawValue);
-                    }
-                    break;
-                }
-                default: { list.m_errorOnValueFetch = 1; break; }
-            }
-            list.m_errorOnValueFetch = 0;
-        }
-        else
-        {
-            list.m_errorOnValueFetch = 1;
-        }
-
-        return result;
-    };
     // Returns the specified argument as a float, resolving variables and casting types as necessary.
     // If the specified argument doesn't exist, or is not of Integer, Float, Boolean, or Variable type, m_errorOnValueFetch is set to 1.
-    double getAsFloat(soAnimCmdArgList& list, u32 index)
+    double getAsDouble(soAnimCmdArgList& list, u32 index)
     {
         double result = 0.0f;
         if (index < list.m_argList.size())
         {
             const acCmdArgConv& targetArg = list.m_argList.at(index);
-            int rawValue = targetArg.data;
-            float fltValue = rawValue;
+            u32 rawValue = targetArg.data;
+            result = rawValue;
+            list.m_errorOnValueFetch = 0;
             switch (targetArg.argType)
             {
-                case AnimCmd_Arg_Type_Int: case AnimCmd_Arg_Type_Bool: { result = fltValue; break; }
-                case AnimCmd_Arg_Type_Scalar: { result = fltValue / 60000.0f; break; }
+                case AnimCmd_Arg_Type_Int: case AnimCmd_Arg_Type_Bool: { break; }
+                case AnimCmd_Arg_Type_Scalar: { result /= 60000.0; break; }
                 case AnimCmd_Arg_Type_Variable:
                 {
                     u32 varMemKind = (rawValue >> 0x1C) & 0xF;
                     u32 varDataType = (rawValue >> 0x18) & 0xF;
-                    if (varDataType != 2 || varMemKind == 0)
+                    if (varDataType != ANIM_CMD_BOOL || varMemKind == ANIM_CMD_VAR_TYPE_IC)
                     {
                         result = soValueAccesser::getValueFloat(list.m_moduleAccesser, rawValue, 0);
                     }
@@ -81,19 +43,12 @@ namespace customEvents
                 }
                 default: { list.m_errorOnValueFetch = 1; break; }
             }
-            list.m_errorOnValueFetch = 0;
         }
         else
         {
             list.m_errorOnValueFetch = 1;
         }
         return result;
-    };
-    // Returns the specified argument as a boolean, resolving variables and casting types as necessary.
-    // If the specified argument doesn't exist, or is not of Integer, Float, Boolean, or Variable type, m_errorOnValueFetch is set to 1.
-    bool getAsBool(soAnimCmdArgList& list, u32 index)
-    {
-        return getAsInt(list, index) != 0;
     };
 
     typedef u32(*notifyEventAnimCmdFnPtr)(void*, acAnimCmdImpl*, soModuleAccesser*);
@@ -236,12 +191,12 @@ namespace customEvents
                 result = 1;
                 break;
             }
-            // Basic Aggregate Operations Functions
-            // [12200300] Get Minimum Basic Value
-            // [12210300] Get Maximum Basic Value
-            // [12220300] Get Total Basic Value
-            // [12230300] Get Average Basic Value
-            case 0x20: case 0x21: case 0x22: case 0x23:
+            // Aggregate Operations Functions
+            // [12300300] Get Minimum Value
+            // [12310300] Get Maximum Value
+            // [12320300] Get Total Value
+            // [12330300] Get Average Value
+            case 0x30: case 0x31: case 0x32: case 0x33:
             {
                 // If we've got less than 2 arguments, we can just exit, there's nothing for us to do.
                 if (argCount < 2) break;
@@ -249,69 +204,20 @@ namespace customEvents
                 // First, we'll grab the variable ID we'll be writing to.
                 u32 destinationVarIdx = argList.getValueIndex(0);
                 // If that argument wasn't a variable for some reason, then exit.
-                if (argList.m_errorOnValueFetch != 0) break;
+                if (argList.m_errorOnValueFetch == 1) break;
+
+                // If the variable is and IC, exit, cuz we can't overwrite those.
+                if (((destinationVarIdx >> 0x1C) & 0xF) == ANIM_CMD_VAR_TYPE_IC) break;
 
                 // Initiate variables for the values we're tracking.
-                int currMax = INT_MIN;
-                int currMin = INT_MAX;
-                int totalValue = 0;
-                // Then, starting with the second argument, iterate through every argument...
-                for (u32 i = 1; i < argCount; i++)
-                {
-                    // ... and fetch its value.
-                    int currValue = argList.getInt(i);
-                    // If the current value is bigger than the current maximum...
-                    if (currMax < currValue)
-                    {
-                        // ... overwrite it as the maximum.
-                        currMax = currValue;
-                    }
-                    // If the current value is smaller than the current minimum...
-                    if (currMin > currValue)
-                    {
-                        // ... then overwrite it as the minimum.
-                        currMin = currValue;
-                    }
-                    // Lastly, add current value to total.
-                    totalValue += currValue;
-                }
-                // Calculate our result value, based on the operation we're doing.
-                int result = 0;
-                switch (cmdType)
-                {
-                    case 0x20: { result = currMin; break; }
-                    case 0x21: { result = currMax; break; }
-                    case 0x22: { result = totalValue; break; }
-                    case 0x23: { result = totalValue / argCount; break; }
-                }
-                // Store the result in the destination variable!
-                moduleIn->setInt(result, destinationVarIdx);
-                break;
-            }
-            // Float Aggregate Operations Functions
-            // [12240300] Get Lowest Float Value
-            // [12250300] Get Highest Float Value
-            // [12260300] Get Total Float Value
-            // [12270300] Get Average Float Value
-            case 0x24: case 0x25: case 0x26: case 0x27:
-            {
-                // If we've got less than 2 arguments, we can just exit, there's nothing for us to do.
-                if (argCount < 2) break;
-
-                // First, we'll grab the variable ID we'll be writing to.
-                u32 destinationVarIdx = argList.getValueIndex(0);
-                // If that argument wasn't a variable for some reason, then exit.
-                if (argList.m_errorOnValueFetch != 0) break;
-
-                // Initiate variables for the values we're tracking.
-                float currMax = argList.getFloat(0);
-                float currMin = currMax;
-                float totalValue = currMax;
+                double currMax = getAsDouble(argList, 1);
+                double currMin = currMax;
+                double totalValue = currMax;
                 // Then, starting with the second argument, iterate through every argument...
                 for (u32 i = 2; i < argCount; i++)
                 {
                     // ... and fetch its value.
-                    float currValue = argList.getFloat(i);
+                    double currValue = getAsDouble(argList, i);
                     // If the current value is bigger than the current maximum...
                     if (currMax < currValue)
                     {
@@ -328,16 +234,23 @@ namespace customEvents
                     totalValue += currValue;
                 }
                 // Calculate our result value, based on the operation we're doing.
-                float result = 0;
+                double finalVal = 0.0;
                 switch (cmdType)
                 {
-                    case 0x24: { result = currMin; break; }
-                    case 0x25: { result = currMax; break; }
-                    case 0x26: { result = totalValue; break; }
-                    case 0x27: { result = totalValue / argCount; break; }
+                    case 0x30: { finalVal = currMin; break; }
+                    case 0x31: { finalVal = currMax; break; }
+                    case 0x32: { finalVal = totalValue; break; }
+                    case 0x33: { finalVal = totalValue / double(argCount - 1); break; }
                 }
-                // Store the result in the destination variable!
-                moduleIn->setFloat(result, destinationVarIdx);
+
+                // Store the result in the destination variable according to its type!
+                char varDataType = (destinationVarIdx >> 0x18) & 0xF;
+                switch (varDataType)
+                {
+                    case ANIM_CMD_INT: { moduleIn->setInt(int(finalVal), destinationVarIdx); break; }
+                    case ANIM_CMD_FLOAT: { moduleIn->setFloat(finalVal, destinationVarIdx); break; }
+                    case ANIM_CMD_BOOL: { moduleIn->setFlag(finalVal != 0.0f, destinationVarIdx); break; }
+                }
                 break;
             }
         }
