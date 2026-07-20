@@ -216,7 +216,7 @@ namespace rasterizeVars
     const cmdWhitelistEntry cmdWhitelist::m_allowedCommands_Collision[] =
     {
         { 0x00, tli_000001111111000 },                 // [06000D00] Offensive Collision
-        { 0x01, tli_01 },                              // [06010200] Change Hitbox Damage
+        { 0x01, tli_0 },                               // [06010200] Change Hitbox Damage
         { 0x02, tli_01 },                              // [06020200] Change Hitbox Size
         { 0x0A, tli_00111100 },                        // [060A0800] Catch Collision
         { 0x0E, tli_0000000011100033, tli_0 },         // [060E1100] Throw Attack Collision
