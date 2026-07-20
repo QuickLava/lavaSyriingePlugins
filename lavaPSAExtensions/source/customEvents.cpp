@@ -51,6 +51,23 @@ namespace customEvents
         return result;
     };
 
+    void setVariable(soWorkManageModuleImpl* moduleIn, u32 variableIDIn, double valueIn)
+    {
+        // Store the value in the destination variable according to its type!
+        char varMemKind = (variableIDIn >> 0x1C) & 0xF;
+        char varDataType = (variableIDIn >> 0x18) & 0xF;
+        if (varMemKind != ANIM_CMD_VAR_TYPE_IC)
+        {
+            switch (varDataType)
+            {
+                case ANIM_CMD_INT: { moduleIn->setInt(int(valueIn), variableIDIn); break; }
+                case ANIM_CMD_FLOAT: { moduleIn->setFloat(valueIn, variableIDIn); break; }
+                case ANIM_CMD_BOOL: { moduleIn->setFlag(valueIn != 0.0f, variableIDIn); break; }
+            }
+        }
+    }
+
+
     typedef u32(*notifyEventAnimCmdFnPtr)(void*, acAnimCmdImpl*, soModuleAccesser*);
 
     notifyEventAnimCmdFnPtr _sound_notifyEventAnimCmd;
@@ -244,13 +261,43 @@ namespace customEvents
                 }
 
                 // Store the result in the destination variable according to its type!
-                char varDataType = (destinationVarIdx >> 0x18) & 0xF;
-                switch (varDataType)
+                setVariable(moduleIn, destinationVarIdx, finalVal);
+                result = 1;
+                break;
+            }
+            // [12340300] Clamp Value
+            case 0x34:
+            {
+                // If we've got less than 3 arguments, we can just exit, there's nothing for us to do.
+                if (argCount < 3) break;
+
+                // First, we'll grab the variable ID we'll probably be writing to, since that'll have our base value.
+                u32 destinationVarIdx = argList.getValueIndex(0);
+                // If that argument wasn't a variable for some reason, then exit.
+                if (argList.m_errorOnValueFetch == 1) break;
+
+                // Otherwise, grab its actual value, as this is what we'll be clamping regardless.
+                double resultValue = getAsDouble(argList, 0);
+                double minValue = getAsDouble(argList, 1);
+                double maxValue = getAsDouble(argList, 2);
+                resultValue = (resultValue >= minValue) ? resultValue : minValue;
+                resultValue = (resultValue <= maxValue) ? resultValue : maxValue;
+
+                // Lastly, if we were supplied a fourth argument...
+                if (argCount > 3)
                 {
-                    case ANIM_CMD_INT: { moduleIn->setInt(int(finalVal), destinationVarIdx); break; }
-                    case ANIM_CMD_FLOAT: { moduleIn->setFloat(finalVal, destinationVarIdx); break; }
-                    case ANIM_CMD_BOOL: { moduleIn->setFlag(finalVal != 0.0f, destinationVarIdx); break; }
+                    // ... and that argument is a variable ID...
+                    u32 outputVariable = argList.getValueIndex(3);
+                    if (argList.m_errorOnValueFetch != 1)
+                    {
+                        // ... we'll write our result to that instead!
+                        destinationVarIdx = outputVariable;
+                    }
                 }
+
+                // Store the result in the destination variable according to its type!
+                setVariable(moduleIn, destinationVarIdx, resultValue);
+                result = 1;
                 break;
             }
         }
