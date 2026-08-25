@@ -38,6 +38,10 @@ lavaIASAOverlay:
 	$(MAKE) -C lavaIASAOverlay
 	@cp lavaIASAOverlay/$@.rel ./output/$@.rel
 
+maxiFalconTest:
+    $(MAKE) -C maxiFalconTest
+	@cp maxiFalconTest/$@.rel ./output/$@.rel
+
 clean:
 	@rm ./output/*.rel
 	$(MAKE) -s -C lavaInjectLoader clean
@@ -46,3 +50,4 @@ clean:
 	$(MAKE) -s -C lavaNeutralSpawns clean
 	$(MAKE) -s -C lavaFrameHeapWatch clean
 	$(MAKE) -s -C lavaIASAOverlay clean
+	$(MAKE) -s -C maxiFalconTest clean
