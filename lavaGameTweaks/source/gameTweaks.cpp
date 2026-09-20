@@ -5,7 +5,7 @@
 #include "airdodgeCancels.h"
 #include "slimeCancels.h"
 #include "rocketBurst.h"
-#include "finalSmashMeter.h"
+//#include "finalSmashMeter.h"
 #include "focusAttacks.h"
 #include "rm_babyDashes.h"
 #include "rm_airdodgeTweaks.h"
@@ -29,7 +29,6 @@ namespace lavaGameTweaks
         slimeCancels::registerHooks();
         magicSeries::registerHooks();
         rocketBurst::registerHooks();
-        finalSmashMeter::registerHooks();
         focusAttacks::registerHooks();
         rmBabyDashes::registerHooks();
         rmAirdodgeTweaks::registerHooks();    
@@ -38,6 +37,7 @@ namespace lavaGameTweaks
         rmShieldTweaks::registerHooks();
         rmParries::registerHooks();
         rmHitfalling::registerHooks();
+        // finalSmashMeter::registerHooks();
         //transitionListener::registerHooks();
 
         //meleeFreeze::registerHooks();
