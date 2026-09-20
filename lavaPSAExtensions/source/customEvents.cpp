@@ -309,11 +309,62 @@ namespace customEvents
         }
         return result;
     }
+    notifyEventAnimCmdFnPtr _effect_notifyEventAnimCmd;
+    u32 effect_notifyEventAnimCmd(soEffectModuleImpl* moduleIn, acAnimCmdImpl* commandIn, soModuleAccesser* accesserIn)
+    {
+        u32 result = 0;
+        u32 cmdType = commandIn->cmdAddr->type;
+        u32 argCount = commandIn->cmdAddr->argNum;
+        soAnimCmdArgList argList(accesserIn, commandIn->getArgList());
+        switch (cmdType)
+        {
+            // Get Primary Effect Bank ID   [0x11300100]
+            // Get Secondary Effect Bank ID [0x11310100]
+            case 0x30: case 0x31:
+            {
+                // Only proceed if we've been provided an argument.
+                if (argCount <= 0) break;
+
+                // This will hold our destination variable's ID, which should be our first argument.
+                u32 destinationVarIdx = argList.getValueIndex(0);
+                // If grabbing that variable ID failed, we'll abort.
+                if (argList.m_errorOnValueFetch != 0) break;
+
+                // Otherwise though, we'll proceed to grab our ID.
+                // First grab the resource module and ID accessers...
+                soResourceModule* resModule = moduleIn->m_moduleAccesser->m_enumerationStart->m_resourceModule;
+                soResourceIdAccesser* resIDAccesser = resModule->getResourceIdAccesser();
+                // ... then grab the appropriate effects file based on the command type.
+                char* fileData = (char*)resModule->getFile(cmdType == 0x31 ? resIDAccesser->getEtcResId() : resIDAccesser->getBinResId(), Data_Type_Effect, 0x00);
+                // If we successfully grabbed the file pointer...
+                if (fileData != NULL)
+                {
+                    // ... its name will be at 0x10, pass that into searchResourceID to determine its GFX ID.
+                    u32 efID = g_ecMgr->searchResourceID(fileData + 0x10);
+                    // Then shift the returned result up by 16 bits to prepare for its use in GFX calls.
+                    moduleIn->m_moduleAccesser->m_enumerationStart->m_workManageModule->setInt(efID << 0x10, destinationVarIdx);
+                    // Set result to 1 to flag that we've succeeded in our check!
+                    result = 1;
+                }
+                break;
+            }
+        }
+        // If we haven't successfully resolved the command ourselves...
+        if (result == 0)
+        {
+            // ... then pass it through to the native function and use its return value as our result.
+            result = _effect_notifyEventAnimCmd((void*)moduleIn, commandIn, accesserIn);
+        }
+        return result;
+    }
 
     void registerHooks()
     {
+        OSReport_N("%sRegistering Hooks.\n", outputTag);
         // Sound Module (0xA) Events
         SyringeCompat::syReplaceFuncRel(0x56C5C, reinterpret_cast<void*>(sound_notifyEventAnimCmd), reinterpret_cast<void**>(&_sound_notifyEventAnimCmd), Modules::SORA_MELEE);
+        // Effect Module (0x11) Events
+        SyringeCompat::syReplaceFuncRel(0x9AB18, reinterpret_cast<void*>(effect_notifyEventAnimCmd), reinterpret_cast<void**>(&_effect_notifyEventAnimCmd), Modules::SORA_MELEE);
         // WorkManage Module (0x12) Events
         SyringeCompat::syReplaceFuncRel(0xA23B4, reinterpret_cast<void*>(workManage_notifyEventAnimCmd), reinterpret_cast<void**>(&_workManage_notifyEventAnimCmd), Modules::SORA_MELEE);
     }
