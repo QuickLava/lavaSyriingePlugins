@@ -9,6 +9,9 @@ namespace customEvents
 {
     const char outputTag[] = "[customEvents] ";
 
+#define INCLUDE_WORK_MANAGE_CLAMP_EVENT false
+#define INCLUDE_WORK_MANAGE_AGGREGATE_EVENTS false
+
     // Returns the specified argument as a float, resolving variables and casting types as necessary.
     // If the specified argument doesn't exist, or is not of Integer, Float, Boolean, or Variable type, m_errorOnValueFetch is set to 1.
     double getAsDouble(soAnimCmdArgList& list, u32 index)
@@ -67,7 +70,6 @@ namespace customEvents
         }
     }
 
-
     typedef u32(*notifyEventAnimCmdFnPtr)(void*, acAnimCmdImpl*, soModuleAccesser*);
 
     notifyEventAnimCmdFnPtr _sound_notifyEventAnimCmd;
@@ -79,8 +81,8 @@ namespace customEvents
         soAnimCmdArgList argList(accesserIn, commandIn->getArgList());
         switch (cmdType)
         {
-            // Set SE Pitch  [0x0A0E0200]
-            // Set SE Volume [0x0A0F0200]
+            // [0A0E0200] Set SE Pitch
+            // [0A0F0200] Set SE Volume
             case 0xE: case 0xF:
             {
                 // If we have at least one argument...
@@ -128,51 +130,12 @@ namespace customEvents
         soAnimCmdArgList argList(accesserIn, commandIn->getArgList());
         switch (cmdType)
         {
-            // Basic Variable Manipulation Functions
-            // [12010300] Add Basic Variable
-            // [12020300] Subtract Basic Variable
-            // [120D0300] Multiply Basic Variable
-            // [120E0300] Divide Basic Variable
+            // Basic Int and Float Variable Math Functions
+            // [12010300] Add Basic Variable       |  [12070300] Add Float Variable
+            // [12020300] Subtract Basic Variable  |  [12080300] Subtract Float Variable
+            // [120D0300] Multiply Basic Variable  |  [120F0300] Multiply Float Variable
+            // [120E0300] Divide Basic Variable    |  [12100300] Divide Float Variable
             case 0x01: case 0x02: case 0x0D: case 0x0E:
-            {
-                // Provided we have at least 3 arguments, continue.
-                if (argCount < 3) break;
-
-                // Initialize error value to 0.
-                argList.m_errorOnValueFetch = 0;
-                // The first argument will always be whatever our modifier is.
-                int modifierValue = argList.getInt(0);
-                // The second argument will always hold the value we apply our modifer to.
-                int recipientValue = argList.getInt(1);
-                // If no errors occurred while grabbing the values for our operation, continue!
-                if (argList.m_errorOnValueFetch != 0) break;
-
-                // This will hold our resulting value (which we'll initialize to our recipient's value).
-                int resultValue = recipientValue;
-                switch (cmdType)
-                {
-                    case 0x01: { resultValue = recipientValue + modifierValue; break; }
-                    case 0x02: { resultValue = recipientValue - modifierValue; break; }
-                    case 0x0D: { resultValue = recipientValue * modifierValue; break; }
-                    case 0x0E: { if (modifierValue != 0x00) { resultValue = recipientValue / modifierValue; } break; }
-                }
-
-                // This will hold our destination variable's ID, which will be the third argument!
-                u32 destinationVarIdx = argList.getValueIndex(2);
-                // If grabbing that variable ID was successful, continue.
-                if (argList.m_errorOnValueFetch != 0) break;
-                
-                // Apply the result value...
-                moduleIn->setInt(resultValue, destinationVarIdx);
-                // ... and signal that we've successfully handled the command!
-                result = 1;
-                break;
-            }
-            // Float Variable Manipulation Functions
-            // [12070300] Add Float Variable
-            // [12080300] Subtract Float Variable
-            // [120F0300] Multiply Float Variable
-            // [12100300] Divide Float Variable
             case 0x07: case 0x08: case 0x0F: case 0x10:
             {
                 // Provided we have at least 3 arguments, continue.
@@ -181,9 +144,9 @@ namespace customEvents
                 // Initialize error value to 0.
                 argList.m_errorOnValueFetch = 0;
                 // The first argument will always be whatever our modifier is.
-                double modifierValue = argList.getFloat(0);
+                double modifierValue = getAsDouble(argList, 0);
                 // The second argument will always hold the value we apply our modifer to.
-                double recipientValue = argList.getFloat(1);
+                double recipientValue = getAsDouble(argList, 1);
                 // If no errors occurred while grabbing the values for our operation, continue!
                 if (argList.m_errorOnValueFetch != 0) break;
 
@@ -191,10 +154,10 @@ namespace customEvents
                 double resultValue = recipientValue;
                 switch (cmdType)
                 {
-                    case 0x07: { resultValue = recipientValue + modifierValue; break; }
-                    case 0x08: { resultValue = recipientValue - modifierValue; break; }
-                    case 0x0F: { resultValue = recipientValue * modifierValue; break; }
-                    case 0x10: { if (modifierValue != 0.0f) { resultValue = recipientValue / modifierValue; } break; }
+                    case 0x01: case 0x07: { resultValue = recipientValue + modifierValue; break; }
+                    case 0x02: case 0x08: { resultValue = recipientValue - modifierValue; break; }
+                    case 0x0D: case 0x0F: { resultValue = recipientValue * modifierValue; break; }
+                    case 0x0E: case 0x10: { if (modifierValue != 0.0f) { resultValue = recipientValue / modifierValue; } break; }
                 }
 
                 // This will hold our destination variable's ID, which will be the third argument, enabling commands of the form VarA = VarB + VarC!
@@ -202,12 +165,13 @@ namespace customEvents
                 // If grabbing that variable ID was successful, continue.
                 if (argList.m_errorOnValueFetch != 0) break;
 
-                // Apply the result value...
-                moduleIn->setFloat(resultValue, destinationVarIdx);
+                // Store the result in the destination variable according to its type...
+                setVariable(moduleIn, destinationVarIdx, resultValue);
                 // ... and signal that we've successfully handled the command!
                 result = 1;
                 break;
             }
+#if INCLUDE_WORK_MANAGE_AGGREGATE_EVENTS
             // Aggregate Operations Functions
             // [12300300] Get Minimum Value
             // [12310300] Get Maximum Value
@@ -265,6 +229,8 @@ namespace customEvents
                 result = 1;
                 break;
             }
+#endif
+#if INCLUDE_WORK_MANAGE_CLAMP_EVENT
             // [12340300] Clamp Value
             case 0x34:
             {
@@ -300,6 +266,7 @@ namespace customEvents
                 result = 1;
                 break;
             }
+#endif
         }
         // If we haven't successfully resolved the command ourselves...
         if (result == 0)
@@ -318,8 +285,8 @@ namespace customEvents
         soAnimCmdArgList argList(accesserIn, commandIn->getArgList());
         switch (cmdType)
         {
-            // Get Primary Effect Bank ID   [0x11300100]
-            // Get Secondary Effect Bank ID [0x11310100]
+            // [11300100] Get Primary Effect Bank ID
+            // [11310100] Get Secondary Effect Bank ID
             case 0x30: case 0x31:
             {
                 // Only proceed if we've been provided an argument.

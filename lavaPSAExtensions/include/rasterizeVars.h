@@ -49,7 +49,7 @@ namespace rasterizeVars
     struct cmdWhitelistEntry
     {
         u8 m_code; // AnimCMD Instruction Code ID
-        u8 m_bankIndices[3]; // typeLibraryIndices entry identifying the typeBank for Args 0-15 and 16-32 respectively.
+        u8 m_bankIndices[3]; // typeLibraryIndices entry identifying the typeBank for Args 0-15, 16-31, and 32-47 respectively.
     };
     struct cmdWhitelistCmdGroup
     {
