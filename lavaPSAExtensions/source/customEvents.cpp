@@ -325,13 +325,40 @@ namespace customEvents
         return result;
     }
 
+    void sound_storeSEHandle()
+    {
+        register u32 seHandle;
+        register acAnimCmdImpl* commandIn;
+        register soModuleAccesser* accesserIn;
+        asm
+        {
+            mr seHandle, r3;
+            mr commandIn, r30;
+            mr accesserIn, r31;
+        }
+
+        if (commandIn->cmdAddr->argNum > 1)
+        {
+            soAnimCmdArgList argList(accesserIn, commandIn->getArgList());
+            u32 destinationVarIdx = argList.getValueIndex(1);
+            if (!argList.m_errorOnValueFetch)
+            {
+                accesserIn->m_enumerationStart->m_workManageModule->setInt(seHandle, destinationVarIdx);
+            }
+        }
+    }
+
     void registerHooks()
     {
         OSReport_N("%sRegistering Hooks.\n", outputTag);
         // Sound Module (0xA) Events
         SyringeCompat::syReplaceFuncRel(0x56C5C, reinterpret_cast<void*>(sound_notifyEventAnimCmd), reinterpret_cast<void**>(&_sound_notifyEventAnimCmd), Modules::SORA_MELEE);
+        // [0A020200] Sound Effect (Transient) Handle Store
+        SyringeCompat::syInlineHookRel(0x56EB8, reinterpret_cast<void*>(sound_storeSEHandle), Modules::SORA_MELEE);
+
         // Effect Module (0x11) Events
         SyringeCompat::syReplaceFuncRel(0x9AB18, reinterpret_cast<void*>(effect_notifyEventAnimCmd), reinterpret_cast<void**>(&_effect_notifyEventAnimCmd), Modules::SORA_MELEE);
+
         // WorkManage Module (0x12) Events
         SyringeCompat::syReplaceFuncRel(0xA23B4, reinterpret_cast<void*>(workManage_notifyEventAnimCmd), reinterpret_cast<void**>(&_workManage_notifyEventAnimCmd), Modules::SORA_MELEE);
     }
