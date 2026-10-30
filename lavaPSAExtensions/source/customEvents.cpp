@@ -78,7 +78,7 @@ namespace customEvents
         u32 result = 0;
         u32 cmdType = commandIn->cmdAddr->type;
         u32 argCount = commandIn->cmdAddr->argNum;
-        soAnimCmdArgList argList(accesserIn, commandIn->getArgList());
+        soAnimCmdArgList argList(accesserIn, commandIn->getArgList()); argList.m_errorOnValueFetch = 0;
         switch (cmdType)
         {
             // [0A0E0200] Set SE Pitch
@@ -127,7 +127,7 @@ namespace customEvents
         u32 result = 0;
         u32 cmdType = commandIn->cmdAddr->type;
         u32 argCount = commandIn->cmdAddr->argNum;
-        soAnimCmdArgList argList(accesserIn, commandIn->getArgList());
+        soAnimCmdArgList argList(accesserIn, commandIn->getArgList()); argList.m_errorOnValueFetch = 0;
         switch (cmdType)
         {
             // Basic Int and Float Variable Math Functions
@@ -282,7 +282,7 @@ namespace customEvents
         u32 result = 0;
         u32 cmdType = commandIn->cmdAddr->type;
         u32 argCount = commandIn->cmdAddr->argNum;
-        soAnimCmdArgList argList(accesserIn, commandIn->getArgList());
+        soAnimCmdArgList argList(accesserIn, commandIn->getArgList()); argList.m_errorOnValueFetch = 0;
         switch (cmdType)
         {
             // [11300100] Get Primary Effect Bank ID
